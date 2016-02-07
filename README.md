@@ -40,6 +40,6 @@ Details to come. In the interim, use *Get-Help* on any of the commandlet. For ex
 __*Get-Help Get-AmlWorkspace*__
 
 ### Manage Workspace ###
-#### Get-Workspace ####
+#### Get-AmlWorkspace ####
 
 
