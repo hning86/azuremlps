@@ -43,8 +43,8 @@ __*Get-Help Get-AmlWorkspace*__
 #### Get-AmlWorkspace ####
 ``` 
 # Returns a list of all attributes of a Workspace
-$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name><br/>
-# Display the Workspace Name<br/>
+$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>
+# Display the Workspace Name
 $ws.FriendlyName
 ```
 
