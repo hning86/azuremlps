@@ -37,8 +37,9 @@ __*Import-Module .\AzureMLPS.dll*__\
 
 ## Usage
 Details to come. In the interim, use *Get-Help* on any of the commandlet. For example, to understand how to use Get-AmlWorkspace, run the following command: <br/>
-__*Get-Help Get-AmlWorkspace*__
-
+```
+Get-Help Get-AmlWorkspace
+```
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
 ``` 
@@ -53,13 +54,18 @@ The currently supported regions are: 'South Central US', 'Western Europe' and 'S
 
 ### Manage Dataset ###
 #### Get-AmlDataset ####
-List all datasets in a Workspace:
-> `Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
+```
+# List all datasets in a Workspace:
+$ds = Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'
+# Display the list
+$ds
+```
 
 #### Download-AmlDataset ####
-Download a dataset from a Workspace:
-> `Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>' -DatasetId '<dataset_id>' -DownloadFileName 'C:\Temp\data.csv'`
-
+```
+#Download a dataset from a Workspace:
+Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>' -DatasetId '<dataset_id>' -DownloadFileName 'C:\Temp\data.csv'
+```
 You can find out the dataset id by running the Get-AmlDataset commandlet. 
 
 #### Upload-AmlDataset ####
