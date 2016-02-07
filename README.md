@@ -42,7 +42,8 @@ __*Get-Help Get-AmlWorkspace*__
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
 List all attributes of a Workspace:<br/>
-> `PS C:\AzureMLPS> Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
+> `$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
+> `$ws.Description`
 
 You can find the value of Workspace Id and Workspace Authorization Token after you log onto your Azure Machine Learning Studio Workspace, and navigate to the Settings tab. <br/>
 The currently supported regions are: 'South Central US', 'Western Europe' and 'Southeast Asia'.
@@ -50,11 +51,13 @@ The currently supported regions are: 'South Central US', 'Western Europe' and 'S
 ### Manage Dataset ###
 #### Get-AmlDataset ####
 List all datasets in a Workspace:
-> `PS C:\AzureMLPS> Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
+> `Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
 
 #### Download-AmlDataset ####
 Download a dataset from a Workspace:
-> `PS C:\AzureMLPS> Download-AmlDataset -WorkspaceId $wsID -AuthorizationToken $authToken -RegionName $region -DatasetId $ds[0].Id -DownloadFileName 'D:\Temp\AzureMLPS\AzureMLPS\bin\Debug\Debug.txt'
+> `Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>' -DatasetId '<dataset_id>' -DownloadFileName 'C:\Temp\data.csv'`
+
+You can find out the dataset id by running the Get-AmlDataset commandlet. 
 
 #### Upload-AmlDataset ####
 #### Remove-AmlDataset ####
