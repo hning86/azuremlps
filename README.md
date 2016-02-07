@@ -43,6 +43,7 @@ __*Get-Help Get-AmlWorkspace*__
 #### Get-AmlWorkspace ####
 List all attributes of a Workspace:<br/>
 > `$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'`
+
 > `$ws.Description`
 
 You can find the value of Workspace Id and Workspace Authorization Token after you log onto your Azure Machine Learning Studio Workspace, and navigate to the Settings tab. <br/>
