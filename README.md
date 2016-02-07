@@ -44,7 +44,7 @@ Get-Help Get-AmlWorkspace
 #### Get-AmlWorkspace ####
 ``` 
 # Returns a list of all attributes of a Workspace
-$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>
+$ws = Get-AmlWorkspace -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>
 # Display the Workspace Name
 $ws.FriendlyName
 ```
@@ -56,19 +56,24 @@ The currently supported regions are: 'South Central US', 'Western Europe' and 'S
 #### Get-AmlDataset ####
 ```
 # List all datasets in a Workspace:
-$ds = Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>'
+$ds = Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>'
 # Display the list
 $ds
 ```
 
 #### Download-AmlDataset ####
 ```
-#Download a dataset from a Workspace:
-Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>' -DatasetId '<dataset_id>' -DownloadFileName 'C:\Temp\data.csv'
+#Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
+$dsFlight = Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>' | Where $_.Name = 'Flight Data'
+#Download the Flight dataset:
+Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>' -DatasetId $ds.DatasetId -DownloadFileName 'C:\Temp\FlightData.csv'
 ```
-You can find out the dataset id by running the [Get-AmlDataset](#get-amldataset) commandlet. 
 
 #### Upload-AmlDataset ####
+```
+Upload-AmlDataset -WorkspaceId '<workspace_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>' -FileFormat GenericCSV -UploadFromFileName 'Flight.csv' -DatasetName 'Flight Data' -Description 'Flight Data'
+```
+
 #### Remove-AmlDataset ####
 ### Manage Experiment ###
 #### Get-AmlExperiment ####
