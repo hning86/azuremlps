@@ -41,6 +41,7 @@ __*Get-Help Get-AmlWorkspace*__
 
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
+List all attributes of a Workspace
 ### Manage Dataset ###
 #### Get-AmlDataset ####
 #### Download-AmlDataset ####
