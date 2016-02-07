@@ -66,7 +66,7 @@ $ds
 #Download a dataset from a Workspace:
 Download-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auto_token>' -RegionName '<region_name>' -DatasetId '<dataset_id>' -DownloadFileName 'C:\Temp\data.csv'
 ```
-You can find out the dataset id by running the Get-AmlDataset commandlet. 
+You can find out the dataset id by running the [Get-AmlDataset](#get-amldataset) commandlet. 
 
 #### Upload-AmlDataset ####
 #### Remove-AmlDataset ####
