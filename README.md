@@ -41,7 +41,9 @@ __*Get-Help Get-AmlWorkspace*__
 
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
-List all attributes of a Workspace
+List all attributes of a Workspace<br/>
+*Get-AmlWorkspace -WorkspaceId '<workspace_id>' -AuthorizationToken '<authorization_token>' -RegionName '<region>'*
+
 ### Manage Dataset ###
 #### Get-AmlDataset ####
 #### Download-AmlDataset ####
