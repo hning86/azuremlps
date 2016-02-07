@@ -32,8 +32,10 @@ This is a preview of PowerShell Commandlet Library for Azure Machine Learning. I
   * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke_amlwebservicebesendpoint)*)
 
 ## Installation
-Simply download the AzureMLPS.dll, then run the PowerShell command to import the module into the current PowerShell environment:<br/>
-__*Import-Module .\AzureMLPS.dll*__\
+Simply download the AzureMLPS.dll, then run the PowerShell command to import the module into the current PowerShell environment:
+```
+Import-Module .\AzureMLPS.dll
+```
 
 ## Usage
 Details to come. In the interim, use *Get-Help* on any of the commandlet. For example, to understand how to use Get-AmlWorkspace, run the following command: <br/>
@@ -57,8 +59,8 @@ The currently supported regions are: 'South Central US', 'Western Europe' and 'S
 ```
 # List all datasets in a Workspace:
 $ds = Get-AmlDataset -WorkspaceId '<worksapce_id>' -AuthorizationToken '<auth_token>' -RegionName '<region>'
-# Display the list
-$ds
+# Display the list in a table format
+$ds | Format-Table
 ```
 
 #### Download-AmlDataset ####
