@@ -1,6 +1,6 @@
-# Powershell Commandlets for Azure Machine Learning Studio & Web Service APIs
+# PowerShell Commandlets for Azure Machine Learning Studio & Web Service APIs
 ## Introduction
-This is a preview of Powershell Commandlet Library for Azure Machine Learning. It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
+This is a preview of PowerShell Commandlet Library for Azure Machine Learning. It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
 
 * __Manage Workspace__
   * Get the metadata of Workspace(*[Get-AmlWorkspace](#get-amlworkspace)*)
@@ -20,7 +20,7 @@ This is a preview of Powershell Commandlet Library for Azure Machine Learning. I
   * Get the attributes of a specific Seb Service (*[Get-AmlWebService](#get-amlwebservice)*)
   * Deploy a Web Service from a Predictable Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
-* __Manage Web Servcie Endpoint__
+* __Manage Web Service Endpoint__
   * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](get-amlwebserviceendpoint)*)
   * Get attributes of a specific Endpoint of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
   * Delete a Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
