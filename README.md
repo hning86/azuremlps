@@ -58,12 +58,12 @@ __*Get-Help Get-AmlWorkspace*__
 #### Remove-AmlWebService ####
 ### Manage Web Servcie Endpoint ###
 #### Get-AmlWebServiceEndpoint
-#### Delete a Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
-  * Create a new Web Service Endpoint in an existing Web Service (*[Add-AmlWebServiceEndpoint](#add-amlwebserviceendpoint)*)
-  * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh_amlwebserviceendpoint)*)
-  * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch_amlwebserviceendpoint)*)
-* __Call Azure ML Web Service APIs__
-  * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
-  * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke_amlwebservicebesendpoint)*)
+#### Remove-AmlWebServiceEndpoint
+#### Add-AmlWebServiceEndpoint
+#### Refresh-AmlWebServiceEndpoint
+#### Patch-AmlWebServiceEndpoint
+### Call Azure ML Web Service APIs
+#### Invoke-AmlWebServiceRRSEndpoint
+#### Invoke-AmlWebServiceBESEndpoint
 
 
