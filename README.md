@@ -3,7 +3,7 @@
 This is a preview of Powershell Commandlet Library for Azure Machine Learning. It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
 
 * __Manage Workspace__
-  * Get the metadata of [Workspace](README.md#Get-AmlWorkspace)(*[Get-AmlWorkspace](#Get-AmlWorkspace)*)
+  * Get the metadata of [Workspace](README.md#get-amlworkspace)(*[Get-AmlWorkspace](#Get-AmlWorkspace)*)
 * __Manage Dataset__
   * List all Datasets in Workspace (*Get-AmlDataset*)
   * Download a Dataset file from Workspace to local file directory (*Download-AmlDataset*)
