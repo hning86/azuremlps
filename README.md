@@ -41,9 +41,9 @@ __*Get-Help Get-AmlWorkspace*__
 
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
-List all attributes of a Workspace
-`PS C:\AzureMLPS> Get-AmlWorkspace -WorkspaceId '23ac8f3ca7064c38b53878df7f9faa27' -AuthorizationToken '0462f6ffa817469e9c4b79b23e092b2c' -RegionName 'South Central US'`
-You can find the value of Workspace Id and Workspace Authorization Token after you log onto your Azure Machine Learning Studio Workspace, and navigate to the Settings tab.
+List all attributes of a Workspace:<br/>
+`PS C:\AzureMLPS> Get-AmlWorkspace -WorkspaceId '23ac8f3ca7064c38b53878df7f9faa27' -AuthorizationToken '0462f6ffa817469e9c4b79b23e092b2c' -RegionName 'South Central US'`<br/>
+You can find the value of Workspace Id and Workspace Authorization Token after you log onto your Azure Machine Learning Studio Workspace, and navigate to the Settings tab. <br/>
 The currently supported regions are: "South Central US", "Western Europe" and "Southeast Asia".
 
 ### Manage Dataset ###
