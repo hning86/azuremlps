@@ -41,5 +41,31 @@ __*Get-Help Get-AmlWorkspace*__
 
 ### Manage Workspace ###
 #### Get-AmlWorkspace ####
+### Manage Dataset ###
+#### Get-AmlDataset ####
+#### Download-AmlDataset ####
+#### Upload-AmlDataset ####
+#### Remove-AmlDataset ####
+### Manage Experiment ###
+  * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
+  * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
+  * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
+  * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
+  * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy_amlexperiment)*)
+* __Manage Web Service__
+  * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
+  * Get the attributes of a specific Seb Service (*[Get-AmlWebService](#get-amlwebservice)*)
+  * Deploy a Web Service from a Predictable Experiment (*[New-AmlWebService](#new-amlwebservice)*)
+  * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
+* __Manage Web Servcie Endpoint__
+  * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](get-amlwebserviceendpoint)*)
+  * Get attributes of a specific Endpoint of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
+  * Delete a Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
+  * Create a new Web Service Endpoint in an existing Web Service (*[Add-AmlWebServiceEndpoint](#add-amlwebserviceendpoint)*)
+  * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh_amlwebserviceendpoint)*)
+  * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch_amlwebserviceendpoint)*)
+* __Call Azure ML Web Service APIs__
+  * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
+  * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke_amlwebservicebesendpoint)*)
 
 
