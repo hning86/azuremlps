@@ -5,16 +5,16 @@ This is a preview of Powershell Commandlet Library for Azure Machine Learning. I
 * __Manage Workspace__
   * Get the metadata of Workspace(*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
-  * List all Datasets in Workspace (*Get-AmlDataset*)
-  * Download a Dataset file from Workspace to local file directory (*Download-AmlDataset*)
-  * Upload a Dataset file from local file directory to Workspace (*Upload-AmlDataset*)
-  * Delete a Dataset file in Workspace (*Remove-AmlDataset*)
+  * List all Datasets in Workspace (*[Get-AmlDataset](#get-amldataset)*)
+  * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
+  * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
+  * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
 * __Manage Experiment__
-  * List all Experiments in Workspace (*Get-AmlExperiment*)
-  * Get the metadata of a specific Experiment (*Get-AmlExperiment*)
-  * Run an Experiment (*Start-AmlExperiment*)
-  * Delete an Experiment (*Remove-AmlExperiment*)
-  * Copy an Experiment from a Workspace to another Workspace (*Copy-AmlExperiment*)
+  * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
+  * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
+  * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
+  * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
+  * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy_amlexperiment)*)
 * __Manage Web Service__
   * List all Web Services in Workspace (*Get-AmlWebService*)
   * Get the attributes of a specific Seb Service (*Get-AmlWebService*)
