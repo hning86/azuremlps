@@ -49,6 +49,9 @@ The currently supported regions are: "South Central US", "Western Europe" and "S
 
 ### Manage Dataset ###
 #### Get-AmlDataset ####
+List all datasets in a Workspace:
+> `PS C:\AzureMLPS> Get-AmlDataset -WorkspaceId '23ac8f3ca7064c38b53878df7f9faa27' -AuthorizationToken '0462f6ffa817469e9c4b79b23e092b2c' -RegionName 'South Central US'`
+
 #### Download-AmlDataset ####
 #### Upload-AmlDataset ####
 #### Remove-AmlDataset ####
