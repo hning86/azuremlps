@@ -138,7 +138,7 @@ Note the supported file formats are:
 * GenericCSV
 * GenericCSVNoHeader
 * GenericTSV
-* GenericTSVNoHeader,
+* GenericTSVNoHeader
 * ARFF
 * Zip
 * RData
@@ -156,13 +156,13 @@ Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 
 ```
 #Get all experiments in the Workspace
-$exps = Get-AmlExperiments
+$exps = Get-AmlExperiment
 #Display all experiments in a table format
 $exps | Format-Table
 ```
 ```
-#Get the metadata of the first experiment in the Workspace
-$exp = Get-AmlExperiment -ExperimentId $exps[0].Id
+#Get the metadata of the experiment named 'xyz' in the Workspace
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Display the experiment status
 $exp.Status.StatusCode
 ```
@@ -170,14 +170,14 @@ $exp.Status.StatusCode
 #### Start-AmlExperiment ####
 ```
 #Find the experiment named "xyz"
-$exp = Get-AmlExperiment | where Name -eq 'xyz'
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Run an experiment
-Start-AmlExperiment -ExperimentId $exps.ExperimentId
+Start-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
 #### Remove-AmlExperiment ####
 ```
 #Find the experiment named "xyz"
-$exp = Get-AmlExperiment | where Name -eq 'xyz'
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Delete an experiment
 Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
@@ -185,11 +185,11 @@ Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 
 ```
 #Find the experiment named "xyz"
-$exp = Get-AmlExperiment | where Name -eq 'xyz'
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Copy that experiment from current Workspace to another Workspace
-Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestionationWorkspaceAuthorizationToken '<auth_token>'
+Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
 ```
-Please note that the current workspace and the destination workspace must be in the same region. Cross-region copy is currently not supported.
+Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
 
 ### Manage Web Service ###
 
@@ -203,7 +203,7 @@ $webServices | Format-Table Id, Name, EndpointCount
 
 ```
 #Get metadata of a specific web service with Id stored in $webSvcId
-Get-AmlWebSerivce -WebServiceId $webSvcId
+Get-AmlWebService -WebServiceId $webSvcId
 ```
 
 #### New-AmlWebService
@@ -214,7 +214,7 @@ This commandlet deploys a new Web Service with a default endpoint from a Predica
 #Get the Predicative Experiment metadata 
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Deploy Web Service from it.
-$webService = New-AmlWebService -ExperimentId $exp.ExperimentId
+$webService = New-AmlWebService -PredicativeExperimentId $exp.ExperimentId
 #Display newly created Web Service
 $webService
 ```
@@ -223,7 +223,7 @@ $webService
 
 ```
 #Get the Web Service named 'abc'
-$webSvc = Get-AmlWebService | Where .Name -eq 'abc'
+$webSvc = Get-AmlWebService | Where Name -eq 'abc'
 #Delete it
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
