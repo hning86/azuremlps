@@ -1,4 +1,4 @@
-# PowerShell Commandlets for Azure Machine Learning Studio & Web Service APIs
+# Hai: PowerShell Commandlets for Azure Machine Learning Studio & Web Service APIs
 ## Introduction
 This is a preview of PowerShell Commandlet Library for Azure Machine Learning. It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
 
