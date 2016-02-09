@@ -57,21 +57,21 @@ There are 3 ways to specify these values:
 
 	__*config.json*__
 
-	```
+	```		
 	{
-		"Configuration": 
-			{
-				"WorkspaceId": "12341234-1234-1234-1234-123412341234",
-				"AuthorizationCode": "12341234-1234-1234-1234-123412341234",
-				"RegionName": "South Central US"
-			}
-	}
+		"WorkspaceId": "12341234-1234-1234-1234-123412341234",
+		"AuthorizationCode": "12341234-1234-1234-1234-123412341234",
+		"RegionName": "South Central US"
+	}	
 	```
-	Then you can simple execute the commandlet like this:
+
+	
+	Then you can simply execute the commandlet like this:
 	
 	```
 	Get-AmlWorkspace
 	```
+	
 2. Or, use the _-ConfigFile_ command parameter to supply the path and name to a custom config file, using the exact same json format. This overrides the default config file. For example:
 	
 	```
@@ -91,46 +91,56 @@ Remember you can always use *Get-Help* on any of the following commandlet. For e
 ```
 Get-Help Get-AmlWorkspace
 ```
+
 ### Manage Workspace
 #### Get-AmlWorkspace
-``` 
-# Returns a list of all attributes of a Workspace
+
+```
+# Returns the attributes of a Workspace
 $ws = Get-AmlWorkspace
 # Display the Workspace Name
 $ws.FriendlyName
 ```
 
-You can find the value of Workspace Id and Workspace Authorization Token after you log onto your Azure Machine Learning Studio Workspace, and navigate to the Settings section. <br/>
-The currently supported regions are: 'South Central US', 'Western Europe' and 'Southeast Asia'.
-
 ### Manage Dataset
 #### Get-AmlDataset
 ```
-# List all datasets in a Workspace:
+# Get a list of all datasets in a Workspace:
 $ds = Get-AmlDataset
-# Display the list in a table format
-$ds | Format-Table
+# Display the list in a table format with selected properties
+$ds | Format-Table Name,DataTypeId,Size,Owner
 ```
 
 #### Download-AmlDataset
 ```
-#Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
-$dsFlight = Get-AmlDataset | Where $_.Name = 'Flight Data'
-#Download the Flight dataset:
-Download-AmlDataset -DatasetId $ds.DatasetId -DownloadFileName 'C:\Temp\FlightData.csv'
+#Find a dataset named 'Movie tweets' in the Workspace using Get-AmlDataset:
+$dsMT = Get-AmlDataset | where Name -eq 'Movie tweets'
+#Download the Movie Tweets dataset:
+Download-AmlDataset -DatasetId $dsMT.Id -DownloadFileName 'C:\Temp\MovieTweets.csv'
 ```
 
 #### Upload-AmlDataset
 ```
-Upload-AmlDataset -FileFormat GenericCSV -UploadFromFileName 'C:\Temp\Flight.csv' -DatasetName 'Flight Data' -Description 'Flight Data'
+#Upload a local file in .csv format to Workspace
+Upload-AmlDataset -FileFormat GenericCSV -UploadFromFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -Description 'Tweeter data on popular movies'
 ```
+Note the supported file formats are: 
+
+* GenericCSV
+* GenericCSVNoHeader
+* GenericTSV
+* GenericTSVNoHeader,
+* ARFF
+* Zip
+* RData
+* PlainText
 
 #### Remove-AmlDataset
 ```
 #Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
-$dsFlight = Get-AmlDataset | Where $_.Name -eq 'Flight Data'
+$dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
 #Delete the dataset from Workspace
-Remove-AmlDataset -DatasetId $dsFlight.DatasetId
+Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
 ### Manage Experiment ###
 #### Get-AmlExperiment ####
@@ -144,59 +154,67 @@ $exps | Format-Table
 ```
 #Get the metadata of the first experiment in the Workspace
 $exp = Get-AmlExperiment -ExperimentId $exps[0].Id
-#Display the experiment name
-$exp.Name
+#Display the experiment status
+$exp.Status.StatusCode
 ```
 
 #### Start-AmlExperiment ####
 ```
-#Find the experiment named "Experiment001"
-$exp = Get-AmlExperiment | Where Name -eq 'Experiment001'
+#Find the experiment named "xyz"
+$exp = Get-AmlExperiment | where Name -eq 'xyz'
 #Run an experiment
-Start-AmlExperiment -ExperimentId $exps[0].Id
+Start-AmlExperiment -ExperimentId $exps.ExperimentId
 ```
 #### Remove-AmlExperiment ####
 ```
-#Find the experiment named "Experiment002"
-$exp = Get-AmlExperiment | Where Name -eq 'Experiment002'
+#Find the experiment named "xyz"
+$exp = Get-AmlExperiment | where Name -eq 'xyz'
 #Delete an experiment
-Remove-AmlExperiment -ExperimentId $expId
+Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
 #### Copy-AmlExperiment ####
 
 ```
-#Find the experiment named "Experiment003"
-$exp = Get-AmlExperiment | Where Name -eq 'Experiment003'
+#Find the experiment named "xyz"
+$exp = Get-AmlExperiment | where Name -eq 'xyz'
 #Copy that experiment from current Workspace to another Workspace
-Copy-AmlExperiment -ExperimentId $exp.Id -DestinationWorkspaceId '<ws_id>' -DestionationWorkspaceAuthToken '<auth_token>'
+Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestionationWorkspaceAuthorizationToken '<auth_token>'
 ```
+Please note that the current workspace and the destination workspace must be in the same region. Cross-region copy is currently not supported.
+
 ### Manage Web Service ###
+
 #### Get-AmlWebService ####
 ```
 #Get all web services in Workspace
 $webServices = Get-AmlWebService
 #Display them in table format
-$webServices | Format-Table
+$webServices | Format-Table Id, Name, EndpointCount
 ```
-```
-#Get metadata of a specific web service named 'MyWebService001'
-$webservice = Get-AmlWebService | Where Name -eq 'MyWebService001'
-Get-AmlWebSerivce -WebServiceId $webService.Id
-```
-#### New-AmlWebService
 
 ```
-#Get the Experiment metadata 
-$exp = Get-AmlExperiment | Where .Name -eq 'Experiment004'
+#Get metadata of a specific web service with Id stored in $webSvcId
+Get-AmlWebSerivce -WebServiceId $webSvcId
+```
+
+#### New-AmlWebService
+
+This commandlet deploys a new Web Service with a default endpoint from a Predicative Experiment.
+
+```
+#Get the Predicative Experiment metadata 
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Deploy Web Service from it.
-New-AmlWebService -ExperimentId $exp.Id
+$webService = New-AmlWebService -ExperimentId $exp.ExperimentId
+#Display newly created Web Service
+$webService
 ```
 
 #### Remove-AmlWebService 
 
 ```
-#Get the Web Service named 'WebService002'
-$webSvc = Get-AmlWebService | Where .Name -eq 'WebService002'
+#Get the Web Service named 'abc'
+$webSvc = Get-AmlWebService | Where .Name -eq 'abc'
 #Delete it
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
@@ -205,39 +223,56 @@ Remove-AmlWebService -WebServiceId $webSvc.Id
 #### Get-AmlWebServiceEndpoint
 
 ```
-#List all endpoints of a web service named 'WebService003'
-$webSvc = Get-AmlWebService | Where .Name -eq 'WebService003'
+#List all endpoints of a web service named 'abc'
+$webSvc = Get-AmlWebService | where Name -eq 'abc'
 $endpoints = Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id
 $endpoints | Format-Table
 ```
 
+
 ```
-#Show metadata of the endpoint named 'endpoint01'
-Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'endpoint01'
+#Show metadata of the endpoint named 'ep01'
+Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
+Please note that you can supply the Web Service Endpoint API Key as the value of the _-AuthorizationToken_ parameter (in lieu of Workspace authorization token) for this call. The same applies to the rest of the endpoint management APIs.
+
+```
+#Show metadata of the endpoint named 'ep01', where the apiKey is stored in $apiKey
+Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01' -AuthorizationToken $apiKey
+```
+
 #### Remove-AmlWebServiceEndpoint
 ```
-#Find the endpoint named 'endpoint02'
-Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'endpoint02'
+#Find the endpoint named 'ep01'
+Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 #### Add-AmlWebServiceEndpoint
 ```
-Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'NewEndPoint' -MaxCon
+Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'NewEP' -Description 'New Endpoint' -ThrottleLevel 'High' -MaxConcurrentCalls 20
 ```
+Note: ThrottleLevel can be set to 'Low' or 'High'. For Free workspace, the Throttle Level is always 'Low', and the MaxConcurrentCalls value setting is ignored.
+
 #### Refresh-AmlWebServiceEndpoint
 ```
-#Refresh the endpoint 'endpoint03'
-Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'endpoint03' -OverwriteResource
+#Refresh the endpoint 'ep03'
+Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -OverwriteResources
 ```
-Note: Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment grpah and applies to the specified endpoint. The _-OverwriteResource_ switch, when set, will also replace the trained model used in the endpoint with the latest one from the Predicative Experiment. When this siwtch is not set, the trained model is not refreshed.
+Note: Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment grpah and applies to the specified endpoint. The _-OverwriteResources_ switch, when set, will also replace the trained model used in the endpoint with the latest one from the Predicative Experiment. When this siwtch is not set, the trained model is not refreshed.
 #### Patch-AmlWebServiceEndpoint
 ```
-#Update the trained model of the endpoint with a newly trained model saved in an Azure blob as a .ilearner file.
-Patch-AmlWebServiceEndpoint -WebServiceId '<web_svc_id>' -EndpointName '<endpoint_name>'
+#Update the trained model of the endpoint with a newly trained model saved in an Azure blob as a .ilearner file. Please see http://web.mit.edu for how to use retraining.
+$resName = 'Trained Model 01'
+$baseLoc = 'http://mystorageaccount.blob.core.windows.net'
+$relativeLoc = 'mycontainer/retrain/newmodel.ilearner'
+$sasToken = '?sr=b&se=2016-02-05T04......'
+Patch-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 ```
 ### Call Azure ML Web Service APIs
 #### Invoke-AmlWebServiceRRSEndpoint
 ```
+$region = 'South Central US'
+$apiLocation = 'https://ssouthcentral.services.azureml.net/workspaces'
+$apiKey = ''
 Invoke-AmlWebServiceRRSEndpoint -ApiLocation $apiLocation -ApiKey $apiKey -inputFile 'C:\Temp\Income.csv' -outputFile 'C:\Temp\Predication.csv'
 ```
 #### Invoke-AmlWebServiceBESEndpoint
