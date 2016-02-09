@@ -1,6 +1,6 @@
 # PowerShell Commandlets for Azure Machine Learning Studio & Web Service APIs
 ## Introduction
-This is a preview of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
+This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
 
 * __Manage Workspace__
   * Get the metadata of Workspace(*[Get-AmlWorkspace](#get-amlworkspace)*)
@@ -32,11 +32,16 @@ This is a preview of PowerShell Commandlet Library for [Azure Machine Learning](
   * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke_amlwebservicebesendpoint)*)
 
 ## System Requirement
-This PowerShell module requires PowerShell 4.0 and .NET 4.5.1. 
-Also, you need to have Owner access to at least one Azure Machine Learning Studio Workspace. You can obtain a free Workspace by simply logging in to [Azure Machine Learning Studio](https://studio.azureml.net) with any valid Microsoft account, or your School or Work email address. For more information on Azure Machine Learning, see the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
+This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
+
+Also, you need to have Owner access to at least one Azure Machine Learning Studio Workspace. You can obtain a free Workspace by simply logging in to [Azure Machine Learning Studio](https://studio.azureml.net) with any valid Microsoft account, or your School or Work email address. 
+
+For managing Web Service Endpoints, you can also use the API Key created for each endpoint as the authorization token, in lieu of the Workspace Authorization Token.
+
+For more information on Azure Machine Learning, see the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
 
 ## Installation
-Simply download the AzureMLPS.dll, then run the PowerShell command to import the module into the current PowerShell environment:
+Simply download the _AzureMLPS.dll_ which is a PowerShell module file, then run the PowerShell command _Import-Module_ to import the module into the current PowerShell environment:
 
 ```
 Import-Module .\AzureMLPS.dll
@@ -44,12 +49,16 @@ Import-Module .\AzureMLPS.dll
 ## Configuration
 Most of the commandlets require 3 pieces of key information in order to function:
 
-* **Workspace ID**: this value can be found in Workspace Settings in ML Studio.
-* **Workspace Authorization Code**: this value can be found in Workspace Settings in ML Studio.
-* **Region Name**: this value can be found in the Workspace dropdown. Currently supported values for this configuration are:
-	* South Central US (use this value for all Free Workspaces)
-	* Southeast Asia
-	* Northern Europe
+* **Workspace ID**
+	* This value can be found in Workspace Settings in ML Studio.
+* **Workspace Authorization Token**
+	* This value can be found in Workspace Settings in ML Studio.
+	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token
+* **Region Name**
+	* This value can be found in the Workspace dropdown. Currently supported values for this configuration are:
+		* South Central US (use this value for all Free Workspaces)
+		* Southeast Asia
+		* Northern Europe
 
 There are 3 ways to specify these values:
 
@@ -60,7 +69,7 @@ There are 3 ways to specify these values:
 	```		
 	{
 		"WorkspaceId": "12341234-1234-1234-1234-123412341234",
-		"AuthorizationCode": "12341234-1234-1234-1234-123412341234",
+		"AuthorizationToken": "12341234-1234-1234-1234-123412341234",
 		"RegionName": "South Central US"
 	}	
 	```
