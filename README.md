@@ -131,7 +131,7 @@ Download-AmlDataset -DatasetId $dsMT.Id -DownloadFileName 'C:\Temp\MovieTweets.c
 #### Upload-AmlDataset
 ```
 #Upload a local file in .csv format to Workspace
-Upload-AmlDataset -FileFormat GenericCSV -UploadFromFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -Description 'Tweeter data on popular movies'
+Upload-AmlDataset -FileFormat GenericCSV -UploadFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -DatasetDescription 'Tweeter data on popular movies'
 ```
 Note the supported file formats are: 
 
