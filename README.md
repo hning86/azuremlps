@@ -259,18 +259,25 @@ Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'NewEP' -Description 'New Endpoint' -ThrottleLevel 'High' -MaxConcurrentCalls 20
 ```
-Note: ThrottleLevel can be set to 'Low' or 'High'. For Free workspace, the Throttle Level is always 'Low', and the MaxConcurrentCalls value setting is ignored.
+
+* For Free Workspace, the Throttle Level can only be set to 'Low', the default value. The supplied value for MaxConcurrentCalls is ignored and the parameter is always defaulted to 4. And the maximum number of Endpoints you can create (including the default one) on a Web Service is 3. 
+* For Standard Workspace the ThrottleLevel values can be either 'Low' or 'High'. When it is set to 'Low', the supplied valueof MaxConcurrentCalls is ignored and the parameter is always defaulted to 4.
 
 #### Refresh-AmlWebServiceEndpoint
 ```
 #Refresh the endpoint 'ep03'
 Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -OverwriteResources
 ```
-Note: Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment grpah and applies to the specified endpoint. The _-OverwriteResources_ switch, when set, will also replace the trained model used in the endpoint with the latest one from the Predicative Experiment. When this siwtch is not set, the trained model is not refreshed.
+Note: Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment graph and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, will also cause the trained model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch is not set, the trained model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+
 #### Patch-AmlWebServiceEndpoint
+Patch Web Service Endpoint is used for retraining Web Service API. Essentially, you can produce a trained model and saved it in a _.ilearner_ format in Azure blob, and then replace the trianed model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. For more details, please read [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
+
 ```
-#Update the trained model of the endpoint with a newly trained model saved in an Azure blob as a .ilearner file. Please see http://web.mit.edu for how to use retraining.
+#Patch an Endpoint with a new trained model.
+#This is the name of the trained model in the existing Endpoint.
 $resName = 'Trained Model 01'
+#This is the base location of the Windows Azure storage account where the new model is stored.
 $baseLoc = 'http://mystorageaccount.blob.core.windows.net'
 $relativeLoc = 'mycontainer/retrain/newmodel.ilearner'
 $sasToken = '?sr=b&se=2016-02-05T04......'
