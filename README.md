@@ -14,7 +14,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
-  * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy_amlexperiment)*)
+  * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy_amlexperiment)*)
 * __Manage Web Service__
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Seb Service (*[Get-AmlWebService](#get-amlwebservice)*)
@@ -100,10 +100,10 @@ There are 3 ways to specify these values:
 	Get-AmlWorkspace -WorkspaceId '0123456789abcdef01230123456789ab' -AuthorizationToken 'abcdef0123456789abcdef0123456789' -RegionName 'South Central US'
 	```
 
-For simplicity, the examples below all assumes the valid default config file exists.
+For simplicity, the examples below all assume that a valid default config file exists.
 
 ## Usage
-Remember you can always use *Get-Help* on any of the following commandlet. For example, to see all the supported parameters of _Get-AmlWorkspace_ commandlet, run the following command:
+Remember you can always use *Get-Help* on any of the following commandlet. For example, to see all supported parameters of _Get-AmlWorkspace_ commandlet, run the following command:
 
 ```
 Get-Help Get-AmlWorkspace
