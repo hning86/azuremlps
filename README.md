@@ -52,19 +52,21 @@ Most of the commandlets require 3 pieces of key information in order to function
 * **Workspace ID**
 	* This value can be found in Workspace Settings in ML Studio.
 	
-	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/WorkspaceId.png)
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceId.png)
 	
 * **Workspace Authorization Token**
 	* This value can be found in Workspace Settings in ML Studio.
 	
-	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/WorkspaceAuthorizationToken.png)
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceAuthorizationToken.png)
 	
 	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token
 * **Region Name**
 	* This value can be found in the Workspace dropdown. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
-		* Northern Europe
+		* Northern Europe		
+		
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
 
 There are 3 ways to specify these values:
 
