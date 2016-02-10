@@ -133,7 +133,7 @@ Download-AmlDataset -DatasetId $dsMT.Id -DownloadFileName 'C:\Temp\MovieTweets.c
 #Upload a local file in .csv format to Workspace
 Upload-AmlDataset -FileFormat GenericCSV -UploadFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -DatasetDescription 'Tweeter data on popular movies'
 ```
-Note the supported file formats are: 
+Please note the supported file formats are: 
 
 * GenericCSV
 * GenericCSVNoHeader
@@ -252,48 +252,114 @@ Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01' -Authori
 
 #### Remove-AmlWebServiceEndpoint
 ```
-#Find the endpoint named 'ep01'
+#Delete the endpoint named 'ep01'
 Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 #### Add-AmlWebServiceEndpoint
 ```
 Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'NewEP' -Description 'New Endpoint' -ThrottleLevel 'High' -MaxConcurrentCalls 20
 ```
+Please note:
 
 * For Free Workspace, the Throttle Level can only be set to 'Low', the default value. The supplied value for MaxConcurrentCalls is ignored and the parameter is always defaulted to 4. And the maximum number of Endpoints you can create (including the default one) on a Web Service is 3. 
 * For Standard Workspace the ThrottleLevel values can be either 'Low' or 'High'. When it is set to 'Low', the supplied valueof MaxConcurrentCalls is ignored and the parameter is always defaulted to 4.
 
 #### Refresh-AmlWebServiceEndpoint
+Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment graph and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, will also cause the Trained Model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch is not set, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+
 ```
 #Refresh the endpoint 'ep03'
 Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -OverwriteResources
 ```
-Note: Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment graph and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, will also cause the trained model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch is not set, the trained model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 #### Patch-AmlWebServiceEndpoint
-Patch Web Service Endpoint is used for retraining Web Service API. Essentially, you can produce a trained model and saved it in a _.ilearner_ format in Azure blob, and then replace the trianed model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. For more details, please read [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
+Patch Web Service Endpoint is used for retraining Web Service API. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accopmlish that by call the BES endpoint useing [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. For more details, please read [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
 
 ```
-#Patch an Endpoint with a new trained model.
-#This is the name of the trained model in the existing Endpoint.
+#The name of the Trained Model in the existing Endpoint you are trying to patch. You can obtain this from the Predicative Experiment, or through the Get-WebServiceEndpoint commandlet, and look for the Resources field.
 $resName = 'Trained Model 01'
 #This is the base location of the Windows Azure storage account where the new model is stored.
 $baseLoc = 'http://mystorageaccount.blob.core.windows.net'
+#The relative location of the ilearner file, basically the container name and the path to the blob.
 $relativeLoc = 'mycontainer/retrain/newmodel.ilearner'
+# The SAS token on the ilearner file to allow Read access.
 $sasToken = '?sr=b&se=2016-02-05T04......'
-Patch-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
+#Web Service Id
+$webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
+#endpoint name
+$epName = 'ep02'
+#Patch the Endpoint with the new Trained Model.
+Patch-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName $epName -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 ```
 ### Call Azure ML Web Service APIs
+The following two commandlets allow you to call Azure ML Web Service API in Request-Response Service (RRS) style, as well as Batch Execution Service (BES) style. Please note that they do not require configuration files like the above commandlets.
+
 #### Invoke-AmlWebServiceRRSEndpoint
+First, construct an json file as the input data to be scored on. You will need to feed it to the _-InputJsonFile_ parameter. This is a sample _input.json_ file. You should follow the RRS API Documentation Help page of your Web Service Endpoint for the sample request payload more specific to your RRS Endpoint.
+
+_input.json_
+
 ```
-$region = 'South Central US'
-$apiLocation = 'https://ssouthcentral.services.azureml.net/workspaces'
-$apiKey = ''
-Invoke-AmlWebServiceRRSEndpoint -ApiLocation $apiLocation -ApiKey $apiKey -inputFile 'C:\Temp\Income.csv' -outputFile 'C:\Temp\Predication.csv'
+{
+	"Inputs": {
+		"ColumnNames": ["age", "sex", "bmi", "children", "smoker", "region"],
+		"Values": [
+			[20, "female", 21, 0, "no", "Northeast"],
+			[30, "male", 41, 1, "yes", "Southwest"]
+		]
+	},
+	"GlobalParameters": { "Random seed": 12345}
+}
 ```
+
+Next, you can call the RRS Endpoint using the Command let. Please note you can obtain the RRS POST request URL and the API key using the _Get-AmlWebServiceEndpoint_ commandlet. You can also read the off the RRS API Documentation page.
+
+```
+#POST Request URL for RRS Endpoint 'abc' on Web Service 'xyz'
+$webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
+$ep = Get-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName 'abc'
+$postUrl =  $ep.ApiLocation + '/execute?api-version=2.0&details=true'
+#Base-64 encoded API key
+$apiKey = $ep.PrimaryKey
+#Invoke RRS Endpoint
+Invoke-AmlWebServiceRRSEndpoint -POSTRequestUrl $postUrl -ApiKey $apiKey -inputFile 'C:\Temp\input.json' -outputFile 'C:\Temp\predictions.json'
+```
+The above example shows feeding the input json data using a local file, and getting the results written back into a local file. You can also directly feed the input json string using _-InputJsonText_ parameter, and harvest the resulting json string directly without specifying the _-OutputJsonFile_ parameter. 
+
 #### Invoke-AmlWebServiceBESEndpoint
+First, store your input dataset, for example _input.csv_, in an Azure storage account as a blob. Then create a BES job configration file in Json format locally which essentially references the input file location, as well as desired output file location, both in Azure storage account. Again, please check with the BES API Documentation Help page for the sample request payload specific to your BES Endpoint.
+
+_jobConfig.json_
+
 ```
-Invoke-AmlWebServiceBESEndpoint -ApiLocation -ApiKey -jsonBESConfigFile
+{
+	"GolbalParameters": { "Random seed": 12345 },
+	"Inputs": {
+		"input1" : {
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=****"
+			"RelativeLocation": "mycontainer/input/input.csv"
+		}
+	},
+	"Outputs": {
+		"output1": {
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=****"
+			"RelativeLocation": "mycontainer/output/output.csv"
+		}
+	} 
+}
+```
+
+Now you are ready to invoke the BES Endpoint.
+
+```
+#Find the submit job request Url for BES Endpoint 'abc' on Web Service 'xyz'
+$webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
+$ep = Get-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName 'abc'
+$jobSubmitUrl =  $ep.ApiLocation + '/jobs?api-version=2.0'
+#Base-64 encoded API key
+$apiKey = $ep.PrimaryKey
+#Invoke BES Endpoint
+Invoke-AmlWebServiceBESEndpoint -SubmitJobRequestUrl $jobSubmitUrl -ApiKey $apiKey -JobConfigFile '.\jobConfig.json'
 ```
 
 
