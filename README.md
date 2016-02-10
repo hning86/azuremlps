@@ -336,13 +336,13 @@ _jobConfig.json_
 	"GolbalParameters": { "Random seed": 12345 },
 	"Inputs": {
 		"input1" : {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=****"
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RCla=="
 			"RelativeLocation": "mycontainer/input/input.csv"
 		}
 	},
 	"Outputs": {
 		"output1": {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=****"
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RCla=="
 			"RelativeLocation": "mycontainer/output/output.csv"
 		}
 	} 
