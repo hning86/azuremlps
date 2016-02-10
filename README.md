@@ -3,7 +3,7 @@
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
 
 * __Manage Workspace__
-  * Get the metadata of Workspace(*[Get-AmlWorkspace](#get-amlworkspace)*)
+  * Get the metadata of Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
   * List all Datasets in Workspace (*[Get-AmlDataset](#get-amldataset)*)
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
@@ -18,7 +18,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Web Service__
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Seb Service (*[Get-AmlWebService](#get-amlwebservice)*)
-  * Deploy a Web Service from a Predictable Experiment (*[New-AmlWebService](#new-amlwebservice)*)
+  * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
 * __Manage Web Service Endpoint__
   * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](get-amlwebserviceendpoint)*)
@@ -34,14 +34,14 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
 
-Also, you need to have Owner access to at least one Azure Machine Learning Studio Workspace. You can obtain a free Workspace by simply logging in to [Azure Machine Learning Studio](https://studio.azureml.net) with any valid Microsoft account, or your School or Work email address. 
+Also, you need to have Owner access to at least one Azure Machine Learning Studio Workspace. You can obtain a free Workspace by simply logging in to [Azure Machine Learning Studio](https://studio.azureml.net) with any valid Microsoft account, or your school or work email address. 
 
 For managing Web Service Endpoints, you can also use the API Key created for each endpoint as the authorization token, in lieu of the Workspace Authorization Token.
 
-For more information on Azure Machine Learning, see the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
+For more information on Azure Machine Learning, browse the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
 
 ## Installation
-Simply download the _AzureMLPS.dll_ which is a PowerShell module file, then run the PowerShell command _Import-Module_ to import the module into the current PowerShell environment:
+Simply download the _AzureMLPS.dll_ which is a PowerShell module file, then run the PowerShell command _Import-Module_ to import it into the current PowerShell environment:
 
 ```
 Import-Module .\AzureMLPS.dll
@@ -52,25 +52,27 @@ Most of the commandlets require 3 pieces of key information in order to function
 * **Workspace ID**
 	* This value can be found in Workspace Settings in ML Studio.
 	
-	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/WorkspaceId.png)
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceId.png)
 	
 * **Workspace Authorization Token**
 	* This value can be found in Workspace Settings in ML Studio.
 	
-	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/WorkspaceAuthorizationToken.png)
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceAuthorizationToken.png)
 	
 	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token
 * **Region Name**
 	* This value can be found in the Workspace dropdown. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
-		* Northern Europe
+		* Northern Europe		
+		
+	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
 
 There are 3 ways to specify these values:
 
 1. Create a default _config.json_ file in the same folder where you are running the PowerShell commandlets. A sample should look like this:
 
-	__*config.json*__
+	_config.json_
 
 	```		
 	{
@@ -87,10 +89,10 @@ There are 3 ways to specify these values:
 	Get-AmlWorkspace
 	```
 	
-2. Or, use the _-ConfigFile_ command parameter to supply the path and name to a custom config file, using the exact same json format. This overrides the default config file. For example:
+2. Or, use the _-ConfigFile_ command parameter to supply the path and name to a custom config file, using the exact same json format. This overrides the default config file if it exists. For example:
 	
 	```
-	Get-AmlWorkspace -ConfigFile 'C:\Config\myConfig.json'
+	Get-AmlWorkspace -ConfigFile 'C:\Config\Workspace02Config.json'
 	```
 3. Or, use the _-WorkspaceId_, _-AuthorizationToken_, and _-RegionName_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For eample:
 
@@ -101,7 +103,7 @@ There are 3 ways to specify these values:
 For simplicity, the examples below all assumes the valid default config file exists.
 
 ## Usage
-Remember you can always use *Get-Help* on any of the following commandlet. For example, to understand how to use Get-AmlWorkspace, run the following command:
+Remember you can always use *Get-Help* on any of the following commandlet. For example, to see all the supported parameters of _Get-AmlWorkspace_ commandlet, run the following command:
 
 ```
 Get-Help Get-AmlWorkspace
@@ -111,7 +113,7 @@ Get-Help Get-AmlWorkspace
 #### Get-AmlWorkspace
 
 ```
-# Returns the attributes of a Workspace
+# Returns the metadata of a Workspace
 $ws = Get-AmlWorkspace
 # Display the Workspace Name
 $ws.FriendlyName
@@ -161,38 +163,38 @@ Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 #### Get-AmlExperiment ####
 
 ```
-#Get all experiments in the Workspace
+#Get all Experiments in the Workspace
 $exps = Get-AmlExperiment
-#Display all experiments in a table format
+#Display all Experiments in a table format
 $exps | Format-Table
 ```
 ```
-#Get the metadata of the experiment named 'xyz' in the Workspace
+#Get the metadata of the Experiment named 'xyz' in the Workspace
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Display the experiment status
+#Display the Experiment status
 $exp.Status.StatusCode
 ```
 
 #### Start-AmlExperiment ####
 ```
-#Find the experiment named "xyz"
+#Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Run an experiment
+#Run the Experiment
 Start-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
 #### Remove-AmlExperiment ####
 ```
-#Find the experiment named "xyz"
+#Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Delete an experiment
+#Delete the Experiment
 Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
 #### Copy-AmlExperiment ####
 
 ```
-#Find the experiment named "xyz"
+#Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Copy that experiment from current Workspace to another Workspace
+#Copy that Experiment from current Workspace to another Workspace
 Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
 ```
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
@@ -201,14 +203,14 @@ Please note that the current Workspace and the destination Workspace must be in 
 
 #### Get-AmlWebService ####
 ```
-#Get all web services in Workspace
+#Get all Web Services in Workspace
 $webServices = Get-AmlWebService
 #Display them in table format
-$webServices | Format-Table Id, Name, EndpointCount
+$webServices | Format-Table Id,Name,EndpointCount
 ```
 
 ```
-#Get metadata of a specific web service with Id stored in $webSvcId
+#Get metadata of a specific Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
 
@@ -219,7 +221,7 @@ This commandlet deploys a new Web Service with a default endpoint from a Predica
 ```
 #Get the Predicative Experiment metadata 
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Deploy Web Service from it.
+#Deploy Web Service from the Predicative Experiment
 $webService = New-AmlWebService -PredicativeExperimentId $exp.ExperimentId
 #Display newly created Web Service
 $webService
@@ -230,7 +232,7 @@ $webService
 ```
 #Get the Web Service named 'abc'
 $webSvc = Get-AmlWebService | Where Name -eq 'abc'
-#Delete it
+#Delete the Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
 
@@ -238,7 +240,7 @@ Remove-AmlWebService -WebServiceId $webSvc.Id
 #### Get-AmlWebServiceEndpoint
 
 ```
-#List all endpoints of a web service named 'abc'
+#List all Endpoints of a Web Service named 'abc'
 $webSvc = Get-AmlWebService | where Name -eq 'abc'
 $endpoints = Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id
 $endpoints | Format-Table
@@ -246,10 +248,10 @@ $endpoints | Format-Table
 
 
 ```
-#Show metadata of the endpoint named 'ep01'
+#Show metadata of the Endpoint named 'ep01'
 Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
-Please note that you can supply the Web Service Endpoint API Key as the value of the _-AuthorizationToken_ parameter (in lieu of Workspace authorization token) for this call. The same applies to the rest of the endpoint management APIs.
+Please note that you can supply the Web Service Endpoint API Key as the value of the _-AuthorizationToken_ parameter in lieu of Workspace authorization token for this call. The same applies to the rest of the Endpoint management APIs.
 
 ```
 #Show metadata of the endpoint named 'ep01', where the apiKey is stored in $apiKey
@@ -258,20 +260,20 @@ Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01' -Authori
 
 #### Remove-AmlWebServiceEndpoint
 ```
-#Delete the endpoint named 'ep01'
+#Delete the Endpoint named 'ep01'
 Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 #### Add-AmlWebServiceEndpoint
 ```
-Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'NewEP' -Description 'New Endpoint' -ThrottleLevel 'High' -MaxConcurrentCalls 20
+Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'newep01' -Description 'New Endpoint 01' -ThrottleLevel 'High' -MaxConcurrentCalls 20
 ```
 Please note:
 
 * For Free Workspace, the Throttle Level can only be set to 'Low', the default value. The supplied value for MaxConcurrentCalls is ignored and the parameter is always defaulted to 4. And the maximum number of Endpoints you can create (including the default one) on a Web Service is 3. 
-* For Standard Workspace the ThrottleLevel values can be either 'Low' or 'High'. When it is set to 'Low', the supplied valueof MaxConcurrentCalls is ignored and the parameter is always defaulted to 4.
+* For Standard Workspace the ThrottleLevel values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of MaxConcurrentCalls is ignored and the parameter is defaulted to 4.
 
 #### Refresh-AmlWebServiceEndpoint
-Refresh endpoint essentillay takes the workflow of the latest Predicative Experiment graph and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, will also cause the Trained Model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch is not set, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+Refreshing Endpoint essentially takes the graph of the latest parent Predicative Experiment and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch left unset, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 ```
 #Refresh the endpoint 'ep03'
@@ -279,46 +281,48 @@ Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -Ove
 ```
 
 #### Patch-AmlWebServiceEndpoint
-Patch Web Service Endpoint is used for retraining Web Service API. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accopmlish that by call the BES endpoint useing [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. For more details, please read [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
+Patch Web Service Endpoint is used for updating a trained model in an existing Endpoint. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accopmlish that by calling the BES endpoint using [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet on the training Web Service. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. Please browse [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
 
 ```
-#The name of the Trained Model in the existing Endpoint you are trying to patch. You can obtain this from the Predicative Experiment, or through the Get-WebServiceEndpoint commandlet, and look for the Resources field.
-$resName = 'Trained Model 01'
-#This is the base location of the Windows Azure storage account where the new model is stored.
+#The name of the Trained Model in the existing Endpoint you are trying to patch. You can obtain this from the Trained Model module in the Predicative Experiment graph, or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
+$resName = 'Income Predictor [Trained Model]'
+#This is the base location of the Windows Azure storage account where the new model is stored as a .ilearner file.
 $baseLoc = 'http://mystorageaccount.blob.core.windows.net'
-#The relative location of the ilearner file, basically the container name and the path to the blob.
-$relativeLoc = 'mycontainer/retrain/newmodel.ilearner'
+#The relative location of the .ilearner file, basically the container name and the path to the blob.
+$relativeLoc = 'mycontainer/retrain/new_model.ilearner'
 # The SAS token on the ilearner file to allow Read access.
 $sasToken = '?sr=b&se=2016-02-05T04......'
 #Web Service Id
 $webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
 #endpoint name
 $epName = 'ep02'
-#Patch the Endpoint with the new Trained Model.
+#Update the Endpoint with the new Trained Model.
 Patch-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName $epName -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 ```
 ### Call Azure ML Web Service APIs
-The following two commandlets allow you to call Azure ML Web Service API in Request-Response Service (RRS) style, as well as Batch Execution Service (BES) style. Please note that they do not require configuration files like the above commandlets.
+The following two commandlets allow you to call Azure ML Web Service API in Request-Response Service (RRS) style, as well as Batch Execution Service (BES) style. Please note that they do not require configuration files.
 
 #### Invoke-AmlWebServiceRRSEndpoint
-First, construct an json file as the input data to be scored on. You will need to feed it to the _-InputJsonFile_ parameter. This is a sample _input.json_ file. You should follow the RRS API Documentation Help page of your Web Service Endpoint for the sample request payload more specific to your RRS Endpoint.
+First, construct an json file as the input data to be scored on. You will need to feed it to the _-InputJsonFile_ parameter. Following is a sample _input.json_ file. You should follow the RRS API Documentation Help page of your Web Service Endpoint for the sample input more specific to your RRS Endpoint.
 
 _input.json_
 
 ```
 {
 	"Inputs": {
-		"ColumnNames": ["age", "sex", "bmi", "children", "smoker", "region"],
-		"Values": [
-			[20, "female", 21, 0, "no", "Northeast"],
-			[30, "male", 41, 1, "yes", "Southwest"]
-		]
+		"Input1" : {
+			"ColumnNames": ["age", "sex", "bmi", "children", "smoker", "region"],
+			"Values": [
+				[20, "female", 21, 0, "no", "Northeast"],
+				[30, "male", 41, 1, "yes", "Southwest"]
+			]
+		}
 	},
 	"GlobalParameters": { "Random seed": 12345}
 }
 ```
 
-Next, you can call the RRS Endpoint using the Command let. Please note you can obtain the RRS POST request URL and the API key using the _Get-AmlWebServiceEndpoint_ commandlet. You can also read the off the RRS API Documentation page.
+Next, you can call the RRS Endpoint using the commandlet. Please note you can obtain the RRS POST request URL and the API key using the _Get-AmlWebServiceEndpoint_ commandlet. You can also read them off the RRS API Documentation page.
 
 ```
 #POST Request URL for RRS Endpoint 'abc' on Web Service 'xyz'
@@ -333,7 +337,7 @@ Invoke-AmlWebServiceRRSEndpoint -POSTRequestUrl $postUrl -ApiKey $apiKey -inputF
 The above example shows feeding the input json data using a local file, and getting the results written back into a local file. You can also directly feed the input json string using _-InputJsonText_ parameter, and harvest the resulting json string directly without specifying the _-OutputJsonFile_ parameter. 
 
 #### Invoke-AmlWebServiceBESEndpoint
-First, store your input dataset, for example _input.csv_, in an Azure storage account as a blob. Then create a BES job configration file in Json format locally which essentially references the input file location, as well as desired output file location, both in Azure storage account. Again, please check with the BES API Documentation Help page for the sample request payload specific to your BES Endpoint.
+First, store your input dataset, for example _input.csv_, in an Azure storage account as a blob. Then create a BES job configration file in Json format locally which essentially references the input file location, as well as the desired output file location, both in Azure storage account. Again, please check with the BES API Documentation Help page for the sample request payload specific to your BES Endpoint.
 
 _jobConfig.json_
 
