@@ -41,7 +41,7 @@ For managing Web Service Endpoints, you can also use the API Key created for eac
 For more information on Azure Machine Learning, browse the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
 
 ## Installation
-From the Release area, download the _AzureMLPS.dll_ which is a PowerShell module file. Then run the PowerShell command _Import-Module_ to import it into the current PowerShell environment:
+From the [Release area](https://github.com/hning86/azuremlps/releases), download the _AzureMLPS.dll_ file which is a PowerShell module file. Then run the PowerShell command _Import-Module_ to import it into the current PowerShell environment:
 
 ```
 Import-Module .\AzureMLPS.dll
