@@ -1,14 +1,19 @@
-### Create Multiple Unique Azure ML Trained Model and Web Service Endpoints from a Single Experiment
+### Creating Multiple Unique Azure ML Trained Model and Web Service Endpoints from a Single Experiment
 
-Suppose you are an ISV (independent software vendor) building a financial income forecasting solution for your customers. Suppose your customers are 1,000 restaurants. You can probably collect a lot of historical data and build a machine learning model in order to predict monthly income. However, since each restaurant varies in sizes, locations, and caters to different customer bases, it is probably not a good idea to apply the same model to all restaurant blindly. It is preferable to train the model using data specific to that restaurant, thus creating a customized trained model uniquely suitable for that particular restaurant. However, you probably do not want to create 1,000 experiments in Azure ML, since we are using the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
+It is a common problem when you want to build a generic machine learning model, but trained on multipel
 
-We can accomplish this using [Azure ML retraining API](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) and [Azure ML PowerShell](https://github.com/hning86/azuremlps) automation.
+Let's say you want to build a machine learning model to predict . Suppose you have 1,000 restaurants as your customers. You can probably collect a lot of historical data and build a machine learning model in order to predict monthly income. 
 
-> Note: to make our sample run faster, I will reduce the number of customers to 10. But the exact same principles apply to 1,000 customers. The only difference is when you have 1,000 customers, you might want to think of how to parallelize the following PowerShell scripts. There are many examples on PowerShell multi-threading, which is beyond the scope of this article.   
+However, since each restaurant varies in sizes, locations, and caters to different customer bases, it is probably not a good idea to apply the same model to all restaurant blindly, unless you are able to capture various relevant features that uniquely describe each restaurant and incorporate them into your trainign data. Instead, it is simpler and preferable to train the model using data specific to that restaurant, thus creating a customized trained model uniquely fitted for that particular restaurant. 
+
+Furthermore, you probably do not want to create 1,000 experiments in Azure ML either, since we are using the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
+
+Well, it turns out that we can accomplish this using [Azure ML retraining API](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) and [Azure ML PowerShell](https://github.com/hning86/azuremlps) automation.
+> Note: to make our sample run faster, I will reduce the number of customers to 10. But the exact same principles and procedures apply to 1,000 customers. The only difference is when you have 1,000 customers, you might want to think of how to parallelize the following PowerShell scripts. There are many examples on PowerShell multi-threading, which is beyond the scope of this article.   
 
 First, let's start with the [template experiment](http://gallery.cortanaanalytics.com). You can find it in the [Cortana Analytics Gallery](http://gallery.cortanaanalytics.com). Open this experiment in your [Azure ML Studio](https://studio.azureml.net) Workspace. 
 
-> Note: in order to follow along, you probably want to use a Standard Workspace because the Free Workspace has a limitation of only allowing up to 3 Endpoints, including the default one being created in a Web Service.    
+> Note: in order to follow along, you probably want to use a Standard Workspace because the Free Workspace has a limitation of only allowing up to 3 Endpoints, including the default one being created in a Web Service. Since we will need to create one Endpoint for each customer, you need the scale a Standard Workspace gives you.
 
 Notice the experiment uses a Import Data module to read in the training dataset named _customer001.csv_ from an Azure storage account for training. Let's assume we have collected training dataset on all of our customers, and stored the datasets in the same location with file names ranging from _customer001.csv_ to _customer10.csv_.
 
