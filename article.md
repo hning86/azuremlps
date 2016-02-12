@@ -21,31 +21,29 @@ Also note that we have made the URL of the _Reader_ module a web service paramet
 
 Now, let's just run this training experiment using the default value _rental001.csv_ as training dataset. If you view the _Visualize_ outcome of the _Evaluate_ module, you can see you get a decent performance of _AUC = 0.91_. At this point, we are ready to deploy a Web Service out of this training experiment. Let's call the deployed Web Service _Bike Rental Training_. We will later come back to this Web Service.
 
-Next, we will now create a predictive experiment out of this training experiment, and then deploy a scoring Web Service. You will need to make a few minor adjustement on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the prepared [predicative experiment](http://gallery.cor.com) from Gallery, and simply run it and deploy it as a Web Service named _Bike Rental Scoring_. 
+Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustement on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](http://gallery.cor.com) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
 
 This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. To do that, run the following PowerShell command:
 
 	For ($i = 1; $i -le 10; $i++) {
 		$fileName = 'customer' + $i.ToString().PadLeft(3, '0') + '.csv'
-		Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName $fileName -Description 'Income forecast for '+$fileName -ThrottleLevel High -MaxConcurrentCall 20
+		Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName $fileName -Description 'Income forecast for '+$fileName
 	}
 
-Now you have created 10 endpoints, but they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service.
+Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Trainig_ Web Service. We need to call its BES Endpoint 10 times with different training dataset in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
+> Please note that BES Endpoint is the only supported mode for this operation. RRS cannot be used for producing Trained Models.
 
-Let's go back to our training experiment. First we will make the the Blob name field in the Import Data module a Web Service parameter. This way, we can pass in different training dataset. Next we will manually add a Web Service output port and attach it to the Train Model module. This allows the training experiment to produce a Trained Model as a Web Service output. We will also name the output "Trained Model". Optionally, we can also add a second Web Service Output and attach it to the Evaluate module such that we can observe the performance of each Trained Model. 
-
-Now let's deploy this training experiment as a training Web Service. Once deployed, we can now call the BES Endpoint of this Web Service 10 times, feed it with different training dataset in each call, and produce 10 unique Trained Model as 10 .ilearner files.
-
-> Note: Retraining API only works on BES Endpoint. It will not work on RRS Endpoint.
 
 	For ($i = 1; $i -le 10; $i++) {
 		Invoke-AmlWebServiceBESEndpoint
 	}
 
-If everything goes well, you should see 10 .ilearner files in your Azure storage account. Now we are ready to update (PATCH) our 10 scoring Web Service Endpoints with these models.
+Please note that instead of construction 10 different BES job configration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
+
+If everything goes well, after a while, you should see 10 .ilearner files, from model001.ilearner to model010.ilearner, in your Azure storage account. Now we are ready to update (PATCH) our 10 scoring Web Service Endpoints with these models. We can do that with the _Patch-AmlWebServiceEndpoint_ commandlet. Remember again that we can only patch the non-default endpoints we programmatically created earlier. 
 
 	For ($i = 1; $i -le 10; $i++) {
 		Patch-AmlWebServiceEndpoint
 	}
 
-That's it. From a single training experiment, you have successfully created 10 predicative Web Service Endpoints, each contains a Trained Model uniquely trained on the dataset specific to that customer.
+This should run fairly quickly and when the execution finished, you have successfully created 10 predicative Web Service Endpoints, each contains a Trained Model uniquely trained on the dataset specific to that customer, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different predication results since the models are trained with different training set.
