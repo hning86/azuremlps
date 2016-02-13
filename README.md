@@ -41,9 +41,12 @@ For managing Web Service Endpoints, you can also use the API Key created for eac
 For more information on Azure Machine Learning, browse the [Azure Machine Learning Homepage](http://www.azure.com/ml). 
 
 ## Installation
-From the [Release area](https://github.com/hning86/azuremlps/releases), download the _AzureMLPS.dll_ file which is a PowerShell module file. Then run the PowerShell command _Import-Module_ to import it into the current PowerShell environment:
+Simply download the _AzureMLPS.zip_ from the [Releases area](https://github.com/hning86/azuremlps/releases), then unzip the file locally. You will find a _AzureMLPS.dll_ file which is a PowerShell module file, and a sample _config.json_ file. Run the PowerShell command _Unblock-File_ then _Import-Module_ to unblock the PowerShell module and then import it into the current PowerShell session:
 
 ```
+#Unblock the downloaded dll file so Windows can trust it.
+Unblock-File .\AzureMLPS.dll
+#import the PowerShell modeul into current session
 Import-Module .\AzureMLPS.dll
 ```
 ## Configuration
@@ -70,7 +73,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 
 There are 3 ways to specify these values:
 
-1. Create a default _config.json_ file in the same folder where you are running the PowerShell commandlets. A sample should look like this:
+1. Create a default _config.json_ file in the same folder where you are running the PowerShell commandlets. A sample config file is included in the ZIP package so you can simply modify it:
 
 	_config.json_
 

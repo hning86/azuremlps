@@ -1,8 +1,8 @@
-### Creating Multiple Unique Azure ML Trained Model and Web Service Endpoints from a Single Experiment
+### Creating Multiple Azure ML Trained Models and Web Service Endpoints from a Single Experiment
 
-It is a common problem when you want to build a generic machine learning model, but trained on multiple datasets with the exact same schema but from different sources in order to produce models unique fit to a particular source.
+It is a common problem when you want to build a generic machine learning workflow, train the algorithm on multiple datasets with the exact same feature set but with different feature values in order to produce models uniquely fit to a particular dataset.
 
-Let's say you own a global franchise of bike rental business. You want to build a machine learning model to predict the demand based on historic data. Suppose you have 1,000 locations across the world and you have collected a dataset that include important features such as date, time, weather, traffic, etc. You could build a single model that is trained on the entire dataset indiscrimintoarily. However, intuitively a better approach is to produce a regression model for each of your locations, since they varies in sizes, geography, populatio size, bike-friendliness traffic configuration, etc. 
+Let's say you own a global franchise of bike rental business. You want to build a regression model to predict the rental demand based on historic data. Suppose you have 1,000 rental locations across the world and you have collected a dataset that include important features such as date, time, weather, traffic, etc. for each location. You could build a single model that is trained on the entire dataset indiscrimintoarily. However, a better approach is to produce a regression model for each of your locations, since they varies in sizes, volume, geography, population size, bike-friendliness traffic configuration, etc. 
 
 That being said, you probably do not want to create 1,000 experiments in Azure ML each representing a location. For one that's not a scalable solution. For two, it seems a awkward way to approach this since we are using essentially the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
 
