@@ -23,27 +23,88 @@ Now, let's just run this training experiment using the default value _rental001.
 
 Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustement on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](http://gallery.cor.com) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
 
-This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. To do that, run the following PowerShell command:
+This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. First, we will set up our PowerShell environment:
 
-	For ($i = 1; $i -le 10; $i++) {
-		$fileName = 'customer' + $i.ToString().PadLeft(3, '0') + '.csv'
-		Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName $fileName -Description 'Income forecast for '+$fileName
+	Import-Module .\AzureMLPS.dll
+	$scoringSvc = Get-AmlWebService | where Name -eq 'Bike Rental Scoring'
+	$trainingSvc = Get-AmlWebService | where Name -eq 'Bike Rental Training'
+	
+Then, run the following PowerShell command:
+
+	# Create 10 endpoints on the scoring web service.
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $endpointName = 'rentalloc' + $seq;
+	    Write-Host ('adding endpoint ' + $endpontName + '...')
+	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 
 Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Trainig_ Web Service. We need to call its BES Endpoint 10 times with different training dataset in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
-> Please note that BES Endpoint is the only supported mode for this operation. RRS cannot be used for producing Trained Models.
 
-
-	For ($i = 1; $i -le 10; $i++) {
-		Invoke-AmlWebServiceBESEndpoint
+	# Invoke the retraining API 10 times.
+	$trainingSvcEp = (Get-AmlWebServiceEndpoint -WebServiceId $trainingSvc.Id)[0];
+	$submitJobRequestUrl = $trainingSvcEp.ApiLocation + '/jobs?api-version=2.0';
+	$apiKey = $trainingSvcEp.PrimaryKey;
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
+	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=bostonmtc;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RClg==", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
+	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
+	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
 	}
 
-Please note that instead of construction 10 different BES job configration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
+> Please note that BES Endpoint is the only supported mode for this operation. RRS cannot be used for producing Trained Models.
 
-If everything goes well, after a while, you should see 10 .ilearner files, from model001.ilearner to model010.ilearner, in your Azure storage account. Now we are ready to update (PATCH) our 10 scoring Web Service Endpoints with these models. We can do that with the _Patch-AmlWebServiceEndpoint_ commandlet. Remember again that we can only patch the non-default endpoints we programmatically created earlier. 
+As you can see above, instead of construction 10 different BES job configration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
 
-	For ($i = 1; $i -le 10; $i++) {
-		Patch-AmlWebServiceEndpoint
+If everything goes well, after a while, you should see 10 .ilearner files, from model001.ilearner to model010.ilearner, in your Azure storage account. Now we are ready to update our 10 scoring Web Service Endpoints with these models using the _Patch-AmlWebServiceEndpoint_ commandlet. Remember again that we can only patch the non-default endpoints we programmatically created earlier. 
+
+	# Patch the 10 endpoints with respective .ilearner models.
+	$baseLoc = 'http://bostonmtc.blob.core.windows.net/'
+	$sasToken = '?test'
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $endpointName = 'rentalloc' + $seq;
+	    $relativeLoc = 'hai/retrain/bike_rental/model' + $seq + '.ilearner';
+	    Write-Host ('Patching endpoint ' + $endpointName + '...');
+	    Patch-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -ResourceName 'Bike Rental [trained model]' -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 	}
 
 This should run fairly quickly and when the execution finished, you have successfully created 10 predicative Web Service Endpoints, each contains a Trained Model uniquely trained on the dataset specific to that customer, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different predication results since the models are trained with different training set.
+
+Here is the full source:
+	
+	Import-Module .\AzureMLPS.dll
+	$scoringSvc = Get-AmlWebService | where Name -eq 'Bike Rental Scoring'
+	$trainingSvc = Get-AmlWebService | where Name -eq 'Bike Rental Training'
+	
+	# Create 10 endpoints on the scoring web service.
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $endpointName = 'rentalloc' + $seq;
+	    Write-Host ('adding endpoint ' + $endpontName + '...')
+	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
+	}
+	
+	# Invoke the retraining API 10 times.
+	$trainingSvcEp = (Get-AmlWebServiceEndpoint -WebServiceId $trainingSvc.Id)[0];
+	$submitJobRequestUrl = $trainingSvcEp.ApiLocation + '/jobs?api-version=2.0';
+	$apiKey = $trainingSvcEp.PrimaryKey;
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
+	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=bostonmtc;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RClg==", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
+	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
+	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
+	}
+	
+	# Patch the 10 endpoints with respective .ilearner models.
+	$baseLoc = 'http://bostonmtc.blob.core.windows.net/'
+	$sasToken = '?test'
+	For ($i = 1; $i -le 10; $i++){
+	    $seq = $i.ToString().PadLeft(3, '0');
+	    $endpointName = 'rentalloc' + $seq;
+	    $relativeLoc = 'hai/retrain/bike_rental/model' + $seq + '.ilearner';
+	    Write-Host ('Patching endpoint ' + $endpointName + '...');
+	    Patch-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -ResourceName 'Bike Rental [trained model]' -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
+	}
