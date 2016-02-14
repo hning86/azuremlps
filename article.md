@@ -50,7 +50,7 @@ Now you have created 10 endpoints, they all contain the same Trained Model train
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
 	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
-	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=mykey", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
+	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<myaccount>;AccountKey=<mykey>", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
 	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
 	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
 	}
@@ -95,7 +95,7 @@ Here is the full source:
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
 	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
-	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=myaccount;AccountKey=mykey", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
+	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<myaccount>;AccountKey=<mykey>", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
 	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
 	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
 	}
