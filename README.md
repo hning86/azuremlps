@@ -288,7 +288,9 @@ Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -Ove
 Patch Web Service Endpoint is used for updating a trained model in an existing Endpoint. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accopmlish that by calling the BES endpoint using [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet on the training Web Service. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. Please browse [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
 
 ```
-#The name of the Trained Model in the existing Endpoint you are trying to patch. You can obtain this from the Trained Model module in the Predicative Experiment graph, or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
+#The name of the Trained Model in the existing Endpoint you are trying to patch. 
+#You can obtain this from the Trained Model module in the Predicative Experiment graph, 
+#or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
 $resName = 'Income Predictor [Trained Model]'
 #This is the base location of the Windows Azure storage account where the new model is stored as a .ilearner file.
 $baseLoc = 'http://mystorageaccount.blob.core.windows.net'
