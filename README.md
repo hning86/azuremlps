@@ -14,22 +14,22 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
-  * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy_amlexperiment)*)
+  * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
 * __Manage Web Service__
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Seb Service (*[Get-AmlWebService](#get-amlwebservice)*)
   * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
 * __Manage Web Service Endpoint__
-  * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](get-amlwebserviceendpoint)*)
+  * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
   * Get attributes of a specific Endpoint of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
   * Delete a Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
   * Create a new Web Service Endpoint in an existing Web Service (*[Add-AmlWebServiceEndpoint](#add-amlwebserviceendpoint)*)
-  * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh_amlwebserviceendpoint)*)
-  * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch_amlwebserviceendpoint)*)
+  * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh-amlwebserviceendpoint)*)
+  * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch-amlwebserviceendpoint)*)
 * __Call Azure ML Web Service APIs__
   * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
-  * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke_amlwebservicebesendpoint)*)
+  * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
 
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
@@ -240,6 +240,7 @@ Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
 
 ### Manage Web Servcie Endpoint ###
+
 #### Get-AmlWebServiceEndpoint
 
 ```
