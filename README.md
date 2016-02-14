@@ -62,7 +62,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 	
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceAuthorizationToken.png)
 	
-	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token
+	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token.
 * **Region Name**
 	* This value can be found in the Workspace dropdown. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
@@ -71,7 +71,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 		
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
 
-There are 3 ways to specify these values:
+There are 3 different ways to specify these values:
 
 1. Create a default _config.json_ file in the same folder where the _AzureMLPS.dll_ file is located. A sample config file is included in the ZIP package so you can simply modify it:
 
@@ -92,12 +92,12 @@ There are 3 ways to specify these values:
 	Get-AmlWorkspace
 	```
 	
-2. Or, use the _-ConfigFile_ command parameter to supply the absolute path to a custom config file, using the exact same json format. Please note that relatiave path will NOT work. It has to be an absolute path. This overrides the default config file if it exists. For example:
+2. Or, use the _-ConfigFile_ command parameter to supply the absolute path to a custom config file, using the exact same json format. Please note that relative path will NOT work. It has to be an absolute path. This overrides the default config file if it exists. For example:
 	
 	```
-	Get-AmlWorkspace -ConfigFile 'C:\Config\MyWorkspace02Config.json'
+	Get-AmlWorkspace -ConfigFile 'C:\Configs\MyWorkspace02Config.json'
 	```
-3. Or, use the _-WorkspaceId_, _-AuthorizationToken_, and _-RegionName_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For eample:
+3. Or, specify values to the _-WorkspaceId_, _-AuthorizationToken_, and _-RegionName_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For eample:
 
 	```
 	Get-AmlWorkspace -WorkspaceId '0123456789abcdef01230123456789ab' -AuthorizationToken 'abcdef0123456789abcdef0123456789' -RegionName 'South Central US'
@@ -106,7 +106,7 @@ There are 3 ways to specify these values:
 For simplicity, the examples below all assume that a valid default config file exists.
 
 ## Usage
-Remember you can always use *Get-Help* on any of the following commandlet. For example, to see all supported parameters of _Get-AmlWorkspace_ commandlet, run the following command:
+Remember you can always use _Get-Help_ on any of the following commandlet. For example, to see all supported parameters of _Get-AmlWorkspace_ commandlet, run the following command:
 
 ```
 Get-Help Get-AmlWorkspace
