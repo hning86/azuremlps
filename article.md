@@ -2,7 +2,7 @@
 
 It is a common problem when you want to build a generic machine learning workflow, train the algorithm on multiple datasets with the exact same feature set but with different feature values in order to produce models uniquely fit to a particular dataset.
 
-Let's say you own a global franchise of bike rental business. You want to build a regression model to predict the rental demand based on historic data. Suppose you have 1,000 rental locations across the world and you have collected a dataset that include important features such as date, time, weather, traffic, etc. for each location. You could build a single model that is trained on the entire dataset indiscrimintoarily. However, a better approach is to produce a regression model for each of your locations, since they varies in sizes, volume, geography, population size, bike-friendliness traffic configuration, etc. 
+Let's say you own a global franchise of bike rental business. You want to build a regression model to predict the rental demand based on historic data. Suppose you have 1,000 rental locations across the world and you have collected a dataset that include important features such as date, time, weather, traffic, etc. for each location. You could build a single model that is trained on the entire dataset indiscriminately. However, a better approach is to produce a regression model for each of your locations, since they varies in sizes, volume, geography, population size, bike-friendliness traffic configuration, etc. 
 
 That being said, you probably do not want to create 1,000 experiments in Azure ML each representing a location. For one that's not a scalable solution. For two, it seems a awkward way to approach this since we are using essentially the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
 
@@ -21,7 +21,7 @@ Also note that we have made the URL of the _Reader_ module a web service paramet
 
 Now, let's just run this training experiment using the default value _rental001.csv_ as training dataset. If you view the _Visualize_ outcome of the _Evaluate_ module, you can see you get a decent performance of _AUC = 0.91_. At this point, we are ready to deploy a Web Service out of this training experiment. Let's call the deployed Web Service _Bike Rental Training_. We will later come back to this Web Service.
 
-Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustement on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](http://gallery.cor.com) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
+Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustment on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](http://gallery.cor.com) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
 
 This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. First, we will set up our PowerShell environment:
 
@@ -39,7 +39,7 @@ Then, run the following PowerShell command:
 	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 
-Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Trainig_ Web Service. We need to call its BES Endpoint 10 times with different training dataset in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
+Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with different training dataset in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
 
 	# Invoke the retraining API 10 times.
 	$trainingSvcEp = (Get-AmlWebServiceEndpoint -WebServiceId $trainingSvc.Id)[0];
@@ -55,7 +55,7 @@ Now you have created 10 endpoints, they all contain the same Trained Model train
 
 > Please note that BES Endpoint is the only supported mode for this operation. RRS cannot be used for producing Trained Models.
 
-As you can see above, instead of construction 10 different BES job configration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
+As you can see above, instead of construction 10 different BES job configuration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
 
 If everything goes well, after a while, you should see 10 .ilearner files, from model001.ilearner to model010.ilearner, in your Azure storage account. Now we are ready to update our 10 scoring Web Service Endpoints with these models using the _Patch-AmlWebServiceEndpoint_ commandlet. Remember again that we can only patch the non-default endpoints we programmatically created earlier. 
 
