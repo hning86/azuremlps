@@ -1,13 +1,14 @@
-### Creating Multiple Azure ML Trained Models and Web Service Endpoints from a Single Experiment
+## Creating Multiple Azure ML Trained Models and Web Service Endpoints from a Single Experiment
 
 It is a common problem when you want to build a generic machine learning workflow, train the algorithm on multiple datasets with the exact same feature set but with different feature values in order to produce models uniquely fit to a particular dataset.
 
 Let's say you own a global franchise of bike rental business. You want to build a regression model to predict the rental demand based on historic data. Suppose you have 1,000 rental locations across the world and you have collected a dataset that include important features such as date, time, weather, traffic, etc. for each location. You could build a single model that is trained on the entire dataset indiscriminately. However, a better approach is to produce a regression model for each of your locations, since they varies in sizes, volume, geography, population size, bike-friendliness traffic configuration, etc. 
 
-That being said, you probably do not want to create 1,000 experiments in Azure ML each representing a location. For one that's not a scalable solution. For two, it seems a awkward way to approach this since we are using essentially the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
+That being said, you probably do not want to create 1,000 experiments in Azure ML each representing a location. For one that's not a scalable solution. And two, it seems a awkward way to approach this since we are using essentially the exact same graph and choosing the exact same learning algorithm. The only thing different is the training dataset. 
 
 Fortunately, we can accomplish this using [Azure ML retraining API](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) and [Azure ML PowerShell](https://github.com/hning86/azuremlps) automation.
-> Note: to make our sample run faster, I will reduce the number of locations to 10. But the exact same principles and procedures apply to 1,000 locations. The only difference is when you have 1,000 training dataset, you might want to think of how to parallelize the following PowerShell scripts. There are many examples on PowerShell multi-threading, which is beyond the scope of this article.   
+
+> Note: to make our sample run faster, I will reduce the number of locations to 10. But the exact same principles and procedures apply to 1,000 locations. The only difference is when you have 1,000 training dataset, you probably want to think of how to parallelize the following PowerShell scripts. There are many examples on PowerShell multi-threading, which is beyond the scope of this article.   
 
 First, let's start with the [training experiment](https://gallery.cortanaanalytics.com/Experiment/Bike-Rental-Training-Experiment-1). You can find it in the [Cortana Analytics Gallery](http://gallery.cortanaanalytics.com). Open this experiment in your [Azure ML Studio](https://studio.azureml.net) Workspace. 
 
@@ -39,9 +40,10 @@ Then, run the following PowerShell command:
 	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 
-Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first, from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with different training dataset in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
+Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with 10 different training datasets in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
 
 	# Invoke the retraining API 10 times.
+	# This is the default (and the only) Endpoint on the Traing Web Service 
 	$trainingSvcEp = (Get-AmlWebServiceEndpoint -WebServiceId $trainingSvc.Id)[0];
 	$submitJobRequestUrl = $trainingSvcEp.ApiLocation + '/jobs?api-version=2.0';
 	$apiKey = $trainingSvcEp.PrimaryKey;
@@ -61,7 +63,7 @@ If everything goes well, after a while, you should see 10 .ilearner files, from 
 
 	# Patch the 10 endpoints with respective .ilearner models.
 	$baseLoc = 'http://bostonmtc.blob.core.windows.net/'
-	$sasToken = '?test'
+	$sasToken = '<my_blob_sas_token>'
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
 	    $endpointName = 'rentalloc' + $seq;
@@ -86,7 +88,7 @@ Here is the full source:
 	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 	
-	# Invoke the retraining API 10 times.
+	# Invoke the retraining API 10 times to produce 10 regression models in .ilearner format.
 	$trainingSvcEp = (Get-AmlWebServiceEndpoint -WebServiceId $trainingSvc.Id)[0];
 	$submitJobRequestUrl = $trainingSvcEp.ApiLocation + '/jobs?api-version=2.0';
 	$apiKey = $trainingSvcEp.PrimaryKey;
