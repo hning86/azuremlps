@@ -46,11 +46,11 @@ Simply download the _AzureMLPS.zip_ from the [Releases area](https://github.com/
 ```
 #Unblock the downloaded dll file so Windows can trust it.
 Unblock-File .\AzureMLPS.dll
-#import the PowerShell modeul into current session
+#import the PowerShell module into current session
 Import-Module .\AzureMLPS.dll
 ```
 ## Configuration
-Most of the commandlets require 3 pieces of key information in order to function:
+Most of the commandlets require 3 pieces of key information in order to function properly:
 
 * **Workspace ID**
 	* This value can be found in Workspace Settings in ML Studio.
@@ -58,7 +58,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceId.png)
 	
 * **Workspace Authorization Token**
-	* This value can be found in Workspace Settings in ML Studio.
+	* This value can be found in Workspace Settings in ML Studio. Note you must be an Owner of the Workspace in order to have access to this token.
 	
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceAuthorizationToken.png)
 	
