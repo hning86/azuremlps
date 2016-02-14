@@ -73,7 +73,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 
 There are 3 ways to specify these values:
 
-1. Create a default _config.json_ file in the same folder where you are running the PowerShell commandlets. A sample config file is included in the ZIP package so you can simply modify it:
+1. Create a default _config.json_ file in the same folder where the _AzureMLPS.dll_ file is located. A sample config file is included in the ZIP package so you can simply modify it:
 
 	_config.json_
 
@@ -92,10 +92,10 @@ There are 3 ways to specify these values:
 	Get-AmlWorkspace
 	```
 	
-2. Or, use the _-ConfigFile_ command parameter to supply the path and name to a custom config file, using the exact same json format. This overrides the default config file if it exists. For example:
+2. Or, use the _-ConfigFile_ command parameter to supply the absolute path to a custom config file, using the exact same json format. Please note that relatiave path will NOT work. It has to be an absolute path. This overrides the default config file if it exists. For example:
 	
 	```
-	Get-AmlWorkspace -ConfigFile 'C:\Config\Workspace02Config.json'
+	Get-AmlWorkspace -ConfigFile 'C:\Config\MyWorkspace02Config.json'
 	```
 3. Or, use the _-WorkspaceId_, _-AuthorizationToken_, and _-RegionName_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For eample:
 
