@@ -16,13 +16,17 @@ First, let's start with the [training experiment](https://gallery.cortanaanalyti
 
 Notice the experiment uses a _Reader_ module to read in the training dataset named _customer001.csv_ from an Azure storage account for training. Let's assume we have collected training dataset from all bike rental locations, and stored the datasets in the same blob storage with file names ranging from _rentalloc001.csv_ to _rentalloc10.csv_.
 
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-Reader.png)
+
 A _Web Service Output_ module is already added to the _Train Model_ module. This basically tells the systems that, after this Experiment is deployed as a Web Service, calling this Web Service will produce a Trained Model in the format of a .ilearner file. 
 
 Also note that we have made the URL of the _Reader_ module a web service parameter. This way we can pass in different training dataset and thus producing Trained Models that are specifically trained on that particular dataset. There are other ways to do this, such as using a Web Service-parameterized SQL query to get data from a SQL Azure database, or simply pass in dataset as input of the Web Service by inserting a _Web Service Input_ module.
 
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-WSOutput.png)
+
 Now, let's just run this training experiment using the default value _rental001.csv_ as training dataset. If you view the _Visualize_ outcome of the _Evaluate_ module, you can see you get a decent performance of _AUC = 0.91_. At this point, we are ready to deploy a Web Service out of this training experiment. Let's call the deployed Web Service _Bike Rental Training_. We will later come back to this Web Service.
 
-Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustment on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](https://gallery.cortanaanalytics.com/Experiment/Bike-Rental-Scoring-Experiment-1) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
+Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustment on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](https://gallery.cortanaanalytics.com/Experiment/Bike-Rental-Predicative-Experiment-1) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
 
 This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. First, we will set up our PowerShell environment:
 
@@ -40,7 +44,11 @@ Then, run the following PowerShell command:
 	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 
-Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with 10 different training datasets in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
+Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. You can see them in the classic Azure Management Portal. 
+
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-endponts.png)
+
+The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with 10 different training datasets in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
 
 	# Invoke the retraining API 10 times.
 	# This is the default (and the only) Endpoint on the Traing Web Service 
