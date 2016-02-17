@@ -274,7 +274,7 @@ Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'newep01' -Desc
 Please note:
 
 * For Free Workspace, the Throttle Level can only be set to 'Low', the default value. The supplied value for MaxConcurrentCalls is ignored and the parameter is always defaulted to 4. And the maximum number of Endpoints you can create (including the default one) on a Web Service is 3. 
-* For Standard Workspace the ThrottleLevel values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of MaxConcurrentCalls is ignored and the parameter is defaulted to 4.
+* For Standard Workspace the ThrottleLevel values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of MaxConcurrentCalls is ignored and the parameter is defaulted to 4. When it is set to 'High', the valid value of MaxConcurrentCalls is between 1 and 200. Check out this [article](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-scaling-endpoints/) for more on Web Service Endpoints scaling. 
 
 #### Refresh-AmlWebServiceEndpoint
 Refreshing Endpoint essentially takes the graph of the latest parent Predicative Experiment and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch left unset, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
