@@ -31,6 +31,7 @@ Next, we will now re-open the training experiment, create a predictive experimen
 This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. First, we will set up our PowerShell environment:
 
 	Import-Module .\AzureMLPS.dll
+	# Assume the default configuration file exists and properly set to point to the valid Workspace.
 	$scoringSvc = Get-AmlWebService | where Name -eq 'Bike Rental Scoring'
 	$trainingSvc = Get-AmlWebService | where Name -eq 'Bike Rental Training'
 	
@@ -44,7 +45,7 @@ Then, run the following PowerShell command:
 	    Add-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -Description $endpointName     
 	}
 
-Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. You can see them in the classic Azure Management Portal. 
+Now you have created 10 endpoints, and they all contain the same Trained Model trained on _customer001.csv_. You can view them in the Azure Management Portal. 
 
 ![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-endpoints.png)
 
@@ -80,11 +81,12 @@ If everything goes well, after a while, you should see 10 .ilearner files, from 
 	    Patch-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -ResourceName 'Bike Rental [trained model]' -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 	}
 
-This should run fairly quickly and when the execution finished, you have successfully created 10 predicative Web Service Endpoints, each contains a Trained Model uniquely trained on the dataset specific to that customer, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different predication results since the models are trained with different training set.
+This should run fairly quickly and when the execution finishes, you will have successfully created 10 predicative Web Service Endpoints, each containing a Trained Model uniquely trained on the dataset specific to that rental location, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different predication results since the models are trained with different training set.
 
-Here is the full source:
+Here is the listing of the full source code:
 	
 	Import-Module .\AzureMLPS.dll
+	# Assume the default configuration file exists and properly set to point to the valid Workspace.
 	$scoringSvc = Get-AmlWebService | where Name -eq 'Bike Rental Scoring'
 	$trainingSvc = Get-AmlWebService | where Name -eq 'Bike Rental Training'
 	
