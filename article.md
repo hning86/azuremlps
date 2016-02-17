@@ -46,7 +46,7 @@ Then, run the following PowerShell command:
 
 Now you have created 10 endpoints, they all contain the same Trained Model trained on _customer001.csv_. You can see them in the classic Azure Management Portal. 
 
-![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-endponts.png)
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/BR-endpoints.png)
 
 The next step is to update them with models uniquely trained on each customer's individual data. But we need to produce these models first from the _Bike Rental Training_ Web Service. Let's go back to our _Bike Rental Training_ Web Service. We need to call its BES Endpoint 10 times with 10 different training datasets in order to produce 10 different models. We will leverage the _InovkeAmlWebServiceBESEndpoint_ PowerShell commandlet to accomplish this.
 
