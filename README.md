@@ -63,8 +63,8 @@ Most of the commandlets require 3 pieces of key information in order to function
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceAuthorizationToken.png)
 	
 	* Please note for the Web Service Endpoint Management commandlets, you can also use the Endpoint API Key in lieu of the Workspace Authorization Token.
-* **Region Name**
-	* This value can be found in the Workspace drop-down. Currently supported values for this configuration are:
+* **Location**
+	* This value can be found in the Workspace drop-down. It is the Azure region the Workspace is provisioned in. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
 		* Northern Europe		
@@ -81,7 +81,7 @@ There are 3 different ways to specify these values:
 	{
 		"WorkspaceId": "d2f62586bed343d621441d55b3872d53",
 		"AuthorizationToken": "288a8283e4944bff9c6651a3b6004ef4",
-		"RegionName": "South Central US"
+		"Location": "South Central US"
 	}	
 	```
 
@@ -97,10 +97,10 @@ There are 3 different ways to specify these values:
 	```
 	Get-AmlWorkspace -ConfigFile 'C:\Configs\MyWorkspace02Config.json'
 	```
-3. Or, specify values to the _-WorkspaceId_, _-AuthorizationToken_, and _-RegionName_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For example:
+3. Or, specify values to the _-WorkspaceId_, _-AuthorizationToken_, and _-Location_ parameters directly in the commandlet. The values supplied here override the default and the custom config file. For example:
 
 	```
-	Get-AmlWorkspace -WorkspaceId '0123456789abcdef01230123456789ab' -AuthorizationToken 'abcdef0123456789abcdef0123456789' -RegionName 'South Central US'
+	Get-AmlWorkspace -WorkspaceId '0123456789abcdef01230123456789ab' -AuthorizationToken 'abcdef0123456789abcdef0123456789' -Location 'South Central US'
 	```
 
 For simplicity, the examples below all assume that a valid default config file exists.
