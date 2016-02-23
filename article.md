@@ -58,7 +58,7 @@ The next step is to update them with models uniquely trained on each customer's 
 	$apiKey = $trainingSvcEp.PrimaryKey;
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
-	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
+	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental' + $seq + '.csv';
 	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<myaccount>;AccountKey=<mykey>", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
 	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
 	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
@@ -104,7 +104,7 @@ Here is the listing of the full source code:
 	$apiKey = $trainingSvcEp.PrimaryKey;
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
-	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental001.csv'# + $seq + '.csv';
+	    $inputFileName = 'https://bostonmtc.blob.core.windows.net/hai/retrain/bike_rental/BikeRental' + $seq + '.csv';
 	    $configContent = '{ "GlobalParameters": { "URI": "' + $inputFileName + '" }, "Outputs": { "output1": { "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=<myaccount>;AccountKey=<mykey>", "RelativeLocation": "hai/retrain/bike_rental/model' + $seq + '.ilearner" } } }';
 	    Write-Host ('training regression model on ' + $inputFileName + ' for rental location ' + $seq + '...');
 	    Invoke-AmlWebServiceBESEndpoint -JobConfigString $configContent -SubmitJobRequestUrl $submitJobRequestUrl -ApiKey $apiKey
