@@ -230,6 +230,8 @@ $webService = New-AmlWebService -PredicativeExperimentId $exp.ExperimentId
 $webService
 ```
 
+<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of the predicative experiment as well as a new copy of web service. This is a server side issue that will be addressed soon.</span>
+
 #### Remove-AmlWebService 
 
 ```
