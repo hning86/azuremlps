@@ -18,7 +18,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Web Service__
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
-  * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
+  <!--* Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)-->
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
 * __Manage Web Service Endpoint__
   * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
@@ -216,7 +216,7 @@ $webServices | Format-Table Id,Name,EndpointCount
 #Get metadata of a specific Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
-
+<!--
 #### New-AmlWebService
 
 This commandlet deploys a new Web Service with a default endpoint from a Predicative Experiment.
@@ -231,6 +231,7 @@ $webService
 ```
 
 <span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of the predicative experiment as well as a new copy of web service. This is a server side issue that will be addressed soon.</span>
+-->
 
 #### Remove-AmlWebService 
 
