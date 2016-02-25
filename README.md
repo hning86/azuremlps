@@ -18,7 +18,6 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Web Service__
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
-  <!-- * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*) -->
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
 * __Manage Web Service Endpoint__
   * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
@@ -30,6 +29,10 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Call Azure ML Web Service APIs__
   * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
+
+<!--
+Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*) 
+-->
 
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
