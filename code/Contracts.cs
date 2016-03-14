@@ -1,0 +1,200 @@
+﻿using System;
+using System.IO;
+
+namespace AzureML.Contract
+{
+    public class WorkspaceSetting
+    {
+        public string WorkspaceId { get; set; }
+        public string AuthorizationToken { get; set; }
+        public string Location { get; set; }
+    }
+    public class Dataset
+    {
+        public EndPoint VisualizeEndPoint { get; set; }
+        public EndPoint SchemaEndPoint { get; set; }
+        public string SchemaStatus { get; set; }
+        public string Id { get; set; }
+        public string DataTypeId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string FamilyId { get; set; }
+        public string SourceOrigin { get; set; }
+        public int Size { get; set; }
+        public string CreatedDate { get; set; }
+        public string Owner { get; set; }   
+        public string ExperimentId { get; set; }     
+        public string ClientVersion { get; set; }
+        public string PromotedFrom { get; set; }
+        public string UploadedFromFileName { get; set; }
+        public int ServiceVersion { get; set; }
+        public bool isLatest { get; set; }
+        public string Category { get; set; }
+        public EndPoint DownloadLocation { get; set; }
+        public bool IsDeprecated { get; set; }
+        public string Culture { get; set; }
+        public int Batch { get; set; }
+
+        public class EndPoint
+        {
+            public string BaseUri { get; set; }
+            public int size { get; set; }
+            public string Name { get; set; }
+            public string EndpointType { get; set; }
+            public string CredentialContainer { get; set; }
+            public string AccessCredential { get; set; }
+            public string Location { get; set; }
+            public string FileType { get; set; }
+            public bool isAuxiliary { get; set; }
+        }
+
+    }
+    public class WebService
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string CreationTime { get; set; }
+        public string WorkspaceId { get; set; }
+        public string DefaultEndpointName { get; set; }
+        public int EndpointCount { get; set; }
+    }
+    public class WebServiceEndPoint
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string CreationTime { get; set; }
+        public string WebServiceId { get; set; }
+        public string WorkspaceId { get; set; }
+        public string HelpLocation { get; set; }
+        public string PrimaryKey { get; set; }
+        public string SecondaryKey { get; set; }
+        public string ApiLocation { get; set; }
+        public string ExperimentLocation { get; set; }
+        public int MaxConcurrentCalls { get; set; }
+        public string DiagnosticsTraceLevel { get; set; }
+        public string ThrottleLevel { get; set; }
+        public Resource[] Resources { get; set; }
+        public class Resource
+        {
+            public string Name { get; set; }
+            public string Kind { get; set; }
+            public EpLocation Location { get; set; }
+            public class EpLocation
+            {
+                public string BaseLocation { get; set; }
+                public string RelativeLocation { get; set; }
+                public string SasBlobToken { get; set; }
+            }
+            
+        }
+    }
+
+    public class AuthorizationToken
+    {
+        public string PrimaryToken { get; set; }
+        public string SecondaryToken { get; set; }
+    }
+    public class Workspace
+    {
+        public string WorkspaceId { get; set; }
+        public string FriendlyName { get; set; }
+        public string Description { get; set; }
+        public string HDInsightClusterConnectionString { get; set; }
+        public string HDInsightStorageConnectionString { get; set; }
+        public bool UseDefaultHDInsightSettings { get; set; }
+        public AuthorizationToken AuthorizationToken { get; set; }
+        public string MigrationStatus { get; set; }
+        public string OwnerEmail { get; set; }
+        public string UserStorage { get; set; }
+        public string SubscriptionId { get; set; }
+        public string SubscriptionName { get; set; }
+        public string SubscriptionState { get; set; }
+        public string Region { get; set; }
+        public string WorkspaceStatus { get; set; }
+        public string Type { get; set; }
+        public string CreatedTime { get; set; }
+    }
+
+    public class WorkspaceRdfe
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string SubscriptionId { get; set; }
+        public string Region { get; set; }
+        public string Description { get; set; }
+        public string OwnerId { get; set; }
+        public string StorageAccountName { get; set; }
+        public string WorkspaceState { get; set; }
+        public string EditorLink { get; set; } 
+        public AuthorizationToken AuthorizationToken { get; set; }
+    }
+
+   
+    public class Experiment
+    {
+        public string ExperimentId { get; set; }
+        public string RunId { get; set; }
+        public string ParentExperimentId { get; set; }
+        public string OriginalExperimentDocumentationLink { get; set; }
+        public string Summary { get; set; }
+        public string Description { get; set; }
+        public ExpStatus Status { get; set; }
+        public string Etag { get; set; }
+        public string Creator { get; set; }
+        public bool IsLeaf { get; set; }
+        public string DisableNodesUpdate { get; set; }
+        public string Category { get; set; }
+
+        public class ExpStatus
+        {
+            public string StatusCode { get; set; }
+            public string StatusDetail { get; set; }
+            public string CreationTime { get; set; }
+            public string StartTime { get; set; }
+            public string EndTime { get; set; }
+            public string Metadata { get; set; }
+        }
+    }
+
+    public class AddWebServiceEndpointRequest
+    {
+        public string WebServiceId { get; set; }
+        public string EndpointName { get; set; }
+        public string Description { get; set; }
+        public string ThrottleLevel { get; set; }
+        public int? MaxConcurrentCalls { get; set; }
+    }
+
+    public class PackingServiceActivity
+    {
+        public string Location { get; set; }
+        public int ItemsComplete { get; set; }
+        public int ItemsPending { get; set; }
+        public string Status { get; set; }
+        public string ActivityId { get; set; }          
+    }
+
+    public class HttpResult
+    {        
+        public bool IsSuccess { get; set; }
+        public int StatusCode { get; set; }
+        public string ReasonPhrase { get; set; }
+        public string Payload { get; set; }
+        public Stream PayloadStream { get; set; }
+    }
+
+    public class WebServiceCreationStatus
+    {
+        public string ActivityId { get; set; }
+        public string WebServiceGroupId { get; set; }
+        public string EndpointId { get; set; }
+        public string Status { get; set; }
+
+    }
+
+    public class AmlRestApiException: Exception
+    {
+        public AmlRestApiException(HttpResult hr) : base("Error: [" + hr.StatusCode + " (" + hr.ReasonPhrase + ")]: " + hr.Payload) { }
+    }
+}
