@@ -18,7 +18,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Copy an Experiment from Cortana Analytics Gallery (*[Copy-AmlExperimentFromGallery](copy-amlexperimentfromgallery)*)
+  * Copy an Experiment from Cortana Analytics Gallery (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
 * __Manage Web Service__
   * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
@@ -34,7 +34,6 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Call Azure ML Web Service APIs__
   * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
-
 
 
 ## System Requirement
