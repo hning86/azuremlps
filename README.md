@@ -222,8 +222,8 @@ $dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
 #Delete the dataset from Workspace
 Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
-### Manage Experiment ###
-#### Get-AmlExperiment ####
+### Manage Experiment
+#### Get-AmlExperiment 
 
 ```
 #Get all Experiments in the Workspace
@@ -238,21 +238,21 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 $exp.Status.StatusCode
 ```
 
-#### Start-AmlExperiment ####
+#### Start-AmlExperiment
 ```
 #Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Run the Experiment
 Start-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
-#### Remove-AmlExperiment ####
+#### Remove-AmlExperiment
 ```
 #Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Delete the Experiment
 Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
-#### Copy-AmlExperiment ####
+#### Copy-AmlExperiment
 
 ```
 #Find the Experiment named "xyz"
@@ -262,9 +262,21 @@ Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_
 ```
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
 
-### Manage Web Service ###
+#### Copy-AmlExperimentFromGallery
 
-#### Get-AmlWebService ####
+Copy the [_Movie Recommendation_](https://gallery.cortanaanalytics.com/Experiment/Recommender-Movie-recommendation-3) sample experiment from Cortana Analytics Gallery to current Workspace.
+
+```
+$galleryUri = 'https://gallery.cortanaanalytics.com/Experiment/Recommender-Movie-recommendation-3'
+$packageUri = 'https://storage.azureml.net/directories/3ecaf4244cea40d79192f2064072e616/items'
+$entityId = 'Recommender-Movie-recommendation-3'
+Copy-AmlExperimentFromGallery -GalleryUri $galleryUri -PackageUri $packageUri -EntityId $entityId
+```
+Note to find out the Gallery Uri, Package Uri and the Entity Id field values, copy the hyperlink of the _Open in Studio_ button on the Gallery experiment detail page, and do a [url-decode](https://www.bing.com/search?q=url+decode) on it.
+
+### Manage Web Service
+
+#### Get-AmlWebService
 ```
 #Get all Web Services in Workspace
 $webServices = Get-AmlWebService
