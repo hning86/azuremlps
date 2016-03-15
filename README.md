@@ -271,7 +271,7 @@ $packageUri = 'https://storage.azureml.net/directories/3ecaf4244cea40d79192f2064
 $entityId = 'Recommender-Movie-recommendation-3'
 Copy-AmlExperimentFromGallery -GalleryUri $galleryUri -PackageUri $packageUri -EntityId $entityId
 ```
-Note to find out the Gallery Uri, Package Uri and the Entity Id field values, copy the hyperlink of the _Open in Studio_ button on the Gallery experiment detail page, and do a [url-decode](https://www.bing.com/search?q=url+decode) on it.
+Note to find out the Gallery Uri, Package Uri and the Entity Id field values, copy the hyperlink of the **Open in Studio** button on the Gallery experiment detail page, and do a [url-decode](https://www.bing.com/search?q=url+decode) on it.
 
 ### Manage Web Service
 
@@ -426,13 +426,13 @@ _jobConfig.json_
 	"GolbalParameters": { "Random seed": 12345 },
 	"Inputs": {
 		"input1" : {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RCla=="
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey"
 			"RelativeLocation": "mycontainer/input/input.csv"
 		}
 	},
 	"Outputs": {
 		"output1": {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=Id6+9zenfA1RTUnp8cJQQY05UCEjMrPwB9wSEdpyvv6XgLYYr9XyyukJBSDAcOvDR0Pyh0CWRE7fURwXY9RCla=="
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey"
 			"RelativeLocation": "mycontainer/output/output.csv"
 		}
 	} 
