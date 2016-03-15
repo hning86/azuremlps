@@ -1,9 +1,12 @@
 # PowerShell Commandlets for Azure Machine Learning Studio & Web Service APIs
 ## Introduction
-This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
+This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:go
 
 * __Manage Workspace__
-  * Get the metadata of Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
+  * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*) 
+  * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspace)*)
+  * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
+  * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
   * List all Datasets in Workspace (*[Get-AmlDataset](#get-amldataset)*)
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
@@ -15,7 +18,9 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
+  * Copy an Experiment from Cortana Analytics Gallery (*[Copy-AmlExperimentFromGallery](copy-amlexperimentfromgallery)*)
 * __Manage Web Service__
+  * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
@@ -30,9 +35,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
 
-<!--
-Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*) 
--->
+
 
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
@@ -116,6 +119,60 @@ Get-Help Get-AmlWorkspace
 ```
 
 ### Manage Workspace
+
+
+#### New-AmlWorkspace
+
+To create a new Azure ML Workspace, you need to first generate a self-signed certificate, store it in the current user's certificate store, and then upload the public key portion (.cer file) into Azure management portal. The _New-AmlWorkspace_ commandlet will communicate with Azure management API using this certificate to ensure this is an authorized access. Read [more information](https://www.simple-talk.com/cloud/security-and-compliance/windows-azure-management-certificates/) on this subject.
+
+```
+$azureSubscriptionId = '<azure_subscription_id>'
+$mgmtCertThumb = '12345'
+$location = 'South Central US'
+$storageAccountName = '<my_storage_account_name'
+$storageAccountKey = '<my_storage_account_key>'
+$ownerEmail = 'myname@mycompany.com'
+# Create a new Azure ML Worksace named 'ABCD'
+New-AmlWorkspace -AzureSubscriptionId $azureSubscriptionId -ManagementCertThumbprint -$mgmtCertThumb -WorkspaceName 'ABCD' -Location $location -storageAccountName $storageAccountName -StorageAccountKey $storageAccountKey -OwnerEmail $ownerEmail
+```
+
+For quick reference, you can create self-signed certificate using _makecert.exe_, which is a command line tool that comes with Visual Studio and/or Windows SDK. The following command creates the private key in the CurrentUser/My store, and also output the public key in a file that you can upload into Azure management portal. 
+
+```
+makecert.exe -sky exchange -r -n 'CN=My_Azure_Management_Cert' -pe -a sha1 -len 2048 -ss My 'MyAzureMgmtCert.cer'
+```
+
+Or, you can use PowerShell commandlet _New-SelfSignedCertificate_ and _Export-Certificate_
+
+```
+# Create the self-signed certificate in CurrentUser\My store.
+$cert = New-SelfSignedCertificate -CertStoreLocation cert:\CurrentUser\My -Subject 'CN=My_Azure_Management_Cert' -KeySpec KeyExchange -KeyExportPolicy Exportable -HashAlgorithm SHA1 -CertStoreLocation Cert:\CurrentUser\My  
+# Export the public key as a .cer file
+Export-Certificate -Cert $cert -Type CERT -FilePath 'c:\temp\mycert.cer'
+```
+
+And here is how you can grab the thumbprint of a particular certificate using PowerShell.
+
+```
+(dir Cert:\CurrentUser\My | where Subject -eq 'CN=My_Azure_Management_Cert').Thumbprint
+```
+
+#### List-AmlWorkspaces
+Please note that this commandlet can only list Standard Wokspaces. Free Workspaces are not tied to any Azure subscriptions so they will not be listed here.
+
+```
+List-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>'
+```
+
+#### Add-AmlWorkspceUsers
+
+Please note the email addresses are comma-separated. And the supported roles are Owner and User.
+
+```
+Add-AmlWorkspaceUsers -Emails 'john@smith.com,jane@doe.com' -Role 'User'
+```
+This commandlet leverages the config.json file.
+
 #### Get-AmlWorkspace
 
 ```
@@ -124,6 +181,7 @@ $ws = Get-AmlWorkspace
 # Display the Workspace Name
 $ws.FriendlyName
 ```
+This commandlet leverages the config.json file.
 
 ### Manage Dataset
 #### Get-AmlDataset
