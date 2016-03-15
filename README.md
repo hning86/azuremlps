@@ -4,7 +4,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 
 * __Manage Workspace__
   * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*) 
-  * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspace)*)
+  * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
   * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
@@ -163,7 +163,7 @@ Please note that this commandlet can only list Standard Wokspaces. Free Workspac
 List-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>'
 ```
 
-#### Add-AmlWorkspceUsers
+#### Add-AmlWorkspaceUsers
 
 Please note the email addresses are comma-separated. And the supported roles are Owner and User.
 
