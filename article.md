@@ -66,7 +66,7 @@ The next step is to update them with models uniquely trained on each customer's 
 
 > Please note that BES Endpoint is the only supported mode for this operation. RRS cannot be used for producing Trained Models.
 
-As you can see above, instead of construction 10 different BES job configuration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really need to persist them on the disk. 
+As you can see above, instead of construction 10 different BES job configuration json file, we dynamically create the config string instead and feed it to the _jobConfigString_ parameter of the _InvokeAmlWebServceBESEndpoint_ commandlet, since there is really no need to persist them on the disk. 
 
 If everything goes well, after a while, you should see 10 .ilearner files, from model001.ilearner to model010.ilearner, in your Azure storage account. Now we are ready to update our 10 scoring Web Service Endpoints with these models using the _Patch-AmlWebServiceEndpoint_ commandlet. Remember again that we can only patch the non-default endpoints we programmatically created earlier. 
 
