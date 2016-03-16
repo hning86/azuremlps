@@ -1,6 +1,6 @@
 # PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2
 ## Introduction
-This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short. The supported operations are:
+This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
 * __Manage Workspace__
   * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*) 
@@ -32,8 +32,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh-amlwebserviceendpoint)*)
   * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch-amlwebserviceendpoint)*)
 * __Call Azure ML Web Service APIs__
-  * Execute a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
-  * Execute a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
+  * Invoke a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
+  * Invoke a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
 
 
 ## System Requirement
