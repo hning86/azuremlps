@@ -1,4 +1,4 @@
-## Creating Multiple Azure ML Trained Models and Web Service Endpoints from a Single Experiment using PowerShell
+## Creating Multiple Azure ML Trained Models and Web Service Endpoints from a Single Experiment Using PowerShell
 
 It is a common problem when you want to build a generic machine learning workflow, train the algorithm on multiple datasets with the exact same feature set but with different feature values in order to produce models uniquely fit to a particular dataset.
 
