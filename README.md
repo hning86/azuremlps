@@ -18,7 +18,6 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Copy an Experiment from Cortana Analytics Gallery (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
 * __Manage Web Service__
   * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
@@ -260,18 +259,6 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
 ```
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
-
-#### Copy-AmlExperimentFromGallery
-
-Copy the [_Movie Recommendation_](https://gallery.cortanaanalytics.com/Experiment/Recommender-Movie-recommendation-3) sample experiment from Cortana Analytics Gallery to current Workspace.
-
-```
-$galleryUri = 'https://gallery.cortanaanalytics.com/Experiment/Recommender-Movie-recommendation-3'
-$packageUri = 'https://storage.azureml.net/directories/3ecaf4244cea40d79192f2064072e616/items'
-$entityId = 'Recommender-Movie-recommendation-3'
-Copy-AmlExperimentFromGallery -GalleryUri $galleryUri -PackageUri $packageUri -EntityId $entityId
-```
-Note to find out the Gallery Uri, Package Uri and the Entity Id field values, copy the hyperlink of the **Open in Studio** button on the Gallery experiment detail page, and do a [url-decode](https://www.bing.com/search?q=url+decode) on it.
 
 ### Manage Web Service
 
