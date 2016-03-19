@@ -475,7 +475,9 @@ namespace AzureML
             throw new AmlRestApiException(hr);
         }
 
-        public PackingServiceActivity UnpackExperimentFromGallery(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
+        
+        // Note this API is NOT officially supported. It might break in the future and we won't support it if/when it happens.
+        public PackingServiceActivity UnpackExperimentFromGallery_UnsupportedAPI(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
