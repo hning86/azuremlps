@@ -19,7 +19,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
 * __Manage Web Service__
-  * Deploy a Web Service from a Predicative Experiment (*[New-AmlWebService](#new-amlwebservice)*)
+  * Deploy a Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
   * Get the attributes of a specific Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
   * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
@@ -274,22 +274,22 @@ $webServices | Format-Table Id,Name,EndpointCount
 #Get metadata of a specific Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
-<!--
+
 #### New-AmlWebService
 
-This commandlet deploys a new Web Service with a default endpoint from a Predicative Experiment.
+This commandlet deploys a new Web Service with a default endpoint from a Predictive Experiment.
 
 ```
-#Get the Predicative Experiment metadata 
+#Get the Predictive Experiment metadata 
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Deploy Web Service from the Predicative Experiment
+#Deploy Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredicativeExperimentId $exp.ExperimentId
 #Display newly created Web Service
 $webService
 ```
 
-<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of the predicative experiment as well as a new copy of web service. This is a server side issue that will be addressed soon.</span>
--->
+<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of the predictive experiment as well as a new copy of web service. This is a server side issue that will be addressed soon.</span>
+
 
 #### Remove-AmlWebService 
 
@@ -338,7 +338,7 @@ Please note:
 * For Standard Workspace the _-ThrottleLevel_ values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of _-MaxConcurrentCalls_ is ignored and the parameter is defaulted to 4. When it is set to 'High', the valid value of _-MaxConcurrentCalls_ is between 1 and 200. Check out this [article](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-scaling-endpoints/) for more on Web Service Endpoints scaling. 
 
 #### Refresh-AmlWebServiceEndpoint
-Refreshing Endpoint essentially takes the graph of the latest parent Predicative Experiment and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predicative Experiment. When this switch left unset, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+Refreshing Endpoint essentially takes the graph of the latest parent Predictive Experiment and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. When this switch left unset, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 ```
 #Refresh the endpoint 'ep03'
@@ -350,7 +350,7 @@ Patch Web Service Endpoint is used for updating a trained model in an existing E
 
 ```
 #The name of the Trained Model in the existing Endpoint you are trying to patch. 
-#You can obtain this from the Trained Model module in the Predicative Experiment graph, 
+#You can obtain this from the Trained Model module in the Predictive Experiment graph, 
 #or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
 $resName = 'Income Predictor [Trained Model]'
 #This is the base location of the Windows Azure storage account where the new model is stored as a .ilearner file.
