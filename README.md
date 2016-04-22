@@ -302,7 +302,7 @@ This commandlet deploys a new Web Service with a default endpoint from a Predict
 #Get the Predictive Experiment metadata 
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Deploy Web Service from the Predictive Experiment
-$webService = New-AmlWebService -PredicativeExperimentId $exp.ExperimentId
+$webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
 #Display newly created Web Service
 $webService
 ```
