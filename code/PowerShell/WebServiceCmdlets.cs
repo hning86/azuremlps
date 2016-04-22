@@ -31,22 +31,22 @@ namespace AzureML.PowerShell
     public class NewWebService : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = true)]
-        public string PredicativeExperimentId { get; set; }
+        public string PredictiveExperimentId { get; set; }
         protected override void ProcessRecord()
         {            
-            ProgressRecord pr = new ProgressRecord(1, "Deploy Web Service", "Predicative Experiment Name: ");
+            ProgressRecord pr = new ProgressRecord(1, "Deploy Web Service", "Predictive Experiment Name: ");
 
-            pr.CurrentOperation = "Getting Predicative Experiment...";
+            pr.CurrentOperation = "Getting Predictive Experiment...";
             pr.PercentComplete = 1;
             WriteProgress(pr);
             string rawJson = string.Empty;
-            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), PredicativeExperimentId, out rawJson);
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), PredictiveExperimentId, out rawJson);
 
             pr.StatusDescription += exp.Description;
             pr.CurrentOperation = "Deploying web service";
             pr.PercentComplete = 2;
             WriteProgress(pr);
-            WebServiceCreationStatus status = Sdk.DeployWebServiceFromPredicativeExperiment(GetWorkspaceSetting(), PredicativeExperimentId);
+            WebServiceCreationStatus status = Sdk.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
 
             while (status.Status != "Completed")
             {
