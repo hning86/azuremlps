@@ -145,7 +145,7 @@ Or, you can use PowerShell commandlet _New-SelfSignedCertificate_ and _Export-Ce
 
 ```
 # Create the self-signed certificate in CurrentUser\My store.
-$cert = New-SelfSignedCertificate -CertStoreLocation cert:\CurrentUser\My -Subject 'CN=My_Azure_Management_Cert' -KeySpec KeyExchange -KeyExportPolicy Exportable -HashAlgorithm SHA1 -CertStoreLocation Cert:\CurrentUser\My  
+$cert = New-SelfSignedCertificate -CertStoreLocation cert:\CurrentUser\My -Subject 'CN=My_Azure_Management_Cert' -KeySpec KeyExchange -KeyExportPolicy Exportable -HashAlgorithm SHA1 
 # Export the public key as a .cer file
 Export-Certificate -Cert $cert -Type CERT -FilePath 'c:\temp\mycert.cer'
 ```
