@@ -15,6 +15,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Experiment__
   * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
+  * Export a specific Experiment graph to a file in JSON format (*[Export-AmlExperimentGraph](#export-amlexperimentgraph)*)
+  * Import a JSON file to overwrite an existing Experiment or create a new Experiment (*[Import-AmlExperimentGraph](#import-amlexperimentgraph)*)
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
@@ -235,6 +237,23 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 #Display the Experiment status
 $exp.Status.StatusCode
 ```
+
+#### Export-AmlExperimentGraph
+```
+#Export an Experiment named "xyz" as a "MyExp.json" file
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
+Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'MyExp.json'
+```
+Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment.
+
+#### Import-AmlExperimentGraph
+```
+#Import a JSON file 'MyExp.json' to overwrite the Experiment where the file is exported out of
+Import-AmlExperimentGraph -InputFile 'MyExp.json' -Overwrite
+#Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
+Import-AmlExperimentGraph -InputFile 'MyExp.json' -NewName 'abc'
+```
+
 
 #### Start-AmlExperiment
 ```
