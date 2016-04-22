@@ -26,7 +26,7 @@ Also note that we have made the URL of the _Reader_ module a web service paramet
 
 Now, let's just run this training experiment using the default value _rental001.csv_ as training dataset. If you view the _Visualize_ outcome of the _Evaluate_ module, you can see you get a decent performance of _AUC = 0.91_. At this point, we are ready to deploy a Web Service out of this training experiment. Let's call the deployed Web Service _Bike Rental Training_. We will later come back to this Web Service.
 
-Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustment on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predicative experiment](https://gallery.cortanaanalytics.com/Experiment/Bike-Rental-Predicative-Experiment-1) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
+Next, we will now re-open the training experiment, create a predictive experiment out of it, and then deploy a scoring Web Service. We will need to make a few minor adjustment on the schema, assuming the input dataset doesn't contain the label column, and for output you only care about the instance id and the corresponding predicted value. To save yourself from the schema adjustment work, you can simply open the already prepared [predictive experiment](https://gallery.cortanaanalytics.com/Experiment/Bike-Rental-Predicative-Experiment-1) from Gallery, run it and then deploy it as a Web Service named _Bike Rental Scoring_. 
 
 This Web Service comes with a default Endpoint. But we are not so interested in the default Endpoint that since it cannot be updated. What we need to do is to create 10 additional Endpoints, one for each location. First, we will set up our PowerShell environment:
 
@@ -81,7 +81,7 @@ If everything goes well, after a while, you should see 10 .ilearner files, from 
 	    Patch-AmlWebServiceEndpoint -WebServiceId $scoringSvc.Id -EndpointName $endpointName -ResourceName 'Bike Rental [trained model]' -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 	}
 
-This should run fairly quickly and when the execution finishes, you will have successfully created 10 predicative Web Service Endpoints, each containing a Trained Model uniquely trained on the dataset specific to that rental location, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different predication results since the models are trained with different training set.
+This should run fairly quickly and when the execution finishes, you will have successfully created 10 predictive Web Service Endpoints, each containing a Trained Model uniquely trained on the dataset specific to that rental location, all from a single training experiment. To verify this, you can try calling these Endpoints using _InvokeAmlWebServiceRRSEndpoint_ commandlet, feeding them with the same input data, and you should expect to see different prediction results since the models are trained with different training set.
 
 Here is the listing of the full source code:
 	
