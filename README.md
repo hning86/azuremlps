@@ -240,16 +240,16 @@ $exp.Status.StatusCode
 
 #### Export-AmlExperimentGraph
 ```
-#Export an Experiment named "xyz" as a "MyExp.json" file
+#Export an Experiment named "xyz" to "MyExp.json"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'MyExp.json'
+Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'c:\Temp\MyExp.json'
 ```
-Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment.
+Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment. Also, please make sure you use absolute path when referrint to the json file.
 
 #### Import-AmlExperimentGraph
 ```
 #Import a JSON file 'MyExp.json' to overwrite the Experiment where the file is exported out of
-Import-AmlExperimentGraph -InputFile 'MyExp.json' -Overwrite
+Import-AmlExperimentGraph -InputFile 'C:\Temp\MyExp.json' -Overwrite
 #Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
 Import-AmlExperimentGraph -InputFile 'MyExp.json' -NewName 'abc'
 ```
