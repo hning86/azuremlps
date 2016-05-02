@@ -6,6 +6,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*) 
   * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
+  * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
   * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
   * List all Datasets in Workspace (*[Get-AmlDataset](#get-amldataset)*)
@@ -171,6 +172,17 @@ Please note the email addresses are comma-separated. And the supported roles are
 Add-AmlWorkspaceUsers -Emails 'john@smith.com,jane@doe.com' -Role 'User'
 ```
 This commandlet leverages the config.json file.
+
+
+#### Get-AmlWorkspaceUsers
+
+
+```
+# Get all users of the current workspace
+Get-AmlWorkspaceUsers
+```
+This commandlet leverages the config.json file.
+
 
 #### Get-AmlWorkspace
 

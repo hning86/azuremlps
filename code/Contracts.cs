@@ -3,6 +3,35 @@ using System.IO;
 
 namespace AzureML.Contract
 {
+    public class WorkspaceUser
+    {
+        public string Status { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
+        public string Role { get; set; }
+        public string UserId { get; set; }
+        public WorkspaceUser(WorkspaceUserInternal iuser)
+        {
+            Status = iuser.Status;
+            Email = iuser.User.Email;
+            Name = iuser.User.Email;
+            Role = iuser.User.Role;
+            UserId = iuser.User.UserId;
+        }
+    }
+
+    public class WorkspaceUserInternal
+    {
+        public string Status { get; set; }
+        public UserDetailInternal User { get; set; }
+        public class UserDetailInternal
+        {
+            public string Email { get; set; }
+            public string Name { get; set; }
+            public string Role { get; set; }
+            public string UserId { get; set; }
+        }
+    }
     public class WorkspaceSetting
     {
         public string WorkspaceId { get; set; }

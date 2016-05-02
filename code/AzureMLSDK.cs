@@ -26,7 +26,7 @@ namespace AzureML
         public string StudioApi = "https://studioapi.azureml.net/api/";
         public string WebServiceApi = "https://management.azureml.net/";
         protected ManagementUtil Util { get; private set; }
-        private string _sdkName = "dotnetsdk_0.2";
+        private string _sdkName = "dotnetsdk_0.2.2";
         public ManagementSDK()
         {
             Util = new ManagementUtil(_sdkName);
@@ -245,6 +245,25 @@ namespace AzureML
             {
                 string p = hr.Payload;
                 return;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        public WorkspaceUser[] GetWorkspaceUsers(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/users", setting.WorkspaceId);            
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+            {
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                WorkspaceUserInternal[] usersInternal =  jss.Deserialize<WorkspaceUserInternal[]>(hr.Payload);
+                List<WorkspaceUser> users = new List<WorkspaceUser>();
+                foreach (WorkspaceUserInternal u in usersInternal)
+                    users.Add(new WorkspaceUser(u));
+                return users.ToArray();
             }
             else
                 throw new AmlRestApiException(hr);
@@ -475,9 +494,7 @@ namespace AzureML
             throw new AmlRestApiException(hr);
         }
 
-        
-        // Note this API is NOT officially supported. It might break in the future and we won't support it if/when it happens.
-        public PackingServiceActivity UnpackExperimentFromGallery_UnsupportedAPI(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
+        public PackingServiceActivity UnpackExperimentFromGallery(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;

@@ -126,4 +126,15 @@ namespace AzureML.PowerShell
             WriteObject("User(s) added to the Workspace.");
         }
     }
+
+    [Cmdlet(VerbsCommon.Get, "AmlWorkspaceUsers")]
+    public class GetWorkspaceUsers : AzureMLPsCmdlet
+    {
+        public GetWorkspaceUsers() { }
+        protected override void ProcessRecord()
+        {
+            WorkspaceUser[] users = Sdk.GetWorkspaceUsers(GetWorkspaceSetting());
+            WriteObject(users);
+        }
+    }
 }
