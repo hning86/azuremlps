@@ -256,7 +256,7 @@ $exp.Status.StatusCode
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'c:\Temp\MyExp.json'
 ```
-Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment. Also, please make sure you use absolute path when referrint to the json file.
+Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment. Also, please make sure you use absolute path when referring to the json file.
 
 #### Import-AmlExperimentGraph
 ```
