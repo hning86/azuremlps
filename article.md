@@ -72,7 +72,7 @@ If everything goes well, after a while, you should see 10 .ilearner files, from 
 
 	# Patch the 10 endpoints with respective .ilearner models.
 	$baseLoc = 'http://bostonmtc.blob.core.windows.net/'
-	$sasToken = '<my_blob_sas_token>'
+	$sasToken = '?<my_blob_sas_token>'
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
 	    $endpointName = 'rentalloc' + $seq;
@@ -112,7 +112,7 @@ Here is the listing of the full source code:
 	
 	# Patch the 10 endpoints with respective .ilearner models.
 	$baseLoc = 'http://bostonmtc.blob.core.windows.net/'
-	$sasToken = '?test'
+	$sasToken = '?<my_blob_sas_token>'
 	For ($i = 1; $i -le 10; $i++){
 	    $seq = $i.ToString().PadLeft(3, '0');
 	    $endpointName = 'rentalloc' + $seq;
