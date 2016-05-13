@@ -23,7 +23,7 @@ namespace AzureML.PowerShell
         protected ManagementSDK Sdk { get; private set; }
         public AzureMLPsCmdletBase()
         {            
-            Sdk = new ManagementSDK("powershell_0.2.1");
+            Sdk = new ManagementSDK("powershell_0.2.3");
         }        
     }
 
