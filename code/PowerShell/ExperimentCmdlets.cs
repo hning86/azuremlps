@@ -37,7 +37,7 @@ namespace AzureML.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Unpacking experiment from Gallery to workspace...";
             WriteProgress(pr);
-            PackingServiceActivity activity = Sdk.UnpackExperimentFromGallery_UnsupportedAPI(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
+            PackingServiceActivity activity = Sdk.UnpackExperimentFromGallery(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
             while (activity.Status != "Complete")
             {
                 if (pr.PercentComplete < 100)
