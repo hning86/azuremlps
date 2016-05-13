@@ -13,6 +13,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
+* __Manage Custom Module__
+  * Add a new custom modle to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
 * __Manage Experiment__
   * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
@@ -234,6 +236,14 @@ $dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
 #Delete the dataset from Workspace
 Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
+
+### Manage Custom Module
+#### New-AmlCustomModule
+```
+#Upload a new Custom Module from C:\Temp\MyModule.zip
+New-AmlCustomModule -CustomModuleZipFileName 'C:\Temp\MyModule.zip'
+```
+
 ### Manage Experiment
 #### Get-AmlExperiment 
 
