@@ -99,6 +99,9 @@ namespace AzureML.Contract
         public string PrimaryKey { get; set; }
         public string SecondaryKey { get; set; }
         public string ApiLocation { get; set; }
+        public string Version { get; set; }
+        public bool PreventUpdate { get; set; }
+        public bool SampleDataEnabled { get; set; }
         public string ExperimentLocation { get; set; }
         public int MaxConcurrentCalls { get; set; }
         public string DiagnosticsTraceLevel { get; set; }

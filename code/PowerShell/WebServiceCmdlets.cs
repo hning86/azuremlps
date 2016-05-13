@@ -1,6 +1,5 @@
 ﻿using AzureML.Contract;
 using System.Management.Automation;
-using System;
 
 
 
@@ -55,8 +54,6 @@ namespace AzureML.PowerShell
                 pr.PercentComplete++;
                 WriteProgress(pr);
                 status = Sdk.GetWebServiceCreationStatus(GetWorkspaceSetting(), status.ActivityId);
-                if (status.Status == "Failed")
-                    throw new Exception("Failed to create web service. Activity Id: " + status.ActivityId);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);

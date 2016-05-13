@@ -314,12 +314,35 @@ namespace AzureML
             fs.Close();
         }
 
-        public async Task<string> UploadDatasetAsnyc(WorkspaceSetting setting, string FileFormat, string UploadFileName)
+        public async Task<string> UploadResourceAsnyc(WorkspaceSetting setting, string fileFormat, string fileName)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, FileFormat);
-            HttpResult hr = await Util.HttpPostFile(query, UploadFileName);
+            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            HttpResult hr = await Util.HttpPostFile(query, fileName);
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            return hr.Payload;
+        }
+
+        public string UploadResource(WorkspaceSetting setting, string fileFormat)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            HttpResult hr = Util.HttpPost(query, string.Empty).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            return hr.Payload;
+        }
+
+        public async Task<string> UploadResourceInChunksAsnyc(WorkspaceSetting setting, int numOfBlocks, int blockId, string uploadId, string fileName, string fileFormat)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("blobuploads/workspaces/{0}/?numberOfBlocks={1}&blockId={2}&uploadId={3}&dataTypeId={4}", 
+                setting.WorkspaceId, numOfBlocks, blockId, uploadId, fileFormat);
+            HttpResult hr = await Util.HttpPostFile(query, fileName);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
             return hr.Payload;
@@ -365,6 +388,32 @@ namespace AzureML
             dynamic parsed = jss.Deserialize<object>(hr.Payload);
             string schemaJobStatus = parsed["SchemaStatus"];
             return schemaJobStatus;
+        }
+        #endregion
+
+        #region Custom Module
+        public string BeginParseCustomModuleJob(WorkspaceSetting setting, string moduleUploadMetadata)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/modules/custom", setting.WorkspaceId);
+            HttpResult hr = Util.HttpPost(query, moduleUploadMetadata).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            string activityId = hr.Payload.Replace("\"", "");
+            return activityId;            
+        }
+
+        public string GetCustomModuleBuildJobStatus(WorkspaceSetting setting, string activityGroupId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/modules/custom?activityGroupId={1}", setting.WorkspaceId, activityGroupId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            string jobStatus = hr.Payload;
+            return jobStatus;
         }
         #endregion
 

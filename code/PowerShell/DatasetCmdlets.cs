@@ -18,9 +18,9 @@ namespace AzureML.PowerShell
     }
 
     [Cmdlet("Upload", "AmlDataset")]
-    public class UploadDatasetCmdlet: AzureMLPsCmdlet
+    public class UploadDatasetCmdlet : AzureMLPsCmdlet
     {
-        [Parameter(Mandatory =false)]
+        [Parameter(Mandatory = false)]
         [ValidateSet("GenericCSV", "GenericCSVNoHeader", "GenericTSV", "GenericTSVNoHeader", "ARFF", "Zip", "RData", "PlainText")]
         public string FileFormat { get; set; }
 
@@ -39,7 +39,7 @@ namespace AzureML.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-           Task<string> uploadTask = Sdk.UploadDatasetAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = Sdk.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -54,11 +54,11 @@ namespace AzureML.PowerShell
             pr.PercentComplete = 2;
             pr.StatusDescription = "Generating schema for dataset \"" + DatasetName + "\"";
             pr.CurrentOperation = "Generating schema...";
-            WriteProgress(pr);            
+            WriteProgress(pr);
             JavaScriptSerializer jss = new JavaScriptSerializer();
             dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
             string dtId = parsed["DataTypeId"];
-            string uploadId = parsed["Id"];            
+            string uploadId = parsed["Id"];
             string dataSourceId = Sdk.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
@@ -126,4 +126,6 @@ namespace AzureML.PowerShell
             WriteObject("Dataset removed.");
         }       
     }
+
+   
 }
