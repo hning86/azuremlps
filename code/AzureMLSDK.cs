@@ -26,7 +26,7 @@ namespace AzureML
         public string StudioApi = "https://studioapi.azureml.net/api/";
         public string WebServiceApi = "https://management.azureml.net/";
         protected ManagementUtil Util { get; private set; }
-        private string _sdkName = "dotnetsdk_0.2.2";
+        private string _sdkName = "dotnetsdk_0.2.3";
         public ManagementSDK()
         {
             Util = new ManagementUtil(_sdkName);
