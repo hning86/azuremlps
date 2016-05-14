@@ -17,6 +17,7 @@ namespace AzureML
 {
     public class ManagementSDK
     {
+        public const string Version = "0.2.4";
         private DataContractJsonSerializer ser;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml.net/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml.net/";
@@ -26,7 +27,7 @@ namespace AzureML
         public string StudioApi = "https://studioapi.azureml.net/api/";
         public string WebServiceApi = "https://management.azureml.net/";
         protected ManagementUtil Util { get; private set; }
-        private string _sdkName = "dotnetsdk_0.2.3";
+        private string _sdkName = "dotnetsdk_" + Version;
         public ManagementSDK()
         {
             Util = new ManagementUtil(_sdkName);
@@ -174,17 +175,16 @@ namespace AzureML
                 });
             httpReq.ContentLength = payload.Length;
             Stream stream = httpReq.GetRequestStream();
-
-            //byte[] buffer = System.Text.Encoding.GetEncoding(1252).GetBytes(payload);
-            byte[] buffer = ASCIIEncoding.ASCII.GetBytes(payload);
+            byte[] buffer = Encoding.UTF8.GetBytes(payload);
             stream.Write(buffer, 0, buffer.Length);
-            
-            WebResponse resp = await httpReq.GetResponseAsync();
 
-            long len = resp.ContentLength;
-            buffer = new byte[len];
-            resp.GetResponseStream().Read(buffer, 0, (int)len);
-            string result = ASCIIEncoding.ASCII.GetString(buffer);            
+            WebResponse resp = await httpReq.GetResponseAsync();                       
+
+            StreamReader sr = new StreamReader(resp.GetResponseStream());
+            string result = sr.ReadToEnd();
+
+            //resp.GetResponseStream().Read(buffer, 0, (int)len);
+            //string result = ASCIIEncoding.ASCII.GetString(buffer);            
             dynamic d = jss.Deserialize<object>(result);
             return d["Id"];
         }
@@ -195,10 +195,8 @@ namespace AzureML
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
             
             WebResponse resp = httpReq.GetResponse();
-            long len = resp.ContentLength;
-            byte[] buffer = new byte[len];
-            resp.GetResponseStream().Read(buffer, 0, (int)len);
-            string result = ASCIIEncoding.ASCII.GetString(buffer);
+            StreamReader sr = new StreamReader(resp.GetResponseStream());
+            string result = sr.ReadToEnd();            
             JavaScriptSerializer jss = new JavaScriptSerializer();
             WorkspaceRdfe ws = jss.Deserialize<WorkspaceRdfe>(result);
             return ws;
