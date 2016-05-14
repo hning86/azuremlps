@@ -179,12 +179,9 @@ namespace AzureML
             stream.Write(buffer, 0, buffer.Length);
 
             WebResponse resp = await httpReq.GetResponseAsync();                       
-
             StreamReader sr = new StreamReader(resp.GetResponseStream());
             string result = sr.ReadToEnd();
-
-            //resp.GetResponseStream().Read(buffer, 0, (int)len);
-            //string result = ASCIIEncoding.ASCII.GetString(buffer);            
+                        
             dynamic d = jss.Deserialize<object>(result);
             return d["Id"];
         }
