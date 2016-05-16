@@ -322,7 +322,7 @@ This commandlet deploys a new Web Service with a default endpoint from a Predict
 
 ```
 #Get the Predictive Experiment metadata 
-$exp = Get-AmlExperiment | where Description -eq 'xyz'
+$exp = (Get-AmlExperiment | where Description -eq 'xyz')[0]
 #Deploy Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
 #Display newly created Web Service
@@ -335,8 +335,8 @@ $webService
 #### Remove-AmlWebService 
 
 ```
-#Get the Web Service named 'abc'
-$webSvc = Get-AmlWebService | Where Name -eq 'abc'
+#Get the first Web Service named 'abc'
+$webSvc = (Get-AmlWebService | Where Name -eq 'abc')[0]
 #Delete the Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
