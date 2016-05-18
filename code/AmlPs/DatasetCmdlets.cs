@@ -1,18 +1,17 @@
-﻿using AzureML.Contract;
-using System.IO;
+﻿using System.IO;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
     public class GetDatasetCmdlet : AzureMLPsCmdlet
     {
         protected override void ProcessRecord()
         {            
-            Dataset[] datasets = Sdk.GetDataset(GetWorkspaceSetting());
+            Dataset[] datasets = Client.GetDataset(GetWorkspaceSetting());
             WriteObject(datasets, true);
         }
     }
@@ -39,7 +38,7 @@ namespace AzureML.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-           Task<string> uploadTask = Sdk.UploadDatasetAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+           Task<string> uploadTask = Client.UploadDatasetAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -59,7 +58,7 @@ namespace AzureML.PowerShell
             dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
             string dtId = parsed["DataTypeId"];
             string uploadId = parsed["Id"];            
-            string dataSourceId = Sdk.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
+            string dataSourceId = Client.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";
@@ -72,7 +71,7 @@ namespace AzureML.PowerShell
                 pr.CurrentOperation = "Schema generation status: " + schemaJobStatus;
                 WriteProgress(pr);
 
-                schemaJobStatus = Sdk.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
+                schemaJobStatus = Client.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
                 if (schemaJobStatus == "NotSupported" || schemaJobStatus == "Complete" || schemaJobStatus == "Failed")
                     break;
             }
@@ -98,7 +97,7 @@ namespace AzureML.PowerShell
             pr.CurrentOperation = "Downloading...";
             WriteProgress(pr);
 
-            Task task = Sdk.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
+            Task task = Client.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
             while (!task.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -122,7 +121,7 @@ namespace AzureML.PowerShell
         public string DatasetFamilyId { get; set; }
         protected override void BeginProcessing()
         {            
-            Sdk.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
+            Client.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
             WriteObject("Dataset removed.");
         }       
     }

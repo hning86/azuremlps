@@ -12,18 +12,17 @@ using System.Xml.XPath;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Web;
-using AzureML.Contract;
-using AzureML;
+using AzureMachineLearning;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     public class AzureMLPsCmdletBase : PSCmdlet
     {        
         protected DataContractJsonSerializer ser;        
-        protected ManagementSDK Sdk { get; private set; }
+        protected Client Client { get; private set; }
         public AzureMLPsCmdletBase()
         {            
-            Sdk = new ManagementSDK("powershell_0.2");
+            Client = new Client("powershell_0.2");
         }        
     }
 
