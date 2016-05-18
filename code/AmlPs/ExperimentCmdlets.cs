@@ -6,7 +6,7 @@ using System.Text;
 namespace AzureMachineLearning.PowerShell
 {    
     [Cmdlet(VerbsCommon.Remove, "AmlExperiment")]
-    public class RemoveExperiment : AzureMLPsCmdlet
+    public class RemoveExperiment : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
@@ -20,7 +20,7 @@ namespace AzureMachineLearning.PowerShell
    
     // Note this Commandlet users an unsupported API that might break in the future!
     [Cmdlet(VerbsCommon.Copy, "AmlExperimentFromGallery")]
-    public class CopyExperimentFromGallery : AzureMLPsCmdlet
+    public class CopyExperimentFromGallery : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string PackageUri;
@@ -55,7 +55,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Copy, "AmlExperiment")]
-    public class CopyExperiment : AzureMLPsCmdlet
+    public class CopyExperiment : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
@@ -145,7 +145,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Export", "AmlExperimentGraph")]
-    public class ExportExperimentGraph : AzureMLPsCmdlet
+    public class ExportExperimentGraph : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
@@ -161,7 +161,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Import", "AmlExperimentGraph")]
-    public class ImportExperimentGraph : AzureMLPsCmdlet
+    public class ImportExperimentGraph : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string InputFile { get; set; }
@@ -188,7 +188,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Start", "AmlExperiment")]
-    public class StartExperiment : AzureMLPsCmdlet
+    public class StartExperiment : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
@@ -237,7 +237,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Get, "AmlExperiment")]
-    public class GetExperiment : AzureMLPsCmdlet
+    public class GetExperiment : AmlCmdlet
     {
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }

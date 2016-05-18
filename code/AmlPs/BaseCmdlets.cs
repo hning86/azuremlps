@@ -26,7 +26,7 @@ namespace AzureMachineLearning.PowerShell
         }        
     }
 
-    public class AzureMLPsCmdlet : AzureMLPsCmdletBase
+    public class AmlCmdlet : AzureMLPsCmdletBase
     {
         // default config.json file path.
         private string _configFilePath = "./config.json";
@@ -50,7 +50,7 @@ namespace AzureMachineLearning.PowerShell
         private string _authToken = string.Empty;
         [Parameter(Mandatory = false)]
         public string AuthorizationToken;
-        public AzureMLPsCmdlet()
+        public AmlCmdlet()
         {            
             ReadConfigFromFile(false);
         }        

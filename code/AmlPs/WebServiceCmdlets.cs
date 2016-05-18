@@ -6,7 +6,7 @@ using System;
 namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWebService")]
-    public class GetWebServices : AzureMLPsCmdlet
+    public class GetWebServices : AmlCmdlet
     {
         [Parameter(Mandatory = false)]
         public string WebServiceId { get; set; }        
@@ -27,7 +27,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.New, "AmlWebService")]
-    public class NewWebService : AzureMLPsCmdlet
+    public class NewWebService : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string PredictiveExperimentId { get; set; }
@@ -65,7 +65,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlWebService")]
-    public class RemoveWebService : AzureMLPsCmdlet
+    public class RemoveWebService : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }

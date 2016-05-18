@@ -13,7 +13,7 @@ using System.Web.Script.Serialization;
 namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWorkspace")]
-    public class GetWorkspace : AzureMLPsCmdlet
+    public class GetWorkspace : AmlCmdlet
     {     
         protected override void ProcessRecord()
         {
@@ -112,7 +112,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Add, "AmlWorkspaceUsers")]
-    public class AddWorkspaceUsers : AzureMLPsCmdlet {
+    public class AddWorkspaceUsers : AmlCmdlet {
         [Parameter(Mandatory = true)]
         public string Emails { get; set; }
         [Parameter(Mandatory = true)]
@@ -127,7 +127,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Get, "AmlWorkspaceUsers")]
-    public class GetWorkspaceUsers : AzureMLPsCmdlet
+    public class GetWorkspaceUsers : AmlCmdlet
     {
         public GetWorkspaceUsers() { }
         protected override void ProcessRecord()

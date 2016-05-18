@@ -7,7 +7,7 @@ using System.Web.Script.Serialization;
 namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
-    public class GetDatasetCmdlet : AzureMLPsCmdlet
+    public class GetDatasetCmdlet : AmlCmdlet
     {
         protected override void ProcessRecord()
         {            
@@ -17,7 +17,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Upload", "AmlDataset")]
-    public class UploadDatasetCmdlet: AzureMLPsCmdlet
+    public class UploadDatasetCmdlet: AmlCmdlet
     {
         [Parameter(Mandatory =false)]
         [ValidateSet("GenericCSV", "GenericCSVNoHeader", "GenericTSV", "GenericTSVNoHeader", "ARFF", "Zip", "RData", "PlainText")]
@@ -83,7 +83,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Download", "AmlDataset")]
-    public class DownloadDatasetCmdlet : AzureMLPsCmdlet
+    public class DownloadDatasetCmdlet : AmlCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "Dataset Id")]
         public string DatasetId { get; set; }
@@ -115,7 +115,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlDataset")]
-    public class RemoveDatasetCmdlet : AzureMLPsCmdlet
+    public class RemoveDatasetCmdlet : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string DatasetFamilyId { get; set; }

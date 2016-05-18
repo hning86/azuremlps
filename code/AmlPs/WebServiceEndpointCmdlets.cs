@@ -5,7 +5,7 @@ using System.Management.Automation;
 namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWebServiceEndpoint")]
-    public class GetWebServiceEndpoint : AzureMLPsCmdlet
+    public class GetWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -29,7 +29,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlWebServiceEndpoint")]
-    public class RemoveWebServiceEndpoint : AzureMLPsCmdlet
+    public class RemoveWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -44,7 +44,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Add, "AmlWebServiceEndpoint")]
-    public class AddWebServiceEndpoint : AzureMLPsCmdlet
+    public class AddWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -84,7 +84,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Refresh", "AmlWebServiceEndpoint")]
-    public class RefreshWebServiceEndpoint : AzureMLPsCmdlet
+    public class RefreshWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -101,7 +101,7 @@ namespace AzureMachineLearning.PowerShell
     }
 
     [Cmdlet("Patch", "AmlWebServiceEndpoint")]
-    public class PatchWebServiceEndpoint: AzureMLPsCmdlet
+    public class PatchWebServiceEndpoint: AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
