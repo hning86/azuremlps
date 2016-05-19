@@ -38,7 +38,7 @@ namespace AzureMachineLearning.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-           Task<string> uploadTask = Client.UploadDatasetAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = Client.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)

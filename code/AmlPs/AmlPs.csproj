@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AmlClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Azure.MachineLearning.Client.1.0.0-beta\lib\net452\AmlClient.dll</HintPath>
+      <HintPath>..\AmlClient\bin\Debug\AmlClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
