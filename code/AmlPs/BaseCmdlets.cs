@@ -22,7 +22,7 @@ namespace AzureMachineLearning.PowerShell
         protected Client Client { get; private set; }
         public AzureMLPsCmdletBase()
         {            
-            Client = new Client("powershell_0.2");
+            Client = new Client("powershell_" + Client.Version);
         }        
     }
 

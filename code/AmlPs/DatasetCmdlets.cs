@@ -19,7 +19,7 @@ namespace AzureMachineLearning.PowerShell
     [Cmdlet("Upload", "AmlDataset")]
     public class UploadDatasetCmdlet: AmlCmdlet
     {
-        [Parameter(Mandatory =false)]
+        [Parameter(Mandatory = false)]
         [ValidateSet("GenericCSV", "GenericCSVNoHeader", "GenericTSV", "GenericTSVNoHeader", "ARFF", "Zip", "RData", "PlainText")]
         public string FileFormat { get; set; }
 
@@ -53,7 +53,7 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 2;
             pr.StatusDescription = "Generating schema for dataset \"" + DatasetName + "\"";
             pr.CurrentOperation = "Generating schema...";
-            WriteProgress(pr);            
+            WriteProgress(pr);
             JavaScriptSerializer jss = new JavaScriptSerializer();
             dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
             string dtId = parsed["DataTypeId"];
@@ -125,4 +125,6 @@ namespace AzureMachineLearning.PowerShell
             WriteObject("Dataset removed.");
         }       
     }
+
+   
 }

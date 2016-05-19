@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.2
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.4
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -13,6 +13,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
+* __Manage Custom Module__
+  * Add a new custom modle to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
 * __Manage Experiment__
   * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
@@ -234,6 +236,14 @@ $dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
 #Delete the dataset from Workspace
 Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
+
+### Manage Custom Module
+#### New-AmlCustomModule
+```
+#Upload a new Custom Module from C:\Temp\MyModule.zip
+New-AmlCustomModule -CustomModuleZipFileName 'C:\Temp\MyModule.zip'
+```
+
 ### Manage Experiment
 #### Get-AmlExperiment 
 
@@ -312,7 +322,7 @@ This commandlet deploys a new Web Service with a default endpoint from a Predict
 
 ```
 #Get the Predictive Experiment metadata 
-$exp = Get-AmlExperiment | where Description -eq 'xyz'
+$exp = (Get-AmlExperiment | where Description -eq 'xyz')[0]
 #Deploy Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
 #Display newly created Web Service
@@ -325,8 +335,8 @@ $webService
 #### Remove-AmlWebService 
 
 ```
-#Get the Web Service named 'abc'
-$webSvc = Get-AmlWebService | Where Name -eq 'abc'
+#Get the first Web Service named 'abc'
+$webSvc = (Get-AmlWebService | Where Name -eq 'abc')[0]
 #Delete the Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
@@ -369,7 +379,7 @@ Please note:
 * For Standard Workspace the _-ThrottleLevel_ values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of _-MaxConcurrentCalls_ is ignored and the parameter is defaulted to 4. When it is set to 'High', the valid value of _-MaxConcurrentCalls_ is between 1 and 200. Check out this [article](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-scaling-endpoints/) for more on Web Service Endpoints scaling. 
 
 #### Refresh-AmlWebServiceEndpoint
-Refreshing Endpoint essentially takes the graph of the latest parent Predictive Experiment and applies it to the specified non-default Endpoint. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. When this switch left unset, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+Refreshing Endpoint takes the graph behind the default endpoint and applies it to the specified non-default Endpoint. When you republish/update a Web Service from an Experiment, only the default Endpoint is updated. You will need to use the refersh method to update the non-default Endpoints. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. Without it, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 ```
 #Refresh the endpoint 'ep03'

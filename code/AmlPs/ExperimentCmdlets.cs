@@ -17,8 +17,7 @@ namespace AzureMachineLearning.PowerShell
             WriteObject("Experiment removed.");
         }
     }
-   
-    // Note this Commandlet users an unsupported API that might break in the future!
+
     [Cmdlet(VerbsCommon.Copy, "AmlExperimentFromGallery")]
     public class CopyExperimentFromGallery : AmlCmdlet
     {
@@ -31,7 +30,6 @@ namespace AzureMachineLearning.PowerShell
 
         protected override void ProcessRecord()
         {
-            WriteWarning("Note this Commandlet uses an unsupported API that might break in the future!");
             ProgressRecord pr = new ProgressRecord(1, "Copy from Gallery", "Gallery Experiment");
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Unpacking experiment from Gallery to workspace...";

@@ -1,5 +1,4 @@
 ﻿using System.Management.Automation;
-using System;
 
 
 
@@ -54,8 +53,6 @@ namespace AzureMachineLearning.PowerShell
                 pr.PercentComplete++;
                 WriteProgress(pr);
                 status = Client.GetWebServiceCreationStatus(GetWorkspaceSetting(), status.ActivityId);
-                if (status.Status == "Failed")
-                    throw new Exception("Failed to create web service. Activity Id: " + status.ActivityId);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);

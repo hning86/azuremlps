@@ -15,6 +15,7 @@ namespace AzureMachineLearning
 {
     public sealed class Client
     {
+        public const string Version = "0.2.4";
         private DataContractJsonSerializer ser;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml.net/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml.net/";
@@ -26,7 +27,7 @@ namespace AzureMachineLearning
 
         internal Util Util { get; private set; }
 
-        private string _sdkName = "dotnetsdk_0.2.2";
+        private string _sdkName = "dotnetsdk_" + Version;
 
         public Client()
         {
@@ -175,17 +176,13 @@ namespace AzureMachineLearning
                 });
             httpReq.ContentLength = payload.Length;
             Stream stream = httpReq.GetRequestStream();
-
-            //byte[] buffer = System.Text.Encoding.GetEncoding(1252).GetBytes(payload);
-            byte[] buffer = ASCIIEncoding.ASCII.GetBytes(payload);
+            byte[] buffer = Encoding.UTF8.GetBytes(payload);
             stream.Write(buffer, 0, buffer.Length);
-            
-            WebResponse resp = await httpReq.GetResponseAsync();
 
-            long len = resp.ContentLength;
-            buffer = new byte[len];
-            resp.GetResponseStream().Read(buffer, 0, (int)len);
-            string result = ASCIIEncoding.ASCII.GetString(buffer);            
+            WebResponse resp = await httpReq.GetResponseAsync();                       
+            StreamReader sr = new StreamReader(resp.GetResponseStream());
+            string result = sr.ReadToEnd();
+                        
             dynamic d = jss.Deserialize<object>(result);
             return d["Id"];
         }
@@ -196,10 +193,8 @@ namespace AzureMachineLearning
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
             
             WebResponse resp = httpReq.GetResponse();
-            long len = resp.ContentLength;
-            byte[] buffer = new byte[len];
-            resp.GetResponseStream().Read(buffer, 0, (int)len);
-            string result = ASCIIEncoding.ASCII.GetString(buffer);
+            StreamReader sr = new StreamReader(resp.GetResponseStream());
+            string result = sr.ReadToEnd();            
             JavaScriptSerializer jss = new JavaScriptSerializer();
             WorkspaceRdfe ws = jss.Deserialize<WorkspaceRdfe>(result);
             return ws;
@@ -315,12 +310,35 @@ namespace AzureMachineLearning
             fs.Close();
         }
 
-        public async Task<string> UploadDatasetAsnyc(WorkspaceSetting setting, string FileFormat, string UploadFileName)
+        public async Task<string> UploadResourceAsnyc(WorkspaceSetting setting, string fileFormat, string fileName)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, FileFormat);
-            HttpResult hr = await Util.HttpPostFile(query, UploadFileName);
+            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            HttpResult hr = await Util.HttpPostFile(query, fileName);
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            return hr.Payload;
+        }
+
+        public string UploadResource(WorkspaceSetting setting, string fileFormat)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            HttpResult hr = Util.HttpPost(query, string.Empty).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            return hr.Payload;
+        }
+
+        public async Task<string> UploadResourceInChunksAsnyc(WorkspaceSetting setting, int numOfBlocks, int blockId, string uploadId, string fileName, string fileFormat)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("blobuploads/workspaces/{0}/?numberOfBlocks={1}&blockId={2}&uploadId={3}&dataTypeId={4}", 
+                setting.WorkspaceId, numOfBlocks, blockId, uploadId, fileFormat);
+            HttpResult hr = await Util.HttpPostFile(query, fileName);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
             return hr.Payload;
@@ -366,6 +384,32 @@ namespace AzureMachineLearning
             dynamic parsed = jss.Deserialize<object>(hr.Payload);
             string schemaJobStatus = parsed["SchemaStatus"];
             return schemaJobStatus;
+        }
+        #endregion
+
+        #region Custom Module
+        public string BeginParseCustomModuleJob(WorkspaceSetting setting, string moduleUploadMetadata)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/modules/custom", setting.WorkspaceId);
+            HttpResult hr = Util.HttpPost(query, moduleUploadMetadata).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            string activityId = hr.Payload.Replace("\"", "");
+            return activityId;            
+        }
+
+        public string GetCustomModuleBuildJobStatus(WorkspaceSetting setting, string activityGroupId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/modules/custom?activityGroupId={1}", setting.WorkspaceId, activityGroupId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            string jobStatus = hr.Payload;
+            return jobStatus;
         }
         #endregion
 
