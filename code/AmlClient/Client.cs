@@ -1,6 +1,4 @@
-﻿using AzureML.Contract;
-using AzureML.PowerShell;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,9 +11,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 
-namespace AzureML
+namespace AzureMachineLearning
 {
-    public class ManagementSDK
+    public sealed class Client
     {
         public const string Version = "0.2.4";
         private DataContractJsonSerializer ser;
@@ -26,14 +24,17 @@ namespace AzureML
 
         public string StudioApi = "https://studioapi.azureml.net/api/";
         public string WebServiceApi = "https://management.azureml.net/";
-        protected ManagementUtil Util { get; private set; }
+
+        internal Util Util { get; private set; }
+
         private string _sdkName = "dotnetsdk_" + Version;
-        public ManagementSDK()
+
+        public Client()
         {
-            Util = new ManagementUtil(_sdkName);
+            Util = new Util(_sdkName);
         }
 
-        internal ManagementSDK(string sdkName) : this()
+        public Client(string sdkName) : this()
         {
             _sdkName = sdkName;
         }

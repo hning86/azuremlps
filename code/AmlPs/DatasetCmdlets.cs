@@ -1,24 +1,23 @@
-﻿using AzureML.Contract;
-using System.IO;
+﻿using System.IO;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
-    public class GetDatasetCmdlet : AzureMLPsCmdlet
+    public class GetDatasetCmdlet : AmlCmdlet
     {
         protected override void ProcessRecord()
         {            
-            Dataset[] datasets = Sdk.GetDataset(GetWorkspaceSetting());
+            Dataset[] datasets = Client.GetDataset(GetWorkspaceSetting());
             WriteObject(datasets, true);
         }
     }
 
     [Cmdlet("Upload", "AmlDataset")]
-    public class UploadDatasetCmdlet : AzureMLPsCmdlet
+    public class UploadDatasetCmdlet: AmlCmdlet
     {
         [Parameter(Mandatory = false)]
         [ValidateSet("GenericCSV", "GenericCSVNoHeader", "GenericTSV", "GenericTSVNoHeader", "ARFF", "Zip", "RData", "PlainText")]
@@ -39,7 +38,7 @@ namespace AzureML.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-            Task<string> uploadTask = Sdk.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = Client.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -58,8 +57,8 @@ namespace AzureML.PowerShell
             JavaScriptSerializer jss = new JavaScriptSerializer();
             dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
             string dtId = parsed["DataTypeId"];
-            string uploadId = parsed["Id"];
-            string dataSourceId = Sdk.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
+            string uploadId = parsed["Id"];            
+            string dataSourceId = Client.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";
@@ -72,7 +71,7 @@ namespace AzureML.PowerShell
                 pr.CurrentOperation = "Schema generation status: " + schemaJobStatus;
                 WriteProgress(pr);
 
-                schemaJobStatus = Sdk.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
+                schemaJobStatus = Client.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
                 if (schemaJobStatus == "NotSupported" || schemaJobStatus == "Complete" || schemaJobStatus == "Failed")
                     break;
             }
@@ -84,7 +83,7 @@ namespace AzureML.PowerShell
     }
 
     [Cmdlet("Download", "AmlDataset")]
-    public class DownloadDatasetCmdlet : AzureMLPsCmdlet
+    public class DownloadDatasetCmdlet : AmlCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "Dataset Id")]
         public string DatasetId { get; set; }
@@ -98,7 +97,7 @@ namespace AzureML.PowerShell
             pr.CurrentOperation = "Downloading...";
             WriteProgress(pr);
 
-            Task task = Sdk.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
+            Task task = Client.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
             while (!task.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -116,13 +115,13 @@ namespace AzureML.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlDataset")]
-    public class RemoveDatasetCmdlet : AzureMLPsCmdlet
+    public class RemoveDatasetCmdlet : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string DatasetFamilyId { get; set; }
         protected override void BeginProcessing()
         {            
-            Sdk.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
+            Client.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
             WriteObject("Dataset removed.");
         }       
     }

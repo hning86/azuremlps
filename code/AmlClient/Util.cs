@@ -1,5 +1,4 @@
-﻿using AzureML.Contract;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,21 +7,22 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AzureML
-{    public class ManagementUtil
+namespace AzureMachineLearning
+{
+    internal class Util
     {
-        internal string AuthorizationToken { get; set; }
+        public string AuthorizationToken { get; set; }
         private string _sdkName { get; set; }
-        internal ManagementUtil(string sdkName)
+        public Util(string sdkName)
         {
             _sdkName = sdkName;
         }
-        internal HttpClient GetAuthenticatedHttpClient()
+        public HttpClient GetAuthenticatedHttpClient()
         {
             return GetAuthenticatedHttpClient(AuthorizationToken);
         }
 
-        internal HttpClient GetAuthenticatedHttpClient(string authCode)
+        public HttpClient GetAuthenticatedHttpClient(string authCode)
         {
             HttpClient hc = new HttpClient();
             // used by O16N API
@@ -34,7 +34,7 @@ namespace AzureML
             return hc;
         }
 
-        internal async Task<HttpResult> HttpPost(string url, string jsonBody)
+        public async Task<HttpResult> HttpPost(string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
@@ -45,7 +45,7 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> HttpPatch(string url, string jsonBody)
+        public async Task<HttpResult> HttpPatch(string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
@@ -56,7 +56,7 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> HttpPostFile(string url, string filePath)
+        public async Task<HttpResult> HttpPostFile(string url, string filePath)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
             StreamContent sc = new StreamContent(File.OpenRead(filePath));
@@ -65,7 +65,7 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> CreateHttpResult(HttpResponseMessage hrm)
+        public async Task<HttpResult> CreateHttpResult(HttpResponseMessage hrm)
         {
             HttpResult hr = new HttpResult
             {
@@ -78,19 +78,19 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> HttpDelete(string url)
+        public async Task<HttpResult> HttpDelete(string url)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
             HttpResponseMessage resp = await hc.DeleteAsync(url);
             HttpResult hr = await CreateHttpResult(resp);
             return hr;
         }
-        internal async Task<HttpResult> HttpPut(string url, string body)
+        public async Task<HttpResult> HttpPut(string url, string body)
         {
             return await HttpPut(AuthorizationToken, url, body);
         }
 
-        internal async Task<HttpResult> HttpPut(string authCode, string url, string body)
+        public async Task<HttpResult> HttpPut(string authCode, string url, string body)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
             if (authCode != string.Empty)
@@ -100,17 +100,17 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> HttpGet(string url)
+        public async Task<HttpResult> HttpGet(string url)
         {
             return await HttpGet(AuthorizationToken, url, true);
         }
 
-        internal async Task<HttpResult> HttpGet(string url, bool withAuthHeader)
+        public async Task<HttpResult> HttpGet(string url, bool withAuthHeader)
         {
             return await HttpGet(AuthorizationToken, url, withAuthHeader);
         }
 
-        internal async Task<HttpResult> HttpGet(string authCode, string url, bool withAutHeader)
+        public async Task<HttpResult> HttpGet(string authCode, string url, bool withAutHeader)
         {
             HttpClient hc = new HttpClient();
             if (withAutHeader)

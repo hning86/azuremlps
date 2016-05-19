@@ -1,5 +1,4 @@
-﻿using AzureML.Contract;
-using AzureML.PowerShell;
+﻿using AzureMachineLearning.PowerShell;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,14 +10,14 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWorkspace")]
-    public class GetWorkspace : AzureMLPsCmdlet
+    public class GetWorkspace : AmlCmdlet
     {     
         protected override void ProcessRecord()
         {
-            Workspace ws = this.Sdk.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
+            Workspace ws = this.Client.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
             WriteObject(ws);
         }     
     }
@@ -32,7 +31,7 @@ namespace AzureML.PowerShell
         public string AzureSubscriptionId;
         protected override void ProcessRecord()
         {
-            WorkspaceRdfe[] workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
+            WorkspaceRdfe[] workspaces = Client.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
             WriteObject(workspaces, true);
         }
     }
@@ -61,7 +60,7 @@ namespace AzureML.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Creating...";
             WriteProgress(pr);
-            Task<string> createWS = Sdk.CreateWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceName, Location, StorageAccountName, StorageAccountKey, OwnerEmail, "PowerShell");
+            Task<string> createWS = Client.CreateWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceName, Location, StorageAccountName, StorageAccountKey, OwnerEmail, "PowerShell");
             while (!createWS.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -75,7 +74,7 @@ namespace AzureML.PowerShell
             pr.CurrentOperation = "Getting status...";
             WriteProgress(pr);
             string wsId = createWS.Result;
-            WorkspaceRdfe ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+            WorkspaceRdfe ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
             pr.CurrentOperation = "Status: " + ws.WorkspaceState;
             WriteProgress(pr);
             while (ws.WorkspaceState != "Enabled")
@@ -87,7 +86,7 @@ namespace AzureML.PowerShell
                 else
                     pr.PercentComplete = 1;                
                 Thread.Sleep(500);
-                ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+                ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);
@@ -107,13 +106,13 @@ namespace AzureML.PowerShell
         public string WorkspaceId;
         protected override void ProcessRecord()
         {
-            Sdk.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId);
+            Client.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId);
             WriteObject("Workspace removed.");
         }
     }
 
     [Cmdlet(VerbsCommon.Add, "AmlWorkspaceUsers")]
-    public class AddWorkspaceUsers : AzureMLPsCmdlet {
+    public class AddWorkspaceUsers : AmlCmdlet {
         [Parameter(Mandatory = true)]
         public string Emails { get; set; }
         [Parameter(Mandatory = true)]
@@ -122,18 +121,18 @@ namespace AzureML.PowerShell
         public AddWorkspaceUsers() { }
         protected override void ProcessRecord()
         {            
-            Sdk.AddWorkspaceUsers(GetWorkspaceSetting(), Emails, Role);
+            Client.AddWorkspaceUsers(GetWorkspaceSetting(), Emails, Role);
             WriteObject("User(s) added to the Workspace.");
         }
     }
 
     [Cmdlet(VerbsCommon.Get, "AmlWorkspaceUsers")]
-    public class GetWorkspaceUsers : AzureMLPsCmdlet
+    public class GetWorkspaceUsers : AmlCmdlet
     {
         public GetWorkspaceUsers() { }
         protected override void ProcessRecord()
         {
-            WorkspaceUser[] users = Sdk.GetWorkspaceUsers(GetWorkspaceSetting());
+            WorkspaceUser[] users = Client.GetWorkspaceUsers(GetWorkspaceSetting());
             WriteObject(users);
         }
     }

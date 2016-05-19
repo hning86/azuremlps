@@ -1,12 +1,11 @@
-﻿using AzureML.Contract;
-using System;
+﻿using System;
 using System.IO;
 using System.Management.Automation;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWebServiceEndpoint")]
-    public class GetWebServiceEndpoint : AzureMLPsCmdlet
+    public class GetWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -18,19 +17,19 @@ namespace AzureML.PowerShell
         {         
             if (string.IsNullOrEmpty(EndpointName))
             {                
-                WebServiceEndPoint[] weps = Sdk.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
+                WebServiceEndPoint[] weps = Client.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
                 WriteObject(weps, true);
             }
             else
             {
-                WebServiceEndPoint wep = Sdk.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+                WebServiceEndPoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
                 WriteObject(wep);
             }
         }
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlWebServiceEndpoint")]
-    public class RemoveWebServiceEndpoint : AzureMLPsCmdlet
+    public class RemoveWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -39,13 +38,13 @@ namespace AzureML.PowerShell
         protected override void ProcessRecord()
         {            
             string rawOutcome = string.Empty;
-            Sdk.RemoveWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Client.RemoveWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName);
             WriteObject(string.Format("Web service endpoint \"{0}\" was successfully removed.", EndpointName));
         }
     }
 
     [Cmdlet(VerbsCommon.Add, "AmlWebServiceEndpoint")]
-    public class AddWebServiceEndpoint : AzureMLPsCmdlet
+    public class AddWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -79,13 +78,13 @@ namespace AzureML.PowerShell
                 ThrottleLevel = ThrottleLevel,
                 MaxConcurrentCalls = MaxConcurrentCalls
             };            
-            Sdk.AddWebServiceEndpoint(GetWorkspaceSetting(), req);
+            Client.AddWebServiceEndpoint(GetWorkspaceSetting(), req);
             WriteObject(string.Format("Web service endpoint \"{0}\" was successfully added.", EndpointName));
         }
     }
 
     [Cmdlet("Refresh", "AmlWebServiceEndpoint")]
-    public class RefreshWebServiceEndpoint : AzureMLPsCmdlet
+    public class RefreshWebServiceEndpoint : AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -95,14 +94,14 @@ namespace AzureML.PowerShell
         public SwitchParameter OverwriteResources { get; set; }
         protected override void ProcessRecord()
         {            
-            WebServiceEndPoint wse = Sdk.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
-            Sdk.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
+            WebServiceEndPoint wse = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Client.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
             WriteObject(string.Format("Endpoint \"{0}\" is refreshed.", wse.Name));
         }        
     }
 
     [Cmdlet("Patch", "AmlWebServiceEndpoint")]
-    public class PatchWebServiceEndpoint: AzureMLPsCmdlet
+    public class PatchWebServiceEndpoint: AmlCmdlet
     {
         [Parameter(Mandatory = true)]
         public string WebServiceId { get; set; }
@@ -132,14 +131,14 @@ namespace AzureML.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Getting web service...";
             WriteProgress(pr);
-            WebService ws = Sdk.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
+            WebService ws = Client.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
 
             pr.PercentComplete = 10;
             pr.StatusDescription = "Web Service \"" + ws.Name + "\"";
             pr.CurrentOperation = "Getting web service endpoint...";
             WriteProgress(pr);
 
-            WebServiceEndPoint wep = Sdk.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            WebServiceEndPoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
             pr.PercentComplete = 20;
             pr.StatusDescription = "Web Service \"" + ws.Name + "\", Endpoint \"" + wep.Name + "\"";
             pr.CurrentOperation = "Patching web service endpoint with new trained model...";
@@ -158,7 +157,7 @@ namespace AzureML.PowerShell
                     }
                 }
             };
-            Sdk.PatchWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName, patchReq);
+            Client.PatchWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName, patchReq);
             WriteObject(string.Format("Endpoint \"{0}\" resource \"{1}\" successfully patched.", wep.Name, wep.Resources[0].Name));
         }
     }

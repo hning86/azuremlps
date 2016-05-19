@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace AzureML.Contract
+namespace AzureMachineLearning
 {
     public class WorkspaceUser
     {

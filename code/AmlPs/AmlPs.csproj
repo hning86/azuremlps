@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AmlClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\AmlClient\bin\Debug\AmlClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -51,21 +55,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AzureMLSDK.cs" />
-    <Compile Include="PowerShell\BaseCmdlets.cs" />
-    <Compile Include="Contracts.cs" />
-    <Compile Include="PowerShell\CustomModuleCmdlets.cs" />
-    <Compile Include="PowerShell\DatasetCmdlets.cs" />
-    <Compile Include="PowerShell\ExperimentCmdlets.cs" />
-    <Compile Include="PowerShell\InvokeWebServiceCmdlets.cs" />
-    <Compile Include="Util.cs" />
-    <Compile Include="PowerShell\WebServiceCmdlets.cs" />
-    <Compile Include="PowerShell\WorkspaceCmdlets.cs" />
+    <Compile Include="BaseCmdlets.cs" />
+    <Compile Include="DatasetCmdlets.cs" />
+    <Compile Include="ExperimentCmdlets.cs" />
+    <Compile Include="InvokeWebServiceCmdlets.cs" />
+    <Compile Include="WebServiceCmdlets.cs" />
+    <Compile Include="WorkspaceCmdlets.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PowerShell\WebServiceEndpointCmdlets.cs" />
+    <Compile Include="WebServiceEndpointCmdlets.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.ps1" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -12,22 +12,21 @@ using System.Xml.XPath;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Web;
-using AzureML.Contract;
-using AzureML;
+using AzureMachineLearning;
 
-namespace AzureML.PowerShell
+namespace AzureMachineLearning.PowerShell
 {
     public class AzureMLPsCmdletBase : PSCmdlet
     {        
         protected DataContractJsonSerializer ser;        
-        protected ManagementSDK Sdk { get; private set; }
+        protected Client Client { get; private set; }
         public AzureMLPsCmdletBase()
         {            
-            Sdk = new ManagementSDK("powershell_" + AzureML.ManagementSDK.Version);
+            Client = new Client("powershell_" + Client.Version);
         }        
     }
 
-    public class AzureMLPsCmdlet : AzureMLPsCmdletBase
+    public class AmlCmdlet : AzureMLPsCmdletBase
     {
         // default config.json file path.
         private string _configFilePath = "./config.json";
@@ -51,7 +50,7 @@ namespace AzureML.PowerShell
         private string _authToken = string.Empty;
         [Parameter(Mandatory = false)]
         public string AuthorizationToken;
-        public AzureMLPsCmdlet()
+        public AmlCmdlet()
         {            
             ReadConfigFromFile(false);
         }        
