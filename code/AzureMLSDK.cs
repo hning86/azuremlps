@@ -12,25 +12,31 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
+using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace AzureML
-{
+{    
     public class ManagementSDK
     {
-        public const string Version = "0.2.4";
-        private DataContractJsonSerializer ser;
-        private string _studioApiBaseURL = @"https://{0}studioapi.azureml.net/api/";
-        private string _webServiceApiBaseUrl = @"https://{0}management.azureml.net/";
+        public const string Version = "0.2.5";        
+        private JavaScriptSerializer jss;
+        private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
+        private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
+
         private string _azMgmtApiBaseUrl = @"https://management.core.windows.net/{0}/cloudservices/amlsdk/resources/machinelearning/~/workspaces/";
         private string httpResponsePayload = string.Empty;
 
         public string StudioApi = "https://studioapi.azureml.net/api/";
         public string WebServiceApi = "https://management.azureml.net/";
+        public string GraphLayoutApi = "http://daglayoutservice20160320092532.azurewebsites.net/api/";
+        //public string GraphLayoutApi = "http://localhost:53107/api/";
         protected ManagementUtil Util { get; private set; }
         private string _sdkName = "dotnetsdk_" + Version;
         public ManagementSDK()
         {
             Util = new ManagementUtil(_sdkName);
+            jss = new JavaScriptSerializer();
         }
 
         internal ManagementSDK(string sdkName) : this()
@@ -40,7 +46,7 @@ namespace AzureML
 
         #region Private helpers
         private void ValidateWorkspaceSetting(WorkspaceSetting setting)
-        {            
+        {
             if (setting.Location == null || setting.Location == string.Empty)
                 throw new ArgumentException("No Location specified.");
             if (setting.WorkspaceId == null || setting.WorkspaceId == string.Empty)
@@ -57,30 +63,43 @@ namespace AzureML
             {
                 case "south central us":
                     key = "";
+                    SetAPIEndpoints(key, ".net");
                     break;
                 case "west europe":
                     key = "europewest.";
+                    SetAPIEndpoints(key, ".net");
                     break;
                 case "southeast asia":
                     key = "asiasoutheast.";
+                    SetAPIEndpoints(key, ".net");
+                    break;
+                case "germany central":
+                    key = "germanycentral.";
+                    SetAPIEndpoints(key, ".de");
+                    break;
+                case "integration test":
+                    key = "";
+                    SetAPIEndpoints(key, "-int.net");
                     break;
                 default:
                     throw new Exception("Unsupported location: " + location);
-            }
-            StudioApi = string.Format(_studioApiBaseURL, key);
-            WebServiceApi = string.Format(_webServiceApiBaseUrl, key);
+            }                                 
+        }
+
+        private void SetAPIEndpoints(string key, string postfix)
+        {
+            StudioApi = string.Format(_studioApiBaseURL, key, postfix);
+            WebServiceApi = string.Format(_webServiceApiBaseUrl, key, postfix);
         }
 
         private string GetExperimentGraphFromJson(string rawJson)
-        {
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+        {            
             dynamic parsed = jss.Deserialize<object>(rawJson);
             string graph = jss.Serialize(parsed["Graph"]);
             return graph;
         }
         private string GetExperimentWebServiceFromJson(string rawJson)
-        {
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+        {         
             dynamic parsed = jss.Deserialize<object>(rawJson);
             string webService = jss.Serialize(parsed["WebService"]);
             return webService;
@@ -137,6 +156,33 @@ namespace AzureML
               thumbprint));
         }
 
+        public string UpdateNodesPositions(string jsonGraph, StudioGraph graph)
+        {            
+            dynamic experimentDag = jss.Deserialize<object>(jsonGraph);
+            List<string> regularNodes = ExtractNodesFromXml(experimentDag["Graph"]["SerializedClientData"]);                         
+            List<string> webServiceNodes = ExtractNodesFromXml(experimentDag["WebService"]["SerializedClientData"]);            
+
+            StringBuilder newPositions = new StringBuilder();            
+            if (regularNodes.Count > 0)
+            {
+                foreach (var node in graph.Nodes.Where(n => regularNodes.Contains(n.Id)))
+                    newPositions.Append("<NodePosition Node='" + node.Id + "' Position='" + node.CenterX + "," + node.CenterY + "," + node.Width + "," + node.Height + "'/>");
+                string oldPositions = Regex.Match(experimentDag["Graph"]["SerializedClientData"].ToString(), "<NodePositions>(.*)</NodePositions>").Groups[1].Value;
+                jsonGraph = jsonGraph.Replace(oldPositions, newPositions.ToString());
+            }
+            
+            if (webServiceNodes.Count > 0)
+            {
+                newPositions.Clear();
+                foreach (var node in graph.Nodes.Where(n => webServiceNodes.Contains(n.Id)))
+                    newPositions.Append("<NodePosition Node='" + node.Id + "' Position='" + node.CenterX + "," + node.CenterY + "," + node.Width + "," + node.Height + "'/>");
+                string oldPositions = Regex.Match(experimentDag["WebService"]["SerializedClientData"].ToString(), "<NodePositions>(.*)</NodePositions>").Groups[1].Value;
+                jsonGraph = jsonGraph.Replace(oldPositions, newPositions.ToString());
+            }
+
+            return jsonGraph;
+        }     
+
         #endregion
 
         #region Workspace
@@ -149,8 +195,7 @@ namespace AzureML
             StreamReader sr = new StreamReader(wr.GetResponseStream());
             string result = sr.ReadToEnd();
             wr.Close();
-            sr.Close();
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            sr.Close();            
             WorkspaceRdfe[] workspaces = jss.Deserialize<WorkspaceRdfe[]>(result);
             return workspaces;
         }
@@ -161,8 +206,7 @@ namespace AzureML
             string reqUrl = string.Format(_azMgmtApiBaseUrl + "/e582920d010646acbb0ec3183dc2243a", azureSubscriptionId);
 
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "PUT");            
-
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            
             string payload = jss.Serialize(new
                 {
                     Name = workspaceName,
@@ -193,8 +237,7 @@ namespace AzureML
             
             WebResponse resp = httpReq.GetResponse();
             StreamReader sr = new StreamReader(resp.GetResponseStream());
-            string result = sr.ReadToEnd();            
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            string result = sr.ReadToEnd();                        
             WorkspaceRdfe ws = jss.Deserialize<WorkspaceRdfe>(result);
             return ws;
         }
@@ -202,7 +245,7 @@ namespace AzureML
 
         public void RemoveWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceId)
         {
-            string reqUrl = string.Format("https://management.core.windows.net/{0}/cloudservices/{1}/resources/machinelearning/~/workspaces/{2}", azureSubscriptionId, "powershell", workspaceId);
+            string reqUrl = string.Format(_azMgmtApiBaseUrl + "{1}", azureSubscriptionId, workspaceId);
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "DELETE");
             
             WebResponse resp = httpReq.GetResponse();
@@ -220,9 +263,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
-                MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(hr.Payload));
-                ser = new DataContractJsonSerializer(typeof(Workspace));
-                Workspace ws = (Workspace)ser.ReadObject(ms);
+                Workspace ws = jss.Deserialize<Workspace>(hr.Payload);
                 return ws;
             }
             else
@@ -252,8 +293,7 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/users", setting.WorkspaceId);            
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 WorkspaceUserInternal[] usersInternal =  jss.Deserialize<WorkspaceUserInternal[]>(hr.Payload);
                 List<WorkspaceUser> users = new List<WorkspaceUser>();
                 foreach (WorkspaceUserInternal u in usersInternal)
@@ -273,8 +313,7 @@ namespace AzureML
             string query = StudioApi + string.Format("workspaces/{0}/datasources", setting.WorkspaceId);
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+                throw new AmlRestApiException(hr);            
             Dataset[] datasets = jss.Deserialize<Dataset[]>(hr.Payload);
             return datasets;
         }
@@ -296,8 +335,7 @@ namespace AzureML
             string url = StudioApi + string.Format("workspaces/{0}/datasources/{1}", setting.WorkspaceId, datasetId);
             HttpResult hr = Util.HttpGet(url).Result;
             if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+                throw new AmlRestApiException(hr);            
             Dataset ds = jss.Deserialize<Dataset>(hr.Payload);
             string downloadUrl = ds.DownloadLocation.BaseUri + ds.DownloadLocation.Location + ds.DownloadLocation.AccessCredential;
             hr = await Util.HttpGet(downloadUrl, false);
@@ -345,8 +383,7 @@ namespace AzureML
         public string StartDatasetSchemaGen(WorkspaceSetting setting, string dataTypeId, string uploadFileId, string datasetName, string description, string uploadFileName)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            Util.AuthorizationToken = setting.AuthorizationToken;            
             dynamic schemaJob = new
             {
                 DataSource = new
@@ -374,8 +411,7 @@ namespace AzureML
         public string GetDatasetSchemaGenStatus(WorkspaceSetting setting, string dataSourceId)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            Util.AuthorizationToken = setting.AuthorizationToken;            
             string query = StudioApi + string.Format("workspaces/{0}/datasources/{1}", setting.WorkspaceId, dataSourceId);
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
@@ -410,6 +446,18 @@ namespace AzureML
             string jobStatus = hr.Payload;
             return jobStatus;
         }
+
+        public Module[] GetModules(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/modules", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);            
+            Module[] modules = jss.Deserialize<Module[]>(hr.Payload);
+            return modules;
+        }
         #endregion
 
         #region Experiment
@@ -421,9 +469,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
-                MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(hr.Payload));
-                ser = new DataContractJsonSerializer(typeof(Experiment[]));
-                Experiment[] exps = (Experiment[])ser.ReadObject(ms);
+                Experiment[] exps = jss.Deserialize<Experiment[]>(hr.Payload);
                 // only display user's own experiments.
                 exps = exps.Where(e => e.Category == "user" || string.IsNullOrEmpty(e.Category)).ToArray();
                 return exps;
@@ -442,9 +488,7 @@ namespace AzureML
             if (hr.IsSuccess)
             {
                 rawJson = hr.Payload;
-                MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(hr.Payload));
-                ser = new DataContractJsonSerializer(typeof(Experiment));
-                Experiment exp = (Experiment)ser.ReadObject(ms);
+                Experiment exp = jss.Deserialize<Experiment>(hr.Payload);                
                 return exp;
             }
             else
@@ -491,8 +535,7 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&experimentid={1}/&clearCredentials=true&includeAuthorId=false", setting.WorkspaceId, experimentId);
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 PackingServiceActivity activity = jss.Deserialize<PackingServiceActivity>(hr.Payload);
                 return activity;
             }
@@ -513,8 +556,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(authCode, queryUrl, true).Result;
 
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 PackingServiceActivity activity = jss.Deserialize<PackingServiceActivity>(hr.Payload);
                 return activity;
             }
@@ -530,14 +572,15 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}", destWorkspaceId, HttpUtility.UrlEncode(packedLocation));
             HttpResult hr = Util.HttpPut(destWorkspaceAuthCode, queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 PackingServiceActivity activity = jss.Deserialize<PackingServiceActivity>(hr.Payload);
                 return activity;
             }
             throw new AmlRestApiException(hr);
         }
 
+        
+        // Note this API is NOT officially supported. It might break in the future and we won't support it if/when it happens.
         public PackingServiceActivity UnpackExperimentFromGallery(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
         {
             ValidateWorkspaceSetting(setting);
@@ -545,12 +588,126 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}&communityUri={2}&entityId={3}", setting.WorkspaceId, HttpUtility.UrlEncode(packageUri), HttpUtility.UrlEncode(galleryUrl), entityId);
             HttpResult hr = Util.HttpPut(setting.AuthorizationToken, queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 PackingServiceActivity activity = jss.Deserialize<PackingServiceActivity>(hr.Payload);
                 return activity;
             }
             throw new AmlRestApiException(hr);
+        }     
+
+        public string AutoLayoutGraph(string jsonGraph)
+        {            
+            StudioGraph sg = CreateStudioGraph(jss.Deserialize<object>(jsonGraph));            
+            HttpResult hr = Util.HttpPost(GraphLayoutApi + "AutoLayout", jss.Serialize(sg)).Result;
+            if (hr.IsSuccess)
+            {
+                sg = jss.Deserialize<StudioGraph>(hr.Payload);
+                string serializedGraph = jss.Serialize(sg);                
+                jsonGraph = UpdateNodesPositions(jsonGraph, sg);
+                return jsonGraph;
+            }
+            throw new AmlRestApiException(hr);
+        }
+
+        private List<string> ExtractNodesFromXml(string xml)
+        {
+            List<string> nodes = new List<string>();
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.LoadXml(xml);
+            foreach (XmlNode node in xDoc.SelectSingleNode("//NodePositions"))
+            {
+                string nodeId = node.Attributes["Node"].Value;                
+                nodes.Add(nodeId);
+            }
+            return nodes;
+        }
+
+        private void InsertNodesIntoGraph(dynamic dag, StudioGraph graph, string section)
+        {
+            string nodePositions = dag[section]["SerializedClientData"];
+            List<string> nodes = ExtractNodesFromXml(nodePositions);
+            foreach (var nodeId in nodes)
+                graph.Nodes.Add(new StudioGraphNode
+                {
+                    Id = nodeId,
+                    Width = 300,
+                    Height = 100,
+                    UserData = nodeId
+                });
+        }
+
+        private StudioGraph CreateStudioGraph(dynamic dag)
+        {            
+            StudioGraph graph = new StudioGraph();            
+            InsertNodesIntoGraph(dag, graph, "Graph");            
+            InsertNodesIntoGraph(dag, graph, "WebService");
+            // dataset nodes are treated differently because they don't show in the EdgesInternal section.
+            Dictionary<string, string> datasetNodes = new Dictionary<string, string>();
+            foreach (var moduleNode in dag["Graph"]["ModuleNodes"])
+            {
+                string nodeId = moduleNode["Id"];
+                foreach (var inputPort in moduleNode["InputPortsInternal"])
+                    if (inputPort["DataSourceId"] != null && !datasetNodes.Keys.Contains(nodeId)) // this is a dataset node
+                        datasetNodes.Add(nodeId, inputPort["DataSourceId"].ToString());
+            }
+
+            // normal edges
+            foreach (dynamic edge in dag["Graph"]["EdgesInternal"])
+            {
+                string sourceOutputPort = edge["SourceOutputPortId"].ToString();
+                string destInputPort = edge["DestinationInputPortId"].ToString();
+                string sourceNode = (sourceOutputPort.Split(':')[0]);
+                string destNode = (destInputPort.Split(':')[0]);
+                graph.Edges.Add(new StudioGraphEdge
+                {
+                    DestinationNode = graph.Nodes.Single(n => n.Id == destNode),
+                    SourceNode = graph.Nodes.Single(n => n.Id == sourceNode)
+                });
+            }
+
+            // dataset edges
+            foreach (string nodeId in datasetNodes.Keys)
+                graph.Edges.Add(new StudioGraphEdge {
+                    DestinationNode = graph.Nodes.Single(n => n.Id == nodeId),
+                    SourceNode = graph.Nodes.Single(n => n.Id == datasetNodes[nodeId])
+                    }
+                );
+
+            if (dag["WebService"] != null)
+            {
+                // web service input edges
+                if (dag["WebService"]["Inputs"] != null)
+                    foreach (var webSvcInput in dag["WebService"]["Inputs"])
+                    {
+                        if (webSvcInput["PortId"] != null)
+                        {
+                            string webSvcModuleId = webSvcInput["Id"].ToString();
+                            string connectedModuleId = webSvcInput["PortId"].ToString().Split(':')[0];
+                            graph.Edges.Add(new StudioGraphEdge
+                            {
+                                DestinationNode = graph.Nodes.Single(n => n.Id == connectedModuleId),
+                                SourceNode = graph.Nodes.Single(n => n.Id == webSvcModuleId)
+                            });                            
+                        }
+                    }
+
+                // web service output edges
+                if (dag["WebService"]["Outputs"] != null)
+                    foreach (var webSvcOutput in dag["WebService"]["Outputs"])
+                    {
+                        if (webSvcOutput["PortId"] != null)
+                        {
+                            string webSvcModuleId = webSvcOutput["Id"].ToString();
+                            string connectedModuleId = webSvcOutput["PortId"].ToString().Split(':')[0];
+                            graph.Edges.Add(new StudioGraphEdge
+                            {
+                                DestinationNode = graph.Nodes.Single(n => n.Id == webSvcModuleId),
+                                SourceNode = graph.Nodes.Single(n => n.Id == connectedModuleId)
+                            });
+                        }
+                    }
+            }            
+            return graph;
         }
         #endregion
 
@@ -563,11 +720,9 @@ namespace AzureML
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices", setting.WorkspaceId);
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
-            {
-                MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(hr.Payload));
-                ser = new DataContractJsonSerializer(typeof(WebService[]));
-                WebService[] wss = (WebService[])ser.ReadObject(ms);
-                return wss;
+            {                
+                WebService[] wss = jss.Deserialize<WebService[]>(hr.Payload);
+                return wss;                
             }
             else
                 throw new AmlRestApiException(hr);
@@ -580,9 +735,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
-                MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(hr.Payload));
-                ser = new DataContractJsonSerializer(typeof(WebService));
-                WebService ws = (WebService)ser.ReadObject(ms);
+                WebService ws = jss.Deserialize<WebService>(hr.Payload);                
                 return ws;
             }
             else
@@ -596,8 +749,7 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice", setting.WorkspaceId, predictiveExperimentId);
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {             
                 WebServiceCreationStatus status = jss.Deserialize<WebServiceCreationStatus>(hr.Payload);
                 return status;
             }
@@ -612,8 +764,7 @@ namespace AzureML
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice", setting.WorkspaceId, activityId);
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
-            {
-                JavaScriptSerializer jss = new JavaScriptSerializer();
+            {                
                 WebServiceCreationStatus status = jss.Deserialize<WebServiceCreationStatus>(hr.Payload);
                 return status;
             }
@@ -641,9 +792,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
-                ser = new DataContractJsonSerializer(typeof(WebServiceEndPoint[]));
-                MemoryStream ms = new MemoryStream(ASCIIEncoding.ASCII.GetBytes(hr.Payload));
-                WebServiceEndPoint[] weps = (WebServiceEndPoint[])ser.ReadObject(ms);
+                WebServiceEndPoint[] weps = jss.Deserialize<WebServiceEndPoint[]>(hr.Payload);                
                 return weps;
             }
             else
@@ -657,9 +806,7 @@ namespace AzureML
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
-                ser = new DataContractJsonSerializer(typeof(WebServiceEndPoint));
-                MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(hr.Payload));
-                WebServiceEndPoint ep = (WebServiceEndPoint)ser.ReadObject(ms);
+                WebServiceEndPoint ep = jss.Deserialize<WebServiceEndPoint>(hr.Payload);                
                 return ep;
             }
             else
@@ -670,29 +817,30 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, req.WebServiceId, req.EndpointName);
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, req.WebServiceId, req.EndpointName);            
             string body = jss.Serialize(req);
             HttpResult hr = Util.HttpPut(queryUrl, body).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
         }
-        public void RefreshWebServiceEndPoint(WorkspaceSetting setting, string webServiceId, string endpointName, bool overwriteResources)
+        public bool RefreshWebServiceEndPoint(WorkspaceSetting setting, string webServiceId, string endpointName, bool overwriteResources)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
             string query = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}/refresh", setting.WorkspaceId, webServiceId, endpointName);
             string body = "{\"OverwriteResources\": \"" + overwriteResources.ToString() + "\"}";
             HttpResult hr = Util.HttpPost(query, body).Result;
+            if (hr.StatusCode == 304) // no change detected so no update happened.
+                return false;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
+            return true;
         }
 
         public void PatchWebServiceEndpoint(WorkspaceSetting setting, string webServiceId, string endpointName, dynamic patchReq)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            Util.AuthorizationToken = setting.AuthorizationToken;            
             string body = jss.Serialize(patchReq);
             string url = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
             HttpResult hr = Util.HttpPatch(url, body).Result;
@@ -746,8 +894,7 @@ namespace AzureML
         public string GetBESJobStatus(string submitJobRequestUrl, string apiKey, string jobId, out string results)
         {
             Util.AuthorizationToken = apiKey;
-            string getJobStatusApiLocation = submitJobRequestUrl.Replace("jobs?api-version=2.0", "jobs/" + jobId + "?api-version=2.0");
-            JavaScriptSerializer jss = new JavaScriptSerializer();
+            string getJobStatusApiLocation = submitJobRequestUrl.Replace("jobs?api-version=2.0", "jobs/" + jobId + "?api-version=2.0");            
             HttpResult hr = Util.HttpGet(getJobStatusApiLocation).Result;
             if (!hr.IsSuccess)
                 throw new Exception(hr.Payload);

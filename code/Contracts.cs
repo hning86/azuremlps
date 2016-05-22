@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace AzureML.Contract
@@ -36,7 +37,7 @@ namespace AzureML.Contract
     {
         public string WorkspaceId { get; set; }
         public string AuthorizationToken { get; set; }
-        public string Location { get; set; }
+        public string Location { get; set; }        
     }
     public class Dataset
     {
@@ -228,5 +229,65 @@ namespace AzureML.Contract
     public class AmlRestApiException: Exception
     {
         public AmlRestApiException(HttpResult hr) : base("Error: [" + hr.StatusCode + " (" + hr.ReasonPhrase + ")]: " + hr.Payload) { }
+    }
+
+    public class StudioGraphNode
+    {
+        public string Id { get; set; }
+        public float CenterX { get; set; }
+        public float CenterY { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public string UserData { get; set; }        
+    }
+
+    public class StudioGraphEdge
+    {
+        public string Id { get; set; }
+        public StudioGraphNode SourceNode { get; set; }
+        public StudioGraphNode DestinationNode { get; set; }
+        public string UserData { get; set; }
+    }
+
+    public class StudioGraph
+    {
+        public StudioGraph()
+        {
+            Nodes = new List<StudioGraphNode>();
+            Edges = new List<StudioGraphEdge>();
+        }
+
+        public string Id { get; set; }
+        public List<StudioGraphNode> Nodes { get; set; }
+        public List<StudioGraphEdge> Edges { get; set; }
+        public string UserData { get; set; }        
+    }
+
+    public class Module
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Category { get; set; }
+        public string FamilyId { get; set; }
+        public bool IsDeterministic { get; set; }
+        public bool IsBlocking { get; set; }        
+        public string ModuleType { get; set; }
+        public string ReleaseState { get; set; }
+        public ModuleLanguageMetadata ModuleLanguage { get; set; }
+        public string ResourceUploadId { get; set; }
+        public int Size { get; set; }
+        public string CreatedDate { get; set; }
+        public string Owner { get; set; }
+        public bool IsLatest { get; set; }
+        public bool IsDeprecated { get; set; }
+        public string SourceOrigin { get; set; }
+        public string ClientVersion { get; set; }
+        public string ServiceVersion { get; set; }
+        public int Batch { get; set; }
+        public class ModuleLanguageMetadata {
+            public string Language { get; set; }
+            public string Version { get; set; }
+        }
     }
 }
