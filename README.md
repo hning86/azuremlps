@@ -77,7 +77,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 	* This value can be found in the Workspace drop-down. It is the Azure region the Workspace is provisioned in. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
-		* Northern Europe	
+		* West Europe	
 		* Germany Central
 		
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
