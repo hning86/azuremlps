@@ -32,7 +32,7 @@ namespace AzureML.PowerShell
         // default config.json file path.
         private string _configFilePath = "./config.json";
         [Parameter(Mandatory = false)]
-        [ValidateSet("South Central US", "West Europe", "Southeast Asia")]
+        [ValidateSet("South Central US", "West Europe", "Southeast Asia", "Germany Central", "Integration Test")]
         public string Location { get; set; }
         [Parameter(Mandatory = false)]
         public string ConfigFile
@@ -51,6 +51,8 @@ namespace AzureML.PowerShell
         private string _authToken = string.Empty;
         [Parameter(Mandatory = false)]
         public string AuthorizationToken;
+        [Parameter(Mandatory = false)]
+        public SwitchParameter IntegrationTest;
         public AzureMLPsCmdlet()
         {            
             ReadConfigFromFile(false);

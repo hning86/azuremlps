@@ -1,4 +1,5 @@
-﻿using AzureML.PowerShell;
+﻿using AzureML.Contract;
+using AzureML.PowerShell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,21 @@ using System.Web.Script.Serialization;
 
 namespace AzureMLPS.PowerShell
 {
+    [Cmdlet(VerbsCommon.Get, "AmlModule")]
+    public class GetModule : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = false)]
+        // switch, when set, to show custom modules only
+        public SwitchParameter Custom { get; set; }
+        protected override void BeginProcessing()
+        {
+            Module[] modules = Sdk.GetModules(GetWorkspaceSetting());
+            if (Custom.IsPresent)
+                modules = modules.Where(m => m.ReleaseState == "Custom").ToArray();
+            WriteObject(modules, true);
+        }
+    }
+
     [Cmdlet(VerbsCommon.New, "AmlCustomModule")]
     public class NewCustomModule : AzureMLPsCmdlet
     {

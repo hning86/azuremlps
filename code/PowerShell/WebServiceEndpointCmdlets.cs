@@ -96,8 +96,11 @@ namespace AzureML.PowerShell
         protected override void ProcessRecord()
         {            
             WebServiceEndPoint wse = Sdk.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
-            Sdk.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
-            WriteObject(string.Format("Endpoint \"{0}\" is refreshed.", wse.Name));
+            bool updated = Sdk.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
+            if (updated)
+                WriteObject(string.Format("Endpoint \"{0}\" " + (OverwriteResources.IsPresent ? "and the Trained Model(s) are" : "is") + " refreshed.", wse.Name));
+            else
+                WriteObject(string.Format("No change detected, so endpoint \"{0}\" is NOT refreshed.", wse.Name));
         }        
     }
 
