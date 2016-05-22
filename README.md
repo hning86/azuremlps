@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.4
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.5
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -14,7 +14,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
 * __Manage Custom Module__
-  * Add a new custom modle to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
+  * Add a new custom module to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
+  * List all modules (*[Get-AmlModule](#get-amlmodule)*)
 * __Manage Experiment__
   * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
@@ -76,7 +77,8 @@ Most of the commandlets require 3 pieces of key information in order to function
 	* This value can be found in the Workspace drop-down. It is the Azure region the Workspace is provisioned in. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
-		* Northern Europe		
+		* Northern Europe	
+		* Germany Central
 		
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
 
@@ -242,6 +244,16 @@ Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
 #Upload a new Custom Module from C:\Temp\MyModule.zip
 New-AmlCustomModule -CustomModuleZipFileName 'C:\Temp\MyModule.zip'
+```
+
+#### Get-AmlModule
+```
+#List all modules
+Get-AmlModule
+#List custom modules only
+Get-AmlModule -Custom
+#Get "Add Rows" module
+Get-AmlModule | where Name -eq 'Add Rows'
 ```
 
 ### Manage Experiment
