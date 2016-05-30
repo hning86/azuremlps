@@ -1,0 +1,535 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Web Services Management for Azure Machine Learning",
+    "description": "This API allows callers to operate on the Web Services and Endpoints in an Azure Machine Learning workspace. This version of the API supports the following operations: Create Endpoint; Patch Endpoint; Refresh Endpoint; Delete Endpoint; Get Endpoints; Get Endpoint; Get Web Services; Get Web Service",
+    "termsOfService": "TODO Add URL to TOS",
+    "license": {
+      "name": "TODO",
+      "url": "TODO Add URL to License page"
+    },
+    "contact": {
+      "name": "TODO",
+      "url": "TODO Add URL to support page",
+      "email": "TODO@TODO.com"
+    },
+    "version": "1.0"
+  },
+  "host": "management.azureml.net",
+  "schemes": [ "https" ],
+  "consumes": [ "application/json" ],
+  "produces": [ "application/json" ],
+  "paths": {
+    "/workspaces/{workspaceId}/webservices": {
+      "get": {
+        "tags": [ "Web Service" ],
+        "description": "Get details of all the Web Services that are a part of this Workspace",
+        "operationId": "GetWebServices",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "title": "Array Of Web Services",
+              "items": {
+                "$ref": "#/definitions/WebService"
+              }
+            },
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "204": {
+            "description": "NoContent",
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/WorkspaceIdParameter"
+        }
+      ]
+    },
+    "/workspaces/{workspaceId}/webservices/{webServiceId}": {
+      "get": {
+        "tags": [ "Web Service" ],
+        "description": "Get details of a single Web Service",
+        "operationId": "GetWebService",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/WebService"
+            },
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/WorkspaceIdParameter"
+        },
+        {
+          "$ref": "#/parameters/WebServiceIdParameter"
+        }
+      ]
+    },
+    "/workspaces/{workspaceId}/webservices/{webServiceId}/endpoints": {
+      "get": {
+        "tags": [ "Endpoint" ],
+        "description": "Get details of all the Endpoints that are a part of this Web Service",
+        "operationId": "GetEndpoints",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "title": "Array Of Endpoints",
+              "items": {
+                "$ref": "#/definitions/Endpoint"
+              }
+            },
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "204": {
+            "description": "NoContent",
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/WorkspaceIdParameter"
+        },
+        {
+          "$ref": "#/parameters/WebServiceIdParameter"
+        }
+      ]
+    },
+    "/workspaces/{workspaceId}/webservices/{webServiceId}/endpoints/{endpointName}": {
+      "get": {
+        "tags": [ "Endpoint" ],
+        "description": "Get details of a single Endpoint",
+        "operationId": "GetEndpoint",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Endpoint"
+            },
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "204": {
+            "description": "NoContent",
+            "headers": {
+              "x-ms-request-id": {
+                "description": "Request Id",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "WorkspaceKey": [ ]
+          },
+          {
+            "EndpointKey": [ ]
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/WorkspaceIdParameter"
+        },
+        {
+          "$ref": "#/parameters/WebServiceIdParameter"
+        },
+        {
+          "$ref": "#/parameters/EndpointNameParameter"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "AzureBlobDetails": {
+      "type": "object",
+      "description": "The information needed to describe how to access an Azure Blob. This is used in the Patch Endpoint operation, for example, to overwrite a Trained Model with a new one. For more details read the description of the Endpoint.Resources property and the Patch operation.",
+      "properties": {
+        "BaseLocation": {
+          "type": "string",
+          "format": "url",
+          "description": "Base URL of the Blob"
+        },
+        "RelativeLocation": {
+          "type": "string",
+          "description": "Relative URL of the Blob"
+        },
+        "SasBlobToken": {
+          "type": "string",
+          "description": "Shared-Access Signature token for the Blob"
+        }
+      }
+    },
+    "DiagnosticsTraceLevel": {
+      "type": "string",
+      "description": "The kind of diagnostics information to expect when calling an endpoint's Execution API. To change Diagnostics behavior, use the Patch Endpoint operation.",
+      "default": "None",
+      "enum": [
+        "None",
+        "Error",
+        "All"
+      ]
+    },
+    "Endpoint": {
+      "type": "object",
+      "description": "An Endpoint represents an 'operationalized' Machine Learning model that exposes an Execution API at the URL specified by Endpoint.ApiLocation. It is isolated from all other endpoints, even those that were created from the same parent Web Service, in regards to addressability (distinct execution URLs), security (distinct authorization tokens), multi-tenancy (distinct throttling buckets) and behavior (diagnostics output, trained models, model versions). Endpoints can be created, retrieved, patched, refreshed and deleted using the management operations described here. Whenever a Web Service is created, an Endpoint is automatically created to 'instantiate' that Web Service - this Default Endpoint's model is an *exact* replica of the model with which the Web Service was published / re-published. For more details read the description of the Endpoint.Version property.",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "description": "The Endpoint name is used in per-Endpoint operations (Create, Patch, Refresh, Delete) as part of the operation URL. Maximum 24 characters in length. Only numeric characters and lower case alphabets allowed, with hyphens allowed anywhere except the first and the last character."
+        },
+        "Description": {
+          "type": "string",
+          "description": "A free-form string that can be specified with the Create Endpoint or the Patch Endpoint operations. Maximum 2000 characters in length."
+        },
+        "CreationTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date and time when the Endpoint was created"
+        },
+        "WorkspaceId": {
+          "type": "string",
+          "description": "Id of the Workspace where the Endpoint was created"
+        },
+        "WebServiceId": {
+          "type": "string",
+          "description": "Id of the Web Service from which the Endpoint was created"
+        },
+        "HelpLocation": {
+          "type": "string",
+          "format": "url",
+          "description": "Help page URL for this Endpoint's Execution API"
+        },
+        "PrimaryKey": {
+          "type": "string",
+          "description": "Bearer token (primary) to be used in the Authorization header when calling this Endpoint's Execution API"
+        },
+        "SecondaryKey": {
+          "type": "string",
+          "description": "Bearer token (secondary) to be used in the Authorization header when calling this Endpoint's Execution API"
+        },
+        "ApiLocation": {
+          "type": "string",
+          "format": "url",
+          "description": "URL of this endpoint's Execution API"
+        },
+        "ExperimentLocation": {
+          "type": "string",
+          "description": "URL of the exact experiment run where this endpoint originated (in case the parent Web Service was published from the Machine Learning Studio). Even when the parent Web Service is re-published from the Studio, the Endpoint continues to maintain a link to the original Experiment run. This is a characteristic of the isolation enforced between endpoints."
+        },
+        "Resources": {
+          "type": "array",
+          "description": "List of updatable Resources (trained models) in the endpoint. Invoking the Patch operation on these Resources is used for re-training an Endpoint. For more details, read the description of the Patch operation. For a guide on how to setup re-training, read this article: http://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically",
+          "items": {
+            "$ref": "#/definitions/EndpointResource"
+          }
+        },
+        "Version": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date and time when the Endpoint's model was defined. Once an Endpoint is created (or refreshed), it locks onto a specific model. Even when a new version of the model is published to the parent Web Service, the Endpoint continues to depend on the old model. This gives a high degree of control over endpoints that are used in production systems. Note here that the Default Endpoint is an exception to this rule, in that its' model is automatically updated whenever the parent Web Service is updated with a new model. To update the model on an Endpoint and bring it at-par with the parent Web Service, use the Refresh Endpoint operation."
+        },
+        "MaxConcurrentCalls": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The maximum number of concurrent calls that can be made to the Execute operation on this endpoint's Execution API. Doesn't affect the Batch Execute operation on that API. Defaults to 4 for a free workspace and 20 for a paid workspace. Maximum concurrency allowed is 200. To map MaxConcurrentCalls to the number of Transactions Per Second, you need to divide this number by the time taken (in seconds) per Execute call. For example if MaxConcurrentCalls = 200 and it takes 50 milliseconds to process one Execute request, then the maximum TPS is 4000."
+        },
+        "DiagnosticsTraceLevel": {
+          "$ref": "#/definitions/DiagnosticsTraceLevel"
+        },
+        "ThrottleLevel": {
+          "$ref": "#/definitions/ThrottleLevel"
+        }
+      }
+    },
+    "EndpointResource": {
+      "type": "object",
+      "description": "An Endpoint Resource is any component of an Endpoint's model that can be updated directly, without having to update the complete model. For instance, to re-train an Endpoint one only needs to update the Trained Model(s) used by that Endpoint and not the complete model.",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "description": "Name of the endpoint resource"
+        },
+        "Kind": {
+          "type": "string",
+          "description": "The type of endpoint resource. Only Trained Models are supported as resources for now.",
+          "default": "TrainedModel",
+          "enum": [
+            "TrainedModel"
+          ]
+        },
+        "Location": {
+          "$ref": "#/definitions/AzureBlobDetails"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "description": "The payload returned back with the response whenever the Management operation fails. Has a top-level property ('error') with the error code and message as nested properties inside it. The HTTP error code represents the category of the error (Bad Request / Unauthorized / Forbidden / Not Found / Internal Server Error), and the response payload helps narrow down the root cause of a failure.",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code of this failure"
+            },
+            "message": {
+              "type": "string",
+              "description": "Descriptive message explaining what went wrong and possible solutions"
+            }
+          }
+        }
+      }
+    },
+    "ThrottleLevel": {
+      "type": "string",
+      "description": "Throttling limit for the Execute operation on this Endpoint's Execution API. ThrottleLevel=Low implies that a low number of calls will be allowed to go through, and ThrottleLevel=High implies that a high number of calls can go through. This property is used along with the MaxConcurrentCalls property - for most users, tweaking the ThrottleLevel without having to figure out the exact concurrency count needed should suffice. When ThrottleLevel=Low MaxConcurrentCalls is capped to 4, and when ThrottleLevel=High MaxConcurrentCalls is capped to 200.",
+      "default": "Low",
+      "enum": [
+        "Low",
+        "High"
+      ]
+    },
+    "WebService": {
+      "type": "object",
+      "description": "A Web Service is a template for a machine learning model. It cannot be executed against, and to operationalize a Web Service one needs to create Endpoints first. Whenever a Web Service is created or updated, a Default Endpoint is automatically created (or updated) with the Web Service's model. Web Services can have up to 10,000 Endpoints. Web Services can be retrieved using the management operations described here. For more details on how to reason about Endpoints vs. Web Services, read the description of the Endpoint object.",
+      "properties": {
+        "Id": {
+          "type": "string",
+          "description": "Id of the Web Service"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "CreationTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date and time when the Web Service was created"
+        },
+        "WorkspaceId": {
+          "type": "string",
+          "description": "Id of the Workspace where the Web Service was created"
+        },
+        "DefaultEndpointName": {
+          "type": "string",
+          "description": "Name of the Default Endpoint of this Web Service"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "WorkspaceIdParameter": {
+      "name": "workspaceId",
+      "in": "path",
+      "required": true,
+      "type": "string"
+    },
+    "WebServiceIdParameter": {
+      "name": "webServiceId",
+      "in": "path",
+      "required": true,
+      "type": "string"
+    },
+    "EndpointNameParameter": {
+      "name": "endpointName",
+      "in": "path",
+      "required": true,
+      "type": "string"
+    }
+  },
+  "responses": {
+    "BadRequest": {
+      "description": "Bad User Request. Check the 'error' property in the response payload to find out why the request failed and how to fix it.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      },
+      "headers": {
+        "x-ms-request-id": {
+          "description": "Request Id",
+          "type": "string"
+        }
+      }
+    },
+    "Unauthorized": {
+      "description": "The request couldn't be authorized. Verify that the right workspace / endpoint key is being sent, in an 'Authorization: Bearer ___' header.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      },
+      "headers": {
+        "x-ms-request-id": {
+          "description": "Request Id",
+          "type": "string"
+        }
+      }
+    },
+    "Forbidden": {
+      "description": "Request prohibited. Check the 'error' property in the response payload to find out why the request failed.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      },
+      "headers": {
+        "x-ms-request-id": {
+          "description": "Request Id",
+          "type": "string"
+        }
+      }
+    },
+    "NotFound": {
+      "description": "The URL does not map to any known resource or operation. Check the 'error' property in the response payload to find out why the call failed.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      },
+      "headers": {
+        "x-ms-request-id": {
+          "description": "Request Id",
+          "type": "string"
+        }
+      }
+    },
+    "InternalServerError": {
+      "description": "An unexpected error occurred when handling the request. Check the 'error' property in the response payload to find out why the call failed and report the Request Id and Error Code on the Forums.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      },
+      "headers": {
+        "x-ms-request-id": {
+          "description": "Request Id",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "WorkspaceKey": {
+      "type": "apiKey",
+      "description": "Use the workspace token found in the Azure Machine Learning Studio's Settings->Authorization area <br/> Add the 'Bearer ___' value to the Authorization header",
+      "name": "Authorization",
+      "in": "header"
+    },
+    "EndpointKey": {
+      "type": "apiKey",
+      "description": "Use the token found in the Endpoint.PrimaryKey or Endpoint.SecondaryKey properties <br/> Add the 'Bearer ___' value to the Authorization header",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "WorkspaceKey": [ ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Web Service",
+      "description": "Read the description of the Web Service object"
+    },
+    {
+      "name": "Endpoint",
+      "description": "Read the description of the Endpoint object"
+    }
+  ]
+}

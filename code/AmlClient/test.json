@@ -1,0 +1,11 @@
+﻿1>------ Build started: Project: AmlClient, Configuration: Debug Any CPU ------
+2>------ Build started: Project: AmlPs, Configuration: Debug Any CPU ------
+2>  AmlPs -> C:\Repos\azuremlps\code\AmlPs\bin\Debug\AzureMLPS.dll
+1>C:\Repos\azuremlps\code\AmlClient\Client.cs(446,17,446,29): warning CS0162: Unreachable code detected
+1>C:\Program Files (x86)\MSBuild\14.0\bin\Microsoft.Common.CurrentVersion.targets(3813,5): warning MSB3026: Could not copy "obj\Debug\AmlClient.dll" to "bin\Debug\AmlClient.dll". Beginning retry 1 in 1000ms. The process cannot access the file 'bin\Debug\AmlClient.dll' because it is being used by another process.
+1>  AmlClient -> C:\Repos\azuremlps\code\AmlClient\bin\Debug\AmlClient.dll
+3>------ Build started: Project: AmlClient.Nupkg, Configuration: Debug Any CPU ------
+4>------ Build started: Project: WinAml, Configuration: Debug Any CPU ------
+4>  WinAml -> C:\Repos\azuremlps\code\WinAml\bin\Debug\WinAml.exe
+3>  AmlClient.Nupkg -> c:\LocalNuGet\Azure.MachineLearning.Client.1.0.0-beta.nupkg
+========== Build: 4 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

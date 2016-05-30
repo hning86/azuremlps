@@ -1,0 +1,33 @@
+﻿batch run outputs (today, 5/25):
+model
+trained
+evaluation
+status
+
+each output has field "RelativeLocation", example:
+    "trained": {
+      "ConnectionString": "azure storage connection string",
+      "RelativeLocation": "mycontainer/trainedresults.csv"
+    }
+
+change names of outputs:
+
+evaluation -> performance
+status -> setup
+
+"GlobalParameters" define the inputs:
+    "Total workers": "",
+    "Worker ID": "",
+    "Training path": "",
+    "Scan proportion": "",
+    "Minimum F1": ""
+
+
+	From webservice goto endpoints:
+
+A training run will be dependent on the experiment version.
+Version is currently tracked in AML Experiment via "Etag" which
+contains a /w date.
+
+note: need field that shows "update available=true" for endpoints
+

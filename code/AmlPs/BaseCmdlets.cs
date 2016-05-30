@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.Serialization.Json;
+
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -17,22 +17,25 @@ using AzureMachineLearning;
 namespace AzureMachineLearning.PowerShell
 {
     public class AzureMLPsCmdletBase : PSCmdlet
-    {        
-        protected DataContractJsonSerializer ser;        
+    {              
         protected Client Client { get; private set; }
+
         public AzureMLPsCmdletBase()
         {            
-            Client = new Client("powershell_" + Client.Version);
-        }        
+            this.Client = new Client();
+            this.Client.ApiName = "powershell";
+        }
     }
 
     public class AmlCmdlet : AzureMLPsCmdletBase
     {
         // default config.json file path.
         private string _configFilePath = "./config.json";
+
         [Parameter(Mandatory = false)]
         [ValidateSet("South Central US", "West Europe", "Southeast Asia")]
         public string Location { get; set; }
+
         [Parameter(Mandatory = false)]
         public string ConfigFile
         {
@@ -44,43 +47,39 @@ namespace AzureMachineLearning.PowerShell
                 ReadConfigFromFile(true);
             }
         }
+
         [Parameter(Mandatory = false)]
         public string WorkspaceId { get; set; }
+
         [Parameter(Mandatory = false)]
         private string _authToken = string.Empty;
+
         [Parameter(Mandatory = false)]
         public string AuthorizationToken;
+
         public AmlCmdlet()
         {            
             ReadConfigFromFile(false);
-        }        
-
-        private void ReadConfigFromFile(bool throwExceptionIfFileDoesnotExist)
-        {   
-            string currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            _configFilePath = Path.Combine(currentPath, _configFilePath);            
-            if (throwExceptionIfFileDoesnotExist && (!File.Exists(_configFilePath)))
-                throw new Exception("Can't find config file: " + _configFilePath);
-            if (File.Exists(_configFilePath))
-            {
-                string configString = File.ReadAllText(_configFilePath);
-                JavaScriptSerializer jss = new JavaScriptSerializer();
-                WorkspaceSetting config = jss.Deserialize<WorkspaceSetting>(configString);
-                Location = config.Location;
-                WorkspaceId = config.WorkspaceId;
-                AuthorizationToken = config.AuthorizationToken;
-            }
         }
 
-        protected WorkspaceSetting GetWorkspaceSetting()
+        private void ReadConfigFromFile(bool throwExceptionIfFileDoesnotExist)
         {
-            WorkspaceSetting setting = new WorkspaceSetting
-            {
-                WorkspaceId = WorkspaceId,
-                AuthorizationToken = AuthorizationToken,
-                Location = Location
-            };
-            return setting;
+            string currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            _configFilePath = Path.Combine(currentPath, _configFilePath);
+            var ws = WorkspaceSettings.FromFile(_configFilePath);
+
+            if (throwExceptionIfFileDoesnotExist && ws == null)
+                throw new Exception("Can't find config file: " + _configFilePath);
+
+            Location = ws.Location;
+            WorkspaceId = ws.WorkspaceId;
+            AuthorizationToken = ws.AuthorizationToken;
+        }
+
+        protected WorkspaceSettings GetWorkspaceSetting()
+        {
+            var ws = new WorkspaceSettings(this.WorkspaceId, this.AuthorizationToken, this.Location);
+            return ws;
         }                                           
     }    
 }

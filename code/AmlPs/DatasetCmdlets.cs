@@ -2,7 +2,8 @@
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AzureMachineLearning.PowerShell
 {
@@ -11,7 +12,7 @@ namespace AzureMachineLearning.PowerShell
     {
         protected override void ProcessRecord()
         {            
-            Dataset[] datasets = Client.GetDataset(GetWorkspaceSetting());
+            DataSource[] datasets = Client.GetDataset(GetWorkspaceSetting());
             WriteObject(datasets, true);
         }
     }
@@ -32,6 +33,9 @@ namespace AzureMachineLearning.PowerShell
         public string UploadFileName { get; set; }
         protected override void ProcessRecord()
         {
+            Client.ValidateWorkspaceSetting(setting);
+
+
             ProgressRecord pr = new ProgressRecord(1, "Upload file", string.Format("Upload file \"{0}\" into Azure ML Studio", Path.GetFileName(UploadFileName)));
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Uploading...";
@@ -39,12 +43,14 @@ namespace AzureMachineLearning.PowerShell
 
             // step 1. upload file
             Task<string> uploadTask = Client.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
                     pr.PercentComplete++;
                 else
                     pr.PercentComplete = 1;
+
                 Thread.Sleep(500);
                 WriteProgress(pr);
             }
@@ -54,20 +60,24 @@ namespace AzureMachineLearning.PowerShell
             pr.StatusDescription = "Generating schema for dataset \"" + DatasetName + "\"";
             pr.CurrentOperation = "Generating schema...";
             WriteProgress(pr);
-            JavaScriptSerializer jss = new JavaScriptSerializer();
-            dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
-            string dtId = parsed["DataTypeId"];
-            string uploadId = parsed["Id"];            
-            string dataSourceId = Client.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
+
+            var o = JObject.Parse(uploadTask.Result);
+
+            var dataTypeId = o["DataTypeId"];
+            var uploadId = o["Id"];
+
+            var dataSourceId = Client.StartDatasetSchemaGen(GetWorkspaceSetting(), dataTypeId.Value<string>(), uploadId.Value<string>(), DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";
+
             while (true)
             {
                 if (pr.PercentComplete < 100)
                     pr.PercentComplete++;
                 else
                     pr.PercentComplete = 1;
+
                 pr.CurrentOperation = "Schema generation status: " + schemaJobStatus;
                 WriteProgress(pr);
 
@@ -75,6 +85,7 @@ namespace AzureMachineLearning.PowerShell
                 if (schemaJobStatus == "NotSupported" || schemaJobStatus == "Complete" || schemaJobStatus == "Failed")
                     break;
             }
+
             pr.PercentComplete = 100;
             WriteProgress(pr);
 

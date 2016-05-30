@@ -34,7 +34,7 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Unpacking experiment from Gallery to workspace...";
             WriteProgress(pr);
-            PackingServiceActivity activity = Client.UnpackExperimentFromGallery(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
+            PackActivity activity = Client.UnpackExperimentFromGallery(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
             while (activity.Status != "Complete")
             {
                 if (pr.PercentComplete < 100)
@@ -103,7 +103,7 @@ namespace AzureMachineLearning.PowerShell
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 2;
                 WriteProgress(pr);
-                PackingServiceActivity activity = Client.PackExperiment(GetWorkspaceSetting(), ExperimentId);
+                PackActivity activity = Client.PackExperiment(GetWorkspaceSetting(), ExperimentId);
 
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 3;
@@ -231,6 +231,33 @@ namespace AzureMachineLearning.PowerShell
             WriteProgress(progress);
 
             WriteObject(string.Format("Experiment \"{0}\" status: ", exp.Description) + exp.Status.StatusCode);
+        }
+    }
+
+    [Cmdlet(VerbsCommon.Get, "AmlTrainedModel")]
+    public class GetTrainedModel : AmlCmdlet
+    {
+        [Parameter(Mandatory = false)]
+        public string ModelId { get; set; }
+
+        public GetTrainedModel() { }
+
+        protected override void ProcessRecord()
+        {
+            if (string.IsNullOrEmpty(ModelId))
+            {
+                // get all models in the workspace
+                var models = Client.GetTrainedModels(GetWorkspaceSetting());
+                WriteObject(models, true);
+            }
+            else
+            {
+                // get a specific model
+                string rawJson = string.Empty;
+                string errorMsg = string.Empty;
+                var model = Client.GetTrainedModelById(GetWorkspaceSetting(), ModelId, out rawJson);
+                WriteObject(model);
+            }
         }
     }
 

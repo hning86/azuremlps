@@ -1,0 +1,25 @@
+public string DataTypeId {get;set;}
+public string Name {get;set;}
+public string Description {get;set;}
+public string FamilyId {get;set;}
+public string ResourceUploadId {get;set;}
+public string SourceOrigin {get;set;}
+public string Size {get;set;}
+public string CreatedDate {get;set;}
+public string Owner {get;set;}
+public string ExperimentId {get;set;}
+public string ClientVersion {get;set;}
+public string PromotedFrom {get;set;}
+public string UploadedFromFilename {get;set;}
+public string ServiceVersion {get;set;}
+public string IsLatest {get;set;}
+public string Category {get;set;}
+public string DownloadLocation {get;set;}
+public string IsDeprecated {get;set;}
+public string Culture {get;set;}
+public string Batch {get;set;}
+public string CreatedDateTicks {get;set;}
+
+https://studio.azureml.net/Home/ViewWorkspaceCached/333533ce0e6e44b38365410aec94d7f2#Workspaces/Experiments/Experiment/333533ce0e6e44b38365410aec94d7f2.f-id.05126fa5778a4ad0a26931487d3a0821/ViewExperiment
+
+https://studio.azureml.net/Home/ViewWorkspaceCached/333533ce0e6e44b38365410aec94d7f2#Workspaces/Experiments/Experiment/333533ce0e6e44b38365410aec94d7f2.s-id.05126fa5778a4ad0a26931487d3a0821.9953-08-10t07.02.16

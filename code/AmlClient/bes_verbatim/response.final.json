@@ -1,0 +1,25 @@
+﻿{
+  "StatusCode": 4,
+  "Results": {
+    "model": {
+      "RelativeLocation": "mycontainer/modelresults.ilearner",
+      "BaseLocation": "https://mystorageacct.blob.core.windows.net/",
+      "SasBlobToken": "?sv=yyyy-mm-dd&sr=c&sig=somesignature&st=yyyy-mm-ddT20%3A31%3A40Z"
+    },
+    "performance": {
+      "RelativeLocation": "mycontainer/performanceresults.csv",
+      "BaseLocation": "https://mystorageacct.blob.core.windows.net/",
+      "SasBlobToken": "?sv=yyyy-mm-dd&sr=c&sig=somesignature&st=yyyy-mm-ddT20%3A31%3A40Z"
+    },
+    "trained": {
+      "RelativeLocation": "mycontainer/trainedresults.csv",
+      "BaseLocation": "https://mystorageacct.blob.core.windows.net/",
+      "SasBlobToken": "?sv=yyyy-mm-dd&sr=c&sig=somesignature&st=yyyy-mm-ddT20%3A31%3A40Z"
+    },
+    "setup": {
+      "RelativeLocation": "mycontainer/setupresults.csv",
+      "BaseLocation": "https://mystorageacct.blob.core.windows.net/",
+      "SasBlobToken": "?sv=yyyy-mm-dd&sr=c&sig=somesignature&st=yyyy-mm-ddT20%3A31%3A40Z"
+    }
+  }
+}

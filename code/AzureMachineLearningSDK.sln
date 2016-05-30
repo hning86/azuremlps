@@ -9,6 +9,8 @@ Project("{FF286327-C783-4F7A-AB73-9BCBAD0D4460}") = "AmlClient.Nupkg", "..\NuGet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmlClient", "AmlClient\AmlClient.csproj", "{16FB3C9D-4BBF-4391-8B8B-021C1C0C598D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinAml", "WinAml\WinAml.csproj", "{557B685D-8563-4F93-8A40-A1AD457B898B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{16FB3C9D-4BBF-4391-8B8B-021C1C0C598D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16FB3C9D-4BBF-4391-8B8B-021C1C0C598D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16FB3C9D-4BBF-4391-8B8B-021C1C0C598D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{557B685D-8563-4F93-8A40-A1AD457B898B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557B685D-8563-4F93-8A40-A1AD457B898B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557B685D-8563-4F93-8A40-A1AD457B898B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557B685D-8563-4F93-8A40-A1AD457B898B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

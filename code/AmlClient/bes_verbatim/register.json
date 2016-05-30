@@ -1,0 +1,27 @@
+﻿{
+  "GlobalParameters": {
+    "Total workers": "",
+    "Worker ID": "",
+    "Training path": "",
+    "Scan proportion": "",
+    "Minimum F1": ""
+  },
+  "Outputs": {
+    "model": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/modelresults.ilearner"
+    },
+    "trained": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/trainedresults.csv"
+    },
+    "evaluation": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/evaluationresults.csv"
+    },
+    "status": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/statusresults.csv"
+    }
+  }
+}

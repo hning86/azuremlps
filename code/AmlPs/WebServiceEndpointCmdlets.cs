@@ -17,12 +17,12 @@ namespace AzureMachineLearning.PowerShell
         {         
             if (string.IsNullOrEmpty(EndpointName))
             {                
-                WebServiceEndPoint[] weps = Client.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
+                Endpoint[] weps = Client.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
                 WriteObject(weps, true);
             }
             else
             {
-                WebServiceEndPoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+                Endpoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
                 WriteObject(wep);
             }
         }
@@ -70,7 +70,7 @@ namespace AzureMachineLearning.PowerShell
                 WriteWarning("When ThrottleLevel is set to Low, MaxConcurrentCalls is automatically set to the default value of 4.");
                 MaxConcurrentCalls = null;
             }
-            AddWebServiceEndpointRequest req = new AddWebServiceEndpointRequest
+            AddEndpointRequest req = new AddEndpointRequest
             {
                 WebServiceId = WebServiceId,
                 EndpointName = EndpointName,
@@ -94,7 +94,7 @@ namespace AzureMachineLearning.PowerShell
         public SwitchParameter OverwriteResources { get; set; }
         protected override void ProcessRecord()
         {            
-            WebServiceEndPoint wse = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Endpoint wse = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
             Client.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
             WriteObject(string.Format("Endpoint \"{0}\" is refreshed.", wse.Name));
         }        
@@ -138,7 +138,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Getting web service endpoint...";
             WriteProgress(pr);
 
-            WebServiceEndPoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Endpoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
             pr.PercentComplete = 20;
             pr.StatusDescription = "Web Service \"" + ws.Name + "\", Endpoint \"" + wep.Name + "\"";
             pr.CurrentOperation = "Patching web service endpoint with new trained model...";

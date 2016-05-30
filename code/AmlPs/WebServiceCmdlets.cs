@@ -44,7 +44,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Deploying web service";
             pr.PercentComplete = 2;
             WriteProgress(pr);
-            WebServiceCreationStatus status = Client.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
+            DeployStatus status = Client.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
 
             while (status.Status != "Completed")
             {

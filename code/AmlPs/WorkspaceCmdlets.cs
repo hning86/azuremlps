@@ -31,7 +31,7 @@ namespace AzureMachineLearning.PowerShell
         public string AzureSubscriptionId;
         protected override void ProcessRecord()
         {
-            WorkspaceRdfe[] workspaces = Client.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
+            WorkspaceResource[] workspaces = Client.GetWorkspaceResources(ManagementCertThumbprint, AzureSubscriptionId);
             WriteObject(workspaces, true);
         }
     }
@@ -74,7 +74,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Getting status...";
             WriteProgress(pr);
             string wsId = createWS.Result;
-            WorkspaceRdfe ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+            WorkspaceResource ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
             pr.CurrentOperation = "Status: " + ws.WorkspaceState;
             WriteProgress(pr);
             while (ws.WorkspaceState != "Enabled")

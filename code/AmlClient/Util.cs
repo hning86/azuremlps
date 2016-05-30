@@ -11,112 +11,84 @@ namespace AzureMachineLearning
 {
     internal class Util
     {
-        public string AuthorizationToken { get; set; }
-        private string _sdkName { get; set; }
-        public Util(string sdkName)
+        internal AuthorizationToken Token { get; private set; }
+
+        public Util(AuthorizationToken token)
         {
-            _sdkName = sdkName;
-        }
-        public HttpClient GetAuthenticatedHttpClient()
-        {
-            return GetAuthenticatedHttpClient(AuthorizationToken);
+            this.Token = token;
         }
 
-        public HttpClient GetAuthenticatedHttpClient(string authCode)
+        public HttpClient GetAuthenticatedHttpClient()
         {
             HttpClient hc = new HttpClient();
             // used by O16N API
-            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authCode);
+            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", this.Token.PrimaryToken);
             // used by Studio API
-            hc.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", authCode);
-            // use a special header to track usage.
-            hc.DefaultRequestHeaders.Add("x-aml-sdk", _sdkName);            
+            hc.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", this.Token.PrimaryToken);
             return hc;
         }
 
-        public async Task<HttpResult> HttpPost(string url, string jsonBody)
+        public async Task<AmlResult> HttpPost(string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
-            HttpResponseMessage resp = await hc.PostAsync(url, sc);
-            HttpResult hr = await CreateHttpResult(resp);
+
+            var hc = GetAuthenticatedHttpClient();
+            var sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
+            var resp = await hc.PostAsync(url, sc);
+
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
 
-        public async Task<HttpResult> HttpPatch(string url, string jsonBody)
+        public async Task<AmlResult> HttpPatch(string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
-            HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody);
-            HttpResult hr = await CreateHttpResult(resp);
+
+            var hc = GetAuthenticatedHttpClient();
+            var sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
+            var resp = await hc.PatchAsJsonAsync(url, jsonBody);
+
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
 
-        public async Task<HttpResult> HttpPostFile(string url, string filePath)
+        public async Task<AmlResult> HttpPostFile(string url, string filePath)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
-            StreamContent sc = new StreamContent(File.OpenRead(filePath));
-            HttpResponseMessage resp = await hc.PostAsync(url, sc);
-            HttpResult hr = await CreateHttpResult(resp);
+            var hc = GetAuthenticatedHttpClient();
+            var sc = new StreamContent(File.OpenRead(filePath));
+            var resp = await hc.PostAsync(url, sc);
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
 
-        public async Task<HttpResult> CreateHttpResult(HttpResponseMessage hrm)
+        public async Task<AmlResult> HttpDelete(string url)
         {
-            HttpResult hr = new HttpResult
-            {
-                StatusCode = (int)hrm.StatusCode,
-                Payload = await hrm.Content.ReadAsStringAsync(),
-                PayloadStream = await hrm.Content.ReadAsStreamAsync(),
-                IsSuccess = hrm.IsSuccessStatusCode,
-                ReasonPhrase = hrm.ReasonPhrase
-            };
+            var hc = GetAuthenticatedHttpClient();
+            var resp = await hc.DeleteAsync(url);
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
 
-        public async Task<HttpResult> HttpDelete(string url)
+        public async Task<AmlResult> HttpPut(string url, string body)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
-            HttpResponseMessage resp = await hc.DeleteAsync(url);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
-        }
-        public async Task<HttpResult> HttpPut(string url, string body)
-        {
-            return await HttpPut(AuthorizationToken, url, body);
-        }
-
-        public async Task<HttpResult> HttpPut(string authCode, string url, string body)
-        {
-            HttpClient hc = GetAuthenticatedHttpClient();
-            if (authCode != string.Empty)
-                hc = GetAuthenticatedHttpClient(authCode);
-            HttpResponseMessage resp = await hc.PutAsync(url, new StringContent(body, Encoding.ASCII, "application/json"));
-            HttpResult hr = await CreateHttpResult(resp);
+            var hc = GetAuthenticatedHttpClient();
+            var resp = await hc.PutAsync(url, new StringContent(body, Encoding.ASCII, "application/json"));
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
 
-        public async Task<HttpResult> HttpGet(string url)
+        public async Task<AmlResult> HttpGet(string url)
         {
-            return await HttpGet(AuthorizationToken, url, true);
+            return await HttpGet(url, true);
         }
 
-        public async Task<HttpResult> HttpGet(string url, bool withAuthHeader)
+        public async Task<AmlResult> HttpGet(string url, bool withAuthHeader)
         {
-            return await HttpGet(AuthorizationToken, url, withAuthHeader);
-        }
-
-        public async Task<HttpResult> HttpGet(string authCode, string url, bool withAutHeader)
-        {
-            HttpClient hc = new HttpClient();
-            if (withAutHeader)
-                hc = GetAuthenticatedHttpClient(authCode);
-            HttpResponseMessage resp = await hc.GetAsync(url);
-            HttpResult hr = await CreateHttpResult(resp);
+            var hc = new HttpClient();
+            var resp = await hc.GetAsync(url);
+            var hr = await CreateHttpResult(resp);
             return hr;
         }
     }
