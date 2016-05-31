@@ -245,6 +245,9 @@ namespace AzureMachineLearning
     {
         public AmlException(string s) : base(s) { }
 
-        public AmlException(AmlResult hr) : base("Error: [" + hr.StatusCode + " (" + hr.ReasonPhrase + ")]: " + hr.Payload) { }
+        public AmlException(AmlResult r) : base("Error: [" + r.Status + " (" + r.Reason + ")]: " + r.Payload.GetAwaiter().GetResult())
+        {
+
+        }
     }
 }

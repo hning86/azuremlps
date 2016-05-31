@@ -12,7 +12,7 @@ namespace AzureMachineLearning.PowerShell
     {
         protected override void ProcessRecord()
         {            
-            DataSource[] datasets = Client.GetDataset(GetWorkspaceSetting());
+            DataSource[] datasets = Workspace.GetDataSources().GetAwaiter().GetResult();
             WriteObject(datasets, true);
         }
     }
@@ -33,7 +33,7 @@ namespace AzureMachineLearning.PowerShell
         public string UploadFileName { get; set; }
         protected override void ProcessRecord()
         {
-            Client.ValidateWorkspaceSetting(setting);
+            Workspace.ValidateWorkspaceSetting(setting);
 
 
             ProgressRecord pr = new ProgressRecord(1, "Upload file", string.Format("Upload file \"{0}\" into Azure ML Studio", Path.GetFileName(UploadFileName)));
@@ -42,7 +42,7 @@ namespace AzureMachineLearning.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-            Task<string> uploadTask = Client.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = Workspace.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
 
             while (!uploadTask.IsCompleted)
             {
@@ -66,7 +66,7 @@ namespace AzureMachineLearning.PowerShell
             var dataTypeId = o["DataTypeId"];
             var uploadId = o["Id"];
 
-            var dataSourceId = Client.StartDatasetSchemaGen(GetWorkspaceSetting(), dataTypeId.Value<string>(), uploadId.Value<string>(), DatasetName, Description, UploadFileName);
+            var dataSourceId = Workspace.StartDatasetSchemaGen(GetWorkspaceSetting(), dataTypeId.Value<string>(), uploadId.Value<string>(), DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";
@@ -81,7 +81,7 @@ namespace AzureMachineLearning.PowerShell
                 pr.CurrentOperation = "Schema generation status: " + schemaJobStatus;
                 WriteProgress(pr);
 
-                schemaJobStatus = Client.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
+                schemaJobStatus = Workspace.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
                 if (schemaJobStatus == "NotSupported" || schemaJobStatus == "Complete" || schemaJobStatus == "Failed")
                     break;
             }
@@ -108,7 +108,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Downloading...";
             WriteProgress(pr);
 
-            Task task = Client.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
+            Task task = Workspace.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
             while (!task.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -132,7 +132,7 @@ namespace AzureMachineLearning.PowerShell
         public string DatasetFamilyId { get; set; }
         protected override void BeginProcessing()
         {            
-            Client.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
+            Workspace.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
             WriteObject("Dataset removed.");
         }       
     }

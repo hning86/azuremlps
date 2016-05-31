@@ -17,7 +17,7 @@ namespace AzureMachineLearning.PowerShell
     {     
         protected override void ProcessRecord()
         {
-            Workspace ws = this.Client.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
+            Workspace ws = this.Workspace.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
             WriteObject(ws);
         }     
     }
@@ -31,7 +31,7 @@ namespace AzureMachineLearning.PowerShell
         public string AzureSubscriptionId;
         protected override void ProcessRecord()
         {
-            WorkspaceResource[] workspaces = Client.GetWorkspaceResources(ManagementCertThumbprint, AzureSubscriptionId);
+            WorkspaceResource[] workspaces = Workspace.GetWorkspaceResources(ManagementCertThumbprint, AzureSubscriptionId);
             WriteObject(workspaces, true);
         }
     }
@@ -60,7 +60,7 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Creating...";
             WriteProgress(pr);
-            Task<string> createWS = Client.CreateWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceName, Location, StorageAccountName, StorageAccountKey, OwnerEmail, "PowerShell");
+            Task<string> createWS = Workspace.CreateWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceName, Location, StorageAccountName, StorageAccountKey, OwnerEmail, "PowerShell");
             while (!createWS.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -74,7 +74,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Getting status...";
             WriteProgress(pr);
             string wsId = createWS.Result;
-            WorkspaceResource ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+            WorkspaceResource ws = Workspace.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
             pr.CurrentOperation = "Status: " + ws.WorkspaceState;
             WriteProgress(pr);
             while (ws.WorkspaceState != "Enabled")
@@ -86,7 +86,7 @@ namespace AzureMachineLearning.PowerShell
                 else
                     pr.PercentComplete = 1;                
                 Thread.Sleep(500);
-                ws = Client.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+                ws = Workspace.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);
@@ -106,7 +106,7 @@ namespace AzureMachineLearning.PowerShell
         public string WorkspaceId;
         protected override void ProcessRecord()
         {
-            Client.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId);
+            Workspace.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId);
             WriteObject("Workspace removed.");
         }
     }
@@ -121,7 +121,7 @@ namespace AzureMachineLearning.PowerShell
         public AddWorkspaceUsers() { }
         protected override void ProcessRecord()
         {            
-            Client.AddWorkspaceUsers(GetWorkspaceSetting(), Emails, Role);
+            Workspace.AddWorkspaceUsers(GetWorkspaceSetting(), Emails, Role);
             WriteObject("User(s) added to the Workspace.");
         }
     }
@@ -132,7 +132,7 @@ namespace AzureMachineLearning.PowerShell
         public GetWorkspaceUsers() { }
         protected override void ProcessRecord()
         {
-            WorkspaceUser[] users = Client.GetWorkspaceUsers(GetWorkspaceSetting());
+            WorkspaceUser[] users = Workspace.GetWorkspaceUsers(GetWorkspaceSetting());
             WriteObject(users);
         }
     }

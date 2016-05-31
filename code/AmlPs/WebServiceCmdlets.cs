@@ -14,12 +14,12 @@ namespace AzureMachineLearning.PowerShell
         {            
             if (string.IsNullOrEmpty(WebServiceId))
             {
-                WebService[] wss = Client.GetWebServicesInWorkspace(GetWorkspaceSetting());
+                WebService[] wss = Workspace.GetWebServicesInWorkspace(GetWorkspaceSetting());
                 WriteObject(wss, true);
             }
             else
             {
-                WebService ws = Client.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
+                WebService ws = Workspace.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
                 WriteObject(ws);
             }
         }
@@ -38,13 +38,13 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 1;
             WriteProgress(pr);
             string rawJson = string.Empty;
-            Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), PredictiveExperimentId, out rawJson);
+            Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), PredictiveExperimentId, out rawJson);
 
             pr.StatusDescription += exp.Description;
             pr.CurrentOperation = "Deploying web service";
             pr.PercentComplete = 2;
             WriteProgress(pr);
-            DeployStatus status = Client.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
+            DeployStatus status = Workspace.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
 
             while (status.Status != "Completed")
             {
@@ -52,12 +52,12 @@ namespace AzureMachineLearning.PowerShell
                     pr.PercentComplete = 1;
                 pr.PercentComplete++;
                 WriteProgress(pr);
-                status = Client.GetWebServiceCreationStatus(GetWorkspaceSetting(), status.ActivityId);
+                status = Workspace.GetWebServiceCreationStatus(GetWorkspaceSetting(), status.ActivityId);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);
 
-            WriteObject(Client.GetWebServicesById(GetWorkspaceSetting(), status.WebServiceGroupId));
+            WriteObject(Workspace.GetWebServicesById(GetWorkspaceSetting(), status.WebServiceGroupId));
         }
     }
 
@@ -68,8 +68,8 @@ namespace AzureMachineLearning.PowerShell
         public string WebServiceId { get; set; }
         protected override void ProcessRecord()
         {            
-            WebService ws = Client.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
-            Client.RemoveWebServiceById(GetWorkspaceSetting(), WebServiceId);
+            WebService ws = Workspace.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
+            Workspace.RemoveWebServiceById(GetWorkspaceSetting(), WebServiceId);
             WriteObject("Web service \"" + ws.Name + "\" was removed.");
         }
     }

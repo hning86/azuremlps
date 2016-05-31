@@ -47,9 +47,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmlClient.cs" />
     <Compile Include="AmlResult.cs" />
     <Compile Include="AzureClient.cs" />
-    <Compile Include="AmlClient.cs" />
+    <Compile Include="BatchExecution.cs" />
+    <Compile Include="LocationApi.cs" />
+    <Compile Include="Rrs.cs" />
+    <Compile Include="WebServicesClient.cs" />
+    <Compile Include="WorkspaceClient.cs" />
     <Compile Include="Contracts.cs" />
     <Compile Include="DataSourceType.cs" />
     <Compile Include="Experiment.cs" />
@@ -57,7 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExperimentRequest.cs" />
     <Compile Include="ResourceUploadResponse.cs" />
-    <Compile Include="Util.cs" />
     <Compile Include="ResourceClient.cs" />
     <Compile Include="WorkspaceSettings.cs" />
   </ItemGroup>

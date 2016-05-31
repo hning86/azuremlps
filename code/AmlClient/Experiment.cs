@@ -22,7 +22,7 @@ namespace AzureMachineLearning
         }
     }
 
-    public sealed class Experiment
+    public sealed class Experiment : IEntityTag
     {
         public string ExperimentId { get; set; }
         public string RunId { get; set; }

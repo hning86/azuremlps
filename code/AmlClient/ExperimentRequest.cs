@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AzureMachineLearning
 {
-    public abstract class ExperimentRequest
+    public abstract class ExperimentRequest : IEntityTag
     {
         /// <value>description of the experiment (name)</value>
         public string Description { get; set; }

@@ -13,7 +13,7 @@ namespace AzureMachineLearning.PowerShell
         
         protected override void ProcessRecord()
         {            
-            Client.RemoveExperimentById(GetWorkspaceSetting(), ExperimentId);
+            Workspace.RemoveExperimentById(GetWorkspaceSetting(), ExperimentId);
             WriteObject("Experiment removed.");
         }
     }
@@ -34,7 +34,7 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Unpacking experiment from Gallery to workspace...";
             WriteProgress(pr);
-            PackActivity activity = Client.UnpackExperimentFromGallery(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
+            PackActivity activity = Workspace.UnpackExperimentFromGallery(GetWorkspaceSetting(), PackageUri, GalleryUri, EntityId);
             while (activity.Status != "Complete")
             {
                 if (pr.PercentComplete < 100)
@@ -43,7 +43,7 @@ namespace AzureMachineLearning.PowerShell
                     pr.PercentComplete = 1;                
                 pr.StatusDescription = "Status: " + activity.Status;
                 WriteProgress(pr);
-                activity = Client.GetActivityStatus(GetWorkspaceSetting(), WorkspaceId, AuthorizationToken, activity.ActivityId, false);
+                activity = Workspace.GetActivityStatus(GetWorkspaceSetting(), WorkspaceId, AuthorizationToken, activity.ActivityId, false);
             }
             pr.StatusDescription = "Status: " + activity.Status;
             pr.PercentComplete = 100;
@@ -75,13 +75,13 @@ namespace AzureMachineLearning.PowerShell
                 WriteProgress(pr);
 
                 string rawJson = string.Empty;
-                Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
 
                 pr.StatusDescription = "Experiment Name: " + exp.Description;
                 pr.CurrentOperation = "Copying...";
                 pr.PercentComplete = 2;
                 WriteProgress(pr);
-                Client.SaveExperimentAs(GetWorkspaceSetting(), exp, rawJson, NewExperimentName);
+                Workspace.SaveExperimentAs(GetWorkspaceSetting(), exp, rawJson, NewExperimentName);
                 pr.PercentComplete = 100;
                 WriteProgress(pr);
                 WriteObject("Experiment \"" + exp.Description + "\" copied from within the current workspace.");
@@ -97,18 +97,18 @@ namespace AzureMachineLearning.PowerShell
                 WriteProgress(pr);
 
                 string rawJson = string.Empty;
-                Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
 
                 pr.StatusDescription = "Experiment Name: " + exp.Description;
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 2;
                 WriteProgress(pr);
-                PackActivity activity = Client.PackExperiment(GetWorkspaceSetting(), ExperimentId);
+                PackActivity activity = Workspace.PackExperiment(GetWorkspaceSetting(), ExperimentId);
 
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 3;
                 WriteProgress(pr);
-                activity = Client.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
+                activity = Workspace.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
                 while (activity.Status != "Complete")
                 {
                     if (pr.PercentComplete < 100)
@@ -116,7 +116,7 @@ namespace AzureMachineLearning.PowerShell
                     else
                         pr.PercentComplete = 1;
                     WriteProgress(pr);
-                    activity = Client.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
+                    activity = Workspace.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
                 }
 
                 pr.CurrentOperation = "Unpacking experiment from storage to destination workspace...";
@@ -125,7 +125,7 @@ namespace AzureMachineLearning.PowerShell
                 else
                     pr.PercentComplete = 1;
                 WriteProgress(pr);
-                activity = Client.UnpackExperiment(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.Location);
+                activity = Workspace.UnpackExperiment(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.Location);
                 while (activity.Status != "Complete")
                 {
                     if (pr.PercentComplete < 100)
@@ -133,7 +133,7 @@ namespace AzureMachineLearning.PowerShell
                     else
                         pr.PercentComplete = 1;
                     WriteProgress(pr);
-                    activity = Client.GetActivityStatus(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.ActivityId, false);
+                    activity = Workspace.GetActivityStatus(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.ActivityId, false);
                 }
                 pr.PercentComplete = 100;
                 WriteProgress(pr);
@@ -152,7 +152,7 @@ namespace AzureMachineLearning.PowerShell
         protected override void ProcessRecord()
         {            
             string rawJson = string.Empty;
-            Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
             File.WriteAllText(OutputFile, rawJson);
             WriteObject(string.Format("Experiment graph exported to file \"{0}\"", OutputFile));
         }
@@ -177,9 +177,9 @@ namespace AzureMachineLearning.PowerShell
             ser = new DataContractJsonSerializer(typeof(Experiment));
             Experiment exp = (Experiment)ser.ReadObject(ms);
             if (Overwrite)
-                Client.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
+                Workspace.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
             else
-                Client.SaveExperimentAs(GetWorkspaceSetting(), exp, rawJson, string.IsNullOrEmpty(NewName) ? exp.Description : NewName);
+                Workspace.SaveExperimentAs(GetWorkspaceSetting(), exp, rawJson, string.IsNullOrEmpty(NewName) ? exp.Description : NewName);
 
             WriteObject(string.Format("File \"{0}\" imported as an Experiment graph.", InputFile));
         }
@@ -198,27 +198,27 @@ namespace AzureMachineLearning.PowerShell
 
             progress.PercentComplete = 1;
             WriteProgress(progress);
-            Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
             progress.StatusDescription = "Experiment Name: " + exp.Description;
 
             progress.CurrentOperation = "Saving experiment...";
             progress.PercentComplete = 2;
             WriteProgress(progress);
-            Client.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
+            Workspace.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
 
             progress.CurrentOperation = "Submitting experiment to run...";
             progress.PercentComplete = 3;
             WriteProgress(progress);
-            Client.RunExperiment(GetWorkspaceSetting(), exp, rawJson);
+            Workspace.RunExperiment(GetWorkspaceSetting(), exp, rawJson);
 
             progress.CurrentOperation = "Getting experiment status...";
             progress.PercentComplete = 4;
             WriteProgress(progress);
-            exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
             int percentage = 5;
             while (exp.Status.StatusCode != "Finished" && exp.Status.StatusCode != "Failed")
             {
-                exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
                 progress.CurrentOperation = "Experiment Status: " + exp.Status.StatusCode;
                 percentage++;
                 // reset the percentage count if it reaches 100 and execution is still in progress.
@@ -247,7 +247,7 @@ namespace AzureMachineLearning.PowerShell
             if (string.IsNullOrEmpty(ModelId))
             {
                 // get all models in the workspace
-                var models = Client.GetTrainedModels(GetWorkspaceSetting());
+                var models = Workspace.GetTrainedModels(GetWorkspaceSetting());
                 WriteObject(models, true);
             }
             else
@@ -255,7 +255,7 @@ namespace AzureMachineLearning.PowerShell
                 // get a specific model
                 string rawJson = string.Empty;
                 string errorMsg = string.Empty;
-                var model = Client.GetTrainedModelById(GetWorkspaceSetting(), ModelId, out rawJson);
+                var model = Workspace.GetTrainedModelById(GetWorkspaceSetting(), ModelId, out rawJson);
                 WriteObject(model);
             }
         }
@@ -273,7 +273,7 @@ namespace AzureMachineLearning.PowerShell
             if (string.IsNullOrEmpty(ExperimentId))
             {
                 // get all experiments in the workspace
-                Experiment[] exps = Client.GetExperiments(GetWorkspaceSetting());
+                Experiment[] exps = Workspace.GetExperiments(GetWorkspaceSetting());
                 WriteObject(exps, true);
             }
             else
@@ -281,7 +281,7 @@ namespace AzureMachineLearning.PowerShell
                 // get a specific experiment
                 string rawJson = string.Empty;
                 string errorMsg = string.Empty;
-                Experiment exp = Client.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                Experiment exp = Workspace.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
                 WriteObject(exp);
             }
         }        

@@ -17,12 +17,12 @@ namespace AzureMachineLearning.PowerShell
         {         
             if (string.IsNullOrEmpty(EndpointName))
             {                
-                Endpoint[] weps = Client.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
+                Endpoint[] weps = Workspace.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
                 WriteObject(weps, true);
             }
             else
             {
-                Endpoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+                Endpoint wep = Workspace.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
                 WriteObject(wep);
             }
         }
@@ -38,7 +38,7 @@ namespace AzureMachineLearning.PowerShell
         protected override void ProcessRecord()
         {            
             string rawOutcome = string.Empty;
-            Client.RemoveWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Workspace.RemoveWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName);
             WriteObject(string.Format("Web service endpoint \"{0}\" was successfully removed.", EndpointName));
         }
     }
@@ -78,7 +78,7 @@ namespace AzureMachineLearning.PowerShell
                 ThrottleLevel = ThrottleLevel,
                 MaxConcurrentCalls = MaxConcurrentCalls
             };            
-            Client.AddWebServiceEndpoint(GetWorkspaceSetting(), req);
+            Workspace.AddWebServiceEndpoint(GetWorkspaceSetting(), req);
             WriteObject(string.Format("Web service endpoint \"{0}\" was successfully added.", EndpointName));
         }
     }
@@ -94,8 +94,8 @@ namespace AzureMachineLearning.PowerShell
         public SwitchParameter OverwriteResources { get; set; }
         protected override void ProcessRecord()
         {            
-            Endpoint wse = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
-            Client.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
+            Endpoint wse = Workspace.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Workspace.RefreshWebServiceEndPoint(GetWorkspaceSetting(), WebServiceId, EndpointName, OverwriteResources.ToBool());
             WriteObject(string.Format("Endpoint \"{0}\" is refreshed.", wse.Name));
         }        
     }
@@ -131,14 +131,14 @@ namespace AzureMachineLearning.PowerShell
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Getting web service...";
             WriteProgress(pr);
-            WebService ws = Client.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
+            WebService ws = Workspace.GetWebServicesById(GetWorkspaceSetting(), WebServiceId);
 
             pr.PercentComplete = 10;
             pr.StatusDescription = "Web Service \"" + ws.Name + "\"";
             pr.CurrentOperation = "Getting web service endpoint...";
             WriteProgress(pr);
 
-            Endpoint wep = Client.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
+            Endpoint wep = Workspace.GetWebServiceEndpointByName(GetWorkspaceSetting(), WebServiceId, EndpointName);
             pr.PercentComplete = 20;
             pr.StatusDescription = "Web Service \"" + ws.Name + "\", Endpoint \"" + wep.Name + "\"";
             pr.CurrentOperation = "Patching web service endpoint with new trained model...";
@@ -157,7 +157,7 @@ namespace AzureMachineLearning.PowerShell
                     }
                 }
             };
-            Client.PatchWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName, patchReq);
+            Workspace.PatchWebServiceEndpoint(GetWorkspaceSetting(), WebServiceId, EndpointName, patchReq);
             WriteObject(string.Format("Endpoint \"{0}\" resource \"{1}\" successfully patched.", wep.Name, wep.Resources[0].Name));
         }
     }

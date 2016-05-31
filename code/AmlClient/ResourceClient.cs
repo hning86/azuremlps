@@ -23,20 +23,20 @@ namespace AzureMachineLearning
             this.Suffix = suffix;
         }
 
-        public T[] Get()
+        public async Task<T[]> Get()
         {
             var req = this.AzureClient.ResourceRequest(this.Suffix);
 
-            using (var wr = (HttpWebResponse)req.GetResponse())
+            using (var wr = (HttpWebResponse) await req.GetResponseAsync())
             using (var sr = new StreamReader(wr.GetResponseStream()))
             {
-                var s = sr.ReadToEnd();
+                var s = await sr.ReadToEndAsync();
                 var resources = JsonConvert.DeserializeObject<T[]>(s);
                 return resources;
             }
         }
 
-        public async Task<string> CreateAsync(string name, string location, string storageAccountName, string storageAccountKey, string ownerEmail, string source)
+        public async Task<string> Create(string name, string location, string storageAccountName, string storageAccountKey, string ownerEmail, string source)
         {
             // initial workspace is a made-up but valid guid
             var guid = Guid.NewGuid().ToString("N");
@@ -70,27 +70,27 @@ namespace AzureMachineLearning
             }
         }
 
-        public T Get(string id)
+        public async Task<T> Get(string id)
         {
             var req = this.AzureClient.ResourceRequest(this.Suffix + id);
 
-            using (var resp = req.GetResponse())
+            using (var resp = await req.GetResponseAsync())
             using (var sr = new StreamReader(resp.GetResponseStream()))
             {
-                var s = sr.ReadToEnd();
+                var s = await sr.ReadToEndAsync();
                 var resource = JsonConvert.DeserializeObject<T>(s);
                 return resource;
             }
         }
 
-        public string Remove(string id)
+        public async Task<string> Remove(string id)
         {
             var req = this.AzureClient.ResourceRequest(this.Suffix + id, HttpMethod.Delete);
 
-            using (var resp = req.GetResponse())
+            using (var resp = await req.GetResponseAsync())
             using (var sr = new StreamReader(resp.GetResponseStream()))
             {
-                var s = sr.ReadToEnd();
+                var s = await sr.ReadToEndAsync();
                 return s;
             }
         }

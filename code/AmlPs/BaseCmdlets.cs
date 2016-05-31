@@ -17,13 +17,13 @@ using AzureMachineLearning;
 namespace AzureMachineLearning.PowerShell
 {
     public class AzureMLPsCmdletBase : PSCmdlet
-    {              
-        protected Client Client { get; private set; }
+    {
+        protected AzureClient Azure { get; set; }              
+        protected WorkspaceClient Workspace { get; set; }
 
         public AzureMLPsCmdletBase()
         {            
-            this.Client = new Client();
-            this.Client.ApiName = "powershell";
+
         }
     }
 
@@ -44,7 +44,7 @@ namespace AzureMachineLearning.PowerShell
             {
                 _configFilePath = value;
               
-                ReadConfigFromFile(true);
+                //ReadConfigFromFile(true);
             }
         }
 
@@ -59,27 +59,27 @@ namespace AzureMachineLearning.PowerShell
 
         public AmlCmdlet()
         {            
-            ReadConfigFromFile(false);
+//            ReadConfigFromFile(false);
         }
 
-        private void ReadConfigFromFile(bool throwExceptionIfFileDoesnotExist)
-        {
-            string currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            _configFilePath = Path.Combine(currentPath, _configFilePath);
-            var ws = WorkspaceSettings.FromFile(_configFilePath);
+        //private void ReadConfigFromFile(bool throwExceptionIfFileDoesnotExist)
+        //{
+        //    string currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        //    _configFilePath = Path.Combine(currentPath, _configFilePath);
+        //    var ws = WorkspaceConfig.FromFile(_configFilePath);
 
-            if (throwExceptionIfFileDoesnotExist && ws == null)
-                throw new Exception("Can't find config file: " + _configFilePath);
+        //    if (throwExceptionIfFileDoesnotExist && ws == null)
+        //        throw new Exception("Can't find config file: " + _configFilePath);
 
-            Location = ws.Location;
-            WorkspaceId = ws.WorkspaceId;
-            AuthorizationToken = ws.AuthorizationToken;
-        }
+        //    Location = ws.Location;
+        //    WorkspaceId = ws.WorkspaceId;
+        //    AuthorizationToken = ws.AuthorizationToken;
+        //}
 
-        protected WorkspaceSettings GetWorkspaceSetting()
-        {
-            var ws = new WorkspaceSettings(this.WorkspaceId, this.AuthorizationToken, this.Location);
-            return ws;
-        }                                           
+        //protected WorkspaceSettings GetWorkspaceSetting()
+        //{
+        //    var ws = new WorkspaceSettings(this.WorkspaceId, this.AuthorizationToken, this.Location);
+        //    return ws;
+        //}                                           
     }    
 }
