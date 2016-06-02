@@ -197,6 +197,7 @@ namespace AzureML.Contract
         public string Description { get; set; }
         public string ThrottleLevel { get; set; }
         public int? MaxConcurrentCalls { get; set; }
+        public bool PreventUpdate { get; set; }
     }
 
     public class PackingServiceActivity

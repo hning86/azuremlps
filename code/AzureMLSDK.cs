@@ -746,7 +746,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice", setting.WorkspaceId, predictiveExperimentId);
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false", setting.WorkspaceId, predictiveExperimentId);
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {             

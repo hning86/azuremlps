@@ -58,6 +58,8 @@ namespace AzureML.PowerShell
         public string ThrottleLevel { get; set; }
         [Parameter(Mandatory = false)]
         public int? MaxConcurrentCalls { get; set; }
+        [Parameter(Mandatory = false)]
+        public SwitchParameter PreventUpdate { get; set; }
         public AddWebServiceEndpoint()
         {
             // set default values
@@ -77,8 +79,10 @@ namespace AzureML.PowerShell
                 EndpointName = EndpointName,
                 Description = Description,
                 ThrottleLevel = ThrottleLevel,
-                MaxConcurrentCalls = MaxConcurrentCalls
-            };            
+                MaxConcurrentCalls = MaxConcurrentCalls,
+                PreventUpdate = PreventUpdate.IsPresent
+            };                        
+                
             Sdk.AddWebServiceEndpoint(GetWorkspaceSetting(), req);
             WriteObject(string.Format("Web service endpoint \"{0}\" was successfully added.", EndpointName));
         }
