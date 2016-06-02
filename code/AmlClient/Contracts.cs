@@ -18,11 +18,6 @@ namespace AzureMachineLearning
         public UserInfo User { get; set; }
     }
 
-    public sealed class WorkspaceSetting
-    {
-
-    }
-
     public sealed class DataSource
     {
         public DatasetEndPoint VisualizeEndPoint { get; set; }
@@ -115,7 +110,7 @@ namespace AzureMachineLearning
         public string SecondaryToken { get; set; }
     }
 
-    public sealed class Workspace
+    internal sealed class WorkspaceEx
     {
         public string WorkspaceId { get; set; }
         public string FriendlyName { get; set; }
@@ -136,7 +131,7 @@ namespace AzureMachineLearning
         public DateTime CreatedTime { get; set; }
     }
 
-    public sealed class WorkspaceResource
+    public sealed class Workspace
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -148,6 +143,17 @@ namespace AzureMachineLearning
         public string WorkspaceState { get; set; }
         public string EditorLink { get; set; } 
         public AuthorizationToken AuthorizationToken { get; set; }
+    }
+
+    public sealed class AddWorkspaceRequest
+    {
+        public string Name { get; set; }
+        public string Location { get; set; }
+        public string StorageAccountName { get; set; }
+        public string StorageAccountKey { get; set; }
+        public string OwnerId { get; set; }
+        public bool ImmediateActivation { get; set; }
+        public string Source { get; set; }
     }
 
     public sealed class ExperimentSave
@@ -203,34 +209,6 @@ namespace AzureMachineLearning
         public string Description { get; set; }
         public string ThrottleLevel { get; set; }
         public int? MaxConcurrentCalls { get; set; }
-    }
-
-    public abstract class Activity
-    {
-        public string Location { get; set; }
-        public int ItemsComplete { get; set; }
-        public int ItemsPending { get; set; }
-        public string Status { get; set; }
-        public string ActivityId { get; set; }  
-        
-        [JsonIgnore]
-        public abstract string IdField { get; }        
-    }
-
-    public sealed class Packing : Activity
-    {
-        public override string IdField
-        {
-            get { return "packageActivityId=" + this.ActivityId; }
-        }
-    }
-
-    public sealed class Unpacking : Activity
-    {
-        public override string IdField
-        {
-            get { return "unpackActivityId=" + this.ActivityId; }
-        }
     }
 
     public sealed class DeployStatus

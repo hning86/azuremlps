@@ -214,7 +214,7 @@
             // 
             // workspaceRdfeBindingSource
             // 
-            this.workspaceRdfeBindingSource.DataSource = typeof(AzureMachineLearning.WorkspaceResource);
+            this.workspaceRdfeBindingSource.DataSource = typeof(AzureMachineLearning.Workspace);
             // 
             // pubFileDialog
             // 

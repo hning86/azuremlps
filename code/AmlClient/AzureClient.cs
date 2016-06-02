@@ -20,14 +20,18 @@ namespace AzureMachineLearning
 
         public string ResourceApi { get; private set; }
 
-        public AzureClient(string id, string cert)
+        public AzureClient(string id, string cert) : this(id, GetStoreCertificate(cert))
+        {
+        }
+
+        public AzureClient(string id, X509Certificate2 cert)
         {
             this.SubscriptionId = id;
-            this.ManagementCertificate = GetStoreCertificate(cert);
+            this.ManagementCertificate = cert;
             this.ResourceApi = this.ManagementApi + this.SubscriptionId + "/cloudservices/amlsdk/resources/machinelearning/~/";
         }
 
-        public HttpWebRequest ResourceRequest(string resource)
+        public HttpWebRequest Request(string resource)
         {
             return ResourceRequest(resource, HttpMethod.Get);
         }
@@ -39,19 +43,19 @@ namespace AzureMachineLearning
             return req;
         }
 
-        public HttpWebRequest CreateRequest(string reqUrl)
+        HttpWebRequest CreateRequest(string reqUrl)
         {
             return CreateRequest(reqUrl, HttpMethod.Get);
         }
 
-        public HttpWebRequest CreateRequest(string reqUrl, HttpMethod method)
+        HttpWebRequest CreateRequest(string reqUrl, HttpMethod method)
         {
-            HttpWebRequest httpReq = (HttpWebRequest)HttpWebRequest.Create(reqUrl);
-            httpReq.Method = method.Method;
-            httpReq.ContentType = "application/json";
-            httpReq.Headers.Add("x-ms-version", "2014-10-01");
-            httpReq.ClientCertificates.Add(this.ManagementCertificate);
-            return httpReq;
+            var req = (HttpWebRequest)HttpWebRequest.Create(reqUrl);
+            req.Method = method.Method;
+            req.ContentType = "application/json";
+            req.Headers.Add("x-ms-version", "2014-10-01");
+            req.ClientCertificates.Add(this.ManagementCertificate);
+            return req;
         }
 
         private static X509Certificate2 GetStoreCertificate(string thumbprint)

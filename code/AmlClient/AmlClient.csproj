@@ -52,6 +52,7 @@
     <Compile Include="AzureClient.cs" />
     <Compile Include="BatchExecution.cs" />
     <Compile Include="LocationApi.cs" />
+    <Compile Include="PackState.cs" />
     <Compile Include="Rrs.cs" />
     <Compile Include="WebServicesClient.cs" />
     <Compile Include="WorkspaceClient.cs" />
@@ -62,7 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExperimentRequest.cs" />
     <Compile Include="ResourceUploadResponse.cs" />
-    <Compile Include="ResourceClient.cs" />
+    <Compile Include="WorkspaceStorageClient.cs" />
     <Compile Include="WorkspaceSettings.cs" />
   </ItemGroup>
   <ItemGroup>

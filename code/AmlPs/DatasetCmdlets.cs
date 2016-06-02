@@ -7,12 +7,28 @@ using Newtonsoft.Json.Linq;
 
 namespace AzureMachineLearning.PowerShell
 {
+    public class DatasetCmdlet : AmlCmdlet
+    {
+        protected WorkspaceStorageClient StorageClient { get; set; }
+        protected WorkspaceClient WorkspaceClient { get; set; }
+
+        protected WorkspaceStorageClient GetStorageClient()
+        {
+            try
+            {
+                var c = (WorkspaceStorageClient)SessionState.PSVariable.GetValue(WorkspaceStorageClientParameter);
+                return c;
+            }
+            catch { }
+        }
+    }
+
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
     public class GetDatasetCmdlet : AmlCmdlet
     {
         protected override void ProcessRecord()
         {            
-            DataSource[] datasets = Workspace.GetDataSources().GetAwaiter().GetResult();
+            DataSource[] datasets = WorkspaceEx.GetDataSources().GetAwaiter().GetResult();
             WriteObject(datasets, true);
         }
     }
@@ -33,7 +49,7 @@ namespace AzureMachineLearning.PowerShell
         public string UploadFileName { get; set; }
         protected override void ProcessRecord()
         {
-            Workspace.ValidateWorkspaceSetting(setting);
+            WorkspaceEx.ValidateWorkspaceSetting(setting);
 
 
             ProgressRecord pr = new ProgressRecord(1, "Upload file", string.Format("Upload file \"{0}\" into Azure ML Studio", Path.GetFileName(UploadFileName)));
@@ -42,7 +58,7 @@ namespace AzureMachineLearning.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-            Task<string> uploadTask = Workspace.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = WorkspaceEx.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
 
             while (!uploadTask.IsCompleted)
             {
@@ -66,7 +82,7 @@ namespace AzureMachineLearning.PowerShell
             var dataTypeId = o["DataTypeId"];
             var uploadId = o["Id"];
 
-            var dataSourceId = Workspace.StartDatasetSchemaGen(GetWorkspaceSetting(), dataTypeId.Value<string>(), uploadId.Value<string>(), DatasetName, Description, UploadFileName);
+            var dataSourceId = WorkspaceEx.StartDatasetSchemaGen(GetWorkspaceSetting(), dataTypeId.Value<string>(), uploadId.Value<string>(), DatasetName, Description, UploadFileName);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";
@@ -81,7 +97,7 @@ namespace AzureMachineLearning.PowerShell
                 pr.CurrentOperation = "Schema generation status: " + schemaJobStatus;
                 WriteProgress(pr);
 
-                schemaJobStatus = Workspace.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
+                schemaJobStatus = WorkspaceEx.GetDatasetSchemaGenStatus(GetWorkspaceSetting(), dataSourceId);
                 if (schemaJobStatus == "NotSupported" || schemaJobStatus == "Complete" || schemaJobStatus == "Failed")
                     break;
             }
@@ -108,7 +124,7 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Downloading...";
             WriteProgress(pr);
 
-            Task task = Workspace.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
+            Task task = WorkspaceEx.DownloadDatasetAsync(GetWorkspaceSetting(), DatasetId, DownloadFileName);
             while (!task.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
@@ -132,7 +148,7 @@ namespace AzureMachineLearning.PowerShell
         public string DatasetFamilyId { get; set; }
         protected override void BeginProcessing()
         {            
-            Workspace.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
+            WorkspaceEx.DeleteDataset(GetWorkspaceSetting(), DatasetFamilyId);
             WriteObject("Dataset removed.");
         }       
     }

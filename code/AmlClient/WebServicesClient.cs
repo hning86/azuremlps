@@ -24,8 +24,8 @@ namespace AzureMachineLearning
             this.Workspace = workspace;
             this.Aml = workspace.Aml;
 
-            this.WebServicesApi = new Uri(workspace.Location.Management + "workspaces/" + workspace.Active.Id + "/webservices/");
-            this.DataSourcesApi = new Uri(workspace.Location.Management + "workspaces/" + workspace.Active.Id + "/datasources/");
+            this.WebServicesApi = new Uri(workspace.Location.Management + "workspaces/" + workspace.Storage.Id + "/webservices/");
+            this.DataSourcesApi = new Uri(workspace.Location.Management + "workspaces/" + workspace.Storage.Id + "/datasources/");
         }
 
         public async Task<string> GetDatasetSchemaGenStatus(string id)

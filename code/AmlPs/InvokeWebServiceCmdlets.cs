@@ -7,7 +7,7 @@ using System.Web.Script.Serialization;
 
 namespace AzureMachineLearning.PowerShell
 {
-    public class InvokeWebServiceEndpointCmdlet : AzureMLPsCmdletBase
+    public class InvokeWebServiceEndpointCmdlet : AmlCmdlet
     {
         private string _apiKey = string.Empty;
         [Parameter(Mandatory = true)]
@@ -41,7 +41,7 @@ namespace AzureMachineLearning.PowerShell
             if (InputJsonFile != null && InputJsonFile != string.Empty)
                 input = File.ReadAllText(InputJsonFile);
 
-            string output = Workspace.InvokeRRS(ApiLocation + "/execute?api-version=2.0&details=true", ApiKey, input);
+            string output = WorkspaceEx.InvokeRRS(ApiLocation + "/execute?api-version=2.0&details=true", ApiKey, input);
 
             if (OutputJsonFile != null && OutputJsonFile != string.Empty)
                 File.WriteAllText(OutputJsonFile, output);
@@ -70,12 +70,12 @@ namespace AzureMachineLearning.PowerShell
             pr.CurrentOperation = "Submitting the job...";
             pr.PercentComplete = 1;
             WriteProgress(pr);
-            string jobId = Workspace.SubmitBESJob(SubmitJobRequestUrl, ApiKey, JobConfigString);
+            string jobId = WorkspaceEx.SubmitBESJob(SubmitJobRequestUrl, ApiKey, JobConfigString);
             pr.CurrentOperation = "Starting the job...";
             pr.PercentComplete = 2;
             WriteProgress(pr);
             pr.StatusDescription += ": " + jobId;
-            Workspace.StartBESJob(SubmitJobRequestUrl, ApiKey, jobId);
+            WorkspaceEx.StartBESJob(SubmitJobRequestUrl, ApiKey, jobId);
 
             // Query job status
             pr.CurrentOperation = "Getting job status...";
@@ -86,7 +86,7 @@ namespace AzureMachineLearning.PowerShell
             string outputMsg = string.Empty;
             while (true)
             {
-                jobStatus = Workspace.GetBESJobStatus(SubmitJobRequestUrl, ApiKey, jobId, out outputMsg);
+                jobStatus = WorkspaceEx.GetBESJobStatus(SubmitJobRequestUrl, ApiKey, jobId, out outputMsg);
                 pr.CurrentOperation = "Job Status: " + jobStatus;
                 WriteProgress(pr);
 

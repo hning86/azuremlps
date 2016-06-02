@@ -19,11 +19,11 @@ namespace AzureMachineLearning
 
         public string ApiName { get; set; } = "dotnetsdk";
 
-        public ResourceClient<WorkspaceResource> Resource { get; private set; }
+        public WorkspaceStorageClient StorageClient { get; private set; }
+
+        public Workspace Storage { get; private set; }
 
         public AmlClient Aml { get; private set; }
-
-        public WorkspaceResource Active { get; private set; }
 
         public LocationApi Location { get; private set; }
 
@@ -41,17 +41,17 @@ namespace AzureMachineLearning
 
         public Uri PackagesApi { get; private set; }
 
-        public WorkspaceClient(ResourceClient<WorkspaceResource> resource, WorkspaceResource workspace)
+        public WorkspaceClient(WorkspaceStorageClient storageClient, Workspace storage)
         {
-            this.Resource = resource;
-            this.Active = workspace;
-            this.Aml = new AmlClient(this.Active.AuthorizationToken);
+            this.StorageClient = storageClient;
+            this.Storage = storage;
+            this.Aml = new AmlClient(this.Storage.AuthorizationToken);
 
-            var loc = Location = new LocationApi(Active.Region);
+            var loc = Location = new LocationApi(Storage.Region);
 
-            this.WorkspaceApi = new Uri(loc.Studio + "workspaces/" + this.Active.Id + "/");
-            this.UploadResourceApi = new Uri(loc.Studio + "resourceuploads/workspaces/" + this.Active.Id + "/");
-            this.UploadBlobApi = new Uri(loc.Studio + "blobuploads/workspaces/" + Active.Id + "/");
+            this.WorkspaceApi = new Uri(loc.Studio + "workspaces/" + this.Storage.Id + "/");
+            this.UploadResourceApi = new Uri(loc.Studio + "resourceuploads/workspaces/" + this.Storage.Id + "/");
+            this.UploadBlobApi = new Uri(loc.Studio + "blobuploads/workspaces/" + Storage.Id + "/");
 
             this.ExperimentsApi = new Uri(WorkspaceApi + "/experiments/");
             this.DataSourcesApi = new Uri(WorkspaceApi + "/datasources/");
@@ -61,11 +61,11 @@ namespace AzureMachineLearning
 
         #region Workspace
 
-        public async Task<Workspace> GetWorkspace()
+        internal async Task<WorkspaceEx> GetWorkspaceEx()
         {
             var r = await Aml.Get(this.WorkspaceApi);
             r.ThrowIfFailed();
-            return await r.GetPayload<Workspace>();
+            return await r.GetPayload<WorkspaceEx>();
         }
 
         public async Task<string> AddWorkspaceUsers(string emails, string role)
@@ -339,7 +339,7 @@ namespace AzureMachineLearning
             return await r.GetPayload<Packing>();
         }
 
-        public async Task<T> GetActivity<T>(T a) where T : Activity
+        public async Task<T> GetActivity<T>(T a) where T : PackState
         {
             var uri = new Uri(PackagesApi + "&" + a.IdField);
             var r = await Aml.Get(uri);

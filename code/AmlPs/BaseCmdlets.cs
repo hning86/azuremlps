@@ -12,74 +12,78 @@ using System.Xml.XPath;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Web;
+using System.Diagnostics;
+using Microsoft.PowerShell.Commands;
 using AzureMachineLearning;
+using Microsoft.WindowsAzure.Commands.Profile;
+using Microsoft.WindowsAzure.Commands.Profile.Models;
 
 namespace AzureMachineLearning.PowerShell
 {
-    public class AzureMLPsCmdletBase : PSCmdlet
+    public class AmlCmdlet : PSCmdlet
     {
-        protected AzureClient Azure { get; set; }              
-        protected WorkspaceClient Workspace { get; set; }
+        public const string WorkspaceStorageClientParameter = "_AmlWorkspaceStorageClient";
+        public const string WorkspaceClientParameter = "_AmlWorkspaceClient";
+        public const string AzureClientParameter = "_AmlAzureClient";
 
-        public AzureMLPsCmdletBase()
-        {            
+        protected AzureClient AzureClient { get; private set; }
+        protected WorkspaceStorageClient StorageClient { get; private set; }
+        protected WorkspaceClient WorkspaceClient { get; private set; }
 
-        }
-    }
-
-    public class AmlCmdlet : AzureMLPsCmdletBase
-    {
-        // default config.json file path.
-        private string _configFilePath = "./config.json";
-
-        [Parameter(Mandatory = false)]
-        [ValidateSet("South Central US", "West Europe", "Southeast Asia")]
-        public string Location { get; set; }
-
-        [Parameter(Mandatory = false)]
-        public string ConfigFile
+        protected void SetAzureClient(AzureClient client)
         {
-            get { return _configFilePath; }
-            set
+            AzureClient = client;
+            SessionState.PSVariable.Set(AzureClientParameter, AzureClient);
+        }
+
+        protected AzureClient GetAzureClient()
+        {
+            // check property
+            if (AzureClient != null)
+                return AzureClient;
+
+            // try to get from session variables
+            try
             {
-                _configFilePath = value;
-              
-                //ReadConfigFromFile(true);
+                var client = (AzureClient)SessionState.PSVariable.GetValue(AzureClientParameter);
+                return client;
             }
+            catch { }
+
+            // if still here, try to set from current subscription
+            // suggest "Import-AzurePublishSettings" in error
+            var azs = new GetAzureSubscriptionCommand();
+            azs.ExtendedDetails = true;
+
+            foreach (var sub in azs.Invoke<PSAzureSubscriptionExtended>())
+            {
+                if (sub.IsCurrent)
+                {
+                    var id = sub.SubscriptionId;
+                    var cert = sub.Certificate;
+                    var client = new AzureClient(id, cert);
+                    return client;
+                }
+            }
+
+            throw new AmlException("no current Azure subscription, 'Add-AzureAccount' or use 'Import-AzurePublishSettingsFile'");
         }
 
-        [Parameter(Mandatory = false)]
-        public string WorkspaceId { get; set; }
+        protected WorkspaceStorageClient GetWorkspaceStorageClient()
+        {
+            try
+            {
+                var c = (WorkspaceStorageClient)SessionState.PSVariable.GetValue(WorkspaceStorageClientParameter);
+                return c;
+            }
+            catch { }
 
-        [Parameter(Mandatory = false)]
-        private string _authToken = string.Empty;
+            var azureClient = GetAzureClient();
 
-        [Parameter(Mandatory = false)]
-        public string AuthorizationToken;
-
-        public AmlCmdlet()
-        {            
-//            ReadConfigFromFile(false);
+            var client = new WorkspaceStorageClient(AzureClient);
+            SessionState.PSVariable.Set(WorkspaceStorageClientParameter, client);
+            return client;
         }
 
-        //private void ReadConfigFromFile(bool throwExceptionIfFileDoesnotExist)
-        //{
-        //    string currentPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        //    _configFilePath = Path.Combine(currentPath, _configFilePath);
-        //    var ws = WorkspaceConfig.FromFile(_configFilePath);
-
-        //    if (throwExceptionIfFileDoesnotExist && ws == null)
-        //        throw new Exception("Can't find config file: " + _configFilePath);
-
-        //    Location = ws.Location;
-        //    WorkspaceId = ws.WorkspaceId;
-        //    AuthorizationToken = ws.AuthorizationToken;
-        //}
-
-        //protected WorkspaceSettings GetWorkspaceSetting()
-        //{
-        //    var ws = new WorkspaceSettings(this.WorkspaceId, this.AuthorizationToken, this.Location);
-        //    return ws;
-        //}                                           
-    }    
+    }
 }

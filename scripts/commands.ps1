@@ -1,12 +1,36 @@
-# Get-AzurePublishSettingsFile
+function Import-AzureMlps()
+{
+[Cmdlet()] 
 
+    $modPath = "$env:userProfile\documents\WindowsPowerShell\Modules"
+    if ( !(Test-Path $modPath) ) {
+        New-Item -Path $modPath -ItemType Directory | Out-Null
+        }
+
+    $mlpsPath = $modPath + "\azuremlps"
+    if ( !(Test-Path $mlpsPath)) {
+        Push-Location $modPath
+        Invoke-WebRequest -Uri 'https://github.com/hning86/azuremlps/releases/download/0.2.5/AzureMLPS.zip'
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory('azuremlps.zip', '.')
+        Pop-Location
+    }
+
+    Import-Module azuremlps
+}
+
+#ImportAzureMlps
+
+
+
+# Get-AzurePublishSettingsFile
 Import-AzurePublishSettingsFile -PublishSettingsFile '~\Downloads\VoD - Dev-5-20-2016-credentials.publishsettings'
 
 # import-module C:\Repos\azuremlps\code\amlps\bin\Debug\AzureMLPS.dll
 
 #copy dll
-copy C:\Repos\azuremlps\code\amlps\bin\Debug\*.dll .
-import-module ./AzureMLPS.dll
+#copy C:\Repos\azuremlps\code\amlps\bin\Debug\*.dll .
+#import-module ./AzureMLPS.dll
 
 
 $cert = (dir Cert:\CurrentUser\My | ? { $_.FriendlyName -match "VoD" })
