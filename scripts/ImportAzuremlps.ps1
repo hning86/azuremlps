@@ -4,6 +4,16 @@
     $wc.DownloadFile($uri, $output)
 }
 
+function UnzipFile([string] $file, [string] $output)
+{
+if (Test-Path $output) {
+  return
+  }
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::ExtractToDirectory($file, $output)
+}
+
 function Import-AzureMlps()
 {
 [CmdletBinding()] 
@@ -13,16 +23,14 @@ function Import-AzureMlps()
         New-Item -Path $modPath -ItemType Directory | Out-Null
         }
 
-    $mlpsPath = $modPath + "\azuremlps"
-    if ( !(Test-Path $mlpsPath)) {
-        Push-Location $modPath 
-        DownloadFile 'https://github.com/hning86/azuremlps/releases/download/0.2.5/AzureMLPS.zip' $modPath/AzureMLPS.zip
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory('.\azuremlps.zip', '.')
-        Pop-Location
+    $zipFile = $modPath + "\azuremlps.zip"
+    if ( !(Test-Path $zipFile)) {
+        DownloadFile 'https://github.com/hning86/azuremlps/releases/download/0.2.5/AzureMLPS.zip' $zipFile
     }
 
-    Import-Module azuremlps
-}
+    UnzipFile $zipFile ($modPath + "\azuremlps")
 
-Import-AzureMlps
+
+
+    Import-Module azuremlps -WarningAction SilentlyContinue
+}

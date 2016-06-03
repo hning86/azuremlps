@@ -1,0 +1,31 @@
+﻿{
+  "GlobalParameters": {
+    "Setup total workers": "1",
+    "Setup worker ID": "-1",
+    "Setup scan proportion": "0.1",
+    "Setup minimum F1": "0.1",
+    "Input tenant name": "",
+    "Input account name": "",
+    "Input account primary key": "",
+    "Input relative location": "",
+    "Input account secondary key": ""
+  },
+  "Outputs": {
+    "model": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/modelresults.ilearner"
+    },
+    "trained": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/trainedresults.csv"
+    },
+    "setup": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/setupresults.csv"
+    },
+    "performance": {
+      "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=mystorageacct;AccountKey=Dx9WbMIThAvXRQWap/aLnxT9LV5txxw==",
+      "RelativeLocation": "mycontainer/performanceresults.csv"
+    }
+  }
+}

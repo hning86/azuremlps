@@ -1,56 +1,20 @@
-function Import-AzureMlps()
-{
-[Cmdlet()] 
+. $PSScriptRoot\ImportAzuremlps.ps1
+. $PSScriptRoot\UsePublisherSettings.ps1
 
-    $modPath = "$env:userProfile\documents\WindowsPowerShell\Modules"
-    if ( !(Test-Path $modPath) ) {
-        New-Item -Path $modPath -ItemType Directory | Out-Null
-        }
+Import-AzureMlps
+$settings = Use-PublisherSettings
 
-    $mlpsPath = $modPath + "\azuremlps"
-    if ( !(Test-Path $mlpsPath)) {
-        Push-Location $modPath
-        Invoke-WebRequest -Uri 'https://github.com/hning86/azuremlps/releases/download/0.2.5/AzureMLPS.zip'
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory('azuremlps.zip', '.')
-        Pop-Location
-    }
+#$store = Get-AzureStorageAccount -StorageAccountName verbatimviewerdev
+#$store | Get-AzureStorageContainer 
+#$key = Get-AzureStorageKey -StorageAccountName verbatimviewerdev
 
-    Import-Module azuremlps
-}
+$m = @{ AzureSubscriptionId = $settings.Id; ManagementCertThumbprint = $settings.Account; }
 
-#ImportAzureMlps
+$list = List-AmlWorkspaces @m
 
-
-
-# Get-AzurePublishSettingsFile
-Import-AzurePublishSettingsFile -PublishSettingsFile '~\Downloads\VoD - Dev-5-20-2016-credentials.publishsettings'
-
-# import-module C:\Repos\azuremlps\code\amlps\bin\Debug\AzureMLPS.dll
-
-#copy dll
-#copy C:\Repos\azuremlps\code\amlps\bin\Debug\*.dll .
-#import-module ./AzureMLPS.dll
-
-
-$cert = (dir Cert:\CurrentUser\My | ? { $_.FriendlyName -match "VoD" })
-
-$thumb = $cert.Thumbprint
-
-$sub = Get-AzureSubscription | ? { $_.SubscriptionName -match "VoD" }
-
-$subid = $sub.SubscriptionId
-
-Select-AzureSubscription -SubscriptionId $subid
-
-$store = Get-AzureStorageAccount -StorageAccountName verbatimviewerdev
-$store | Get-AzureStorageContainer 
-
-$key = Get-AzureStorageKey -StorageAccountName verbatimviewerdev
-
-$m = @{ AzureSubscriptionId = $subid; ManagementCertThumbprint = $thumb; }
-$ws = List-AmlWorkspaces -AzureSubscriptionId $subid -ManagementCertThumbprint $thumb | ? { $_.Name -match "verbatim" }
 #$ws = List-AmlWorkspaces @m | ? { $_.Name -match "voxdev" }
+
+$ws = List-AmlWorkspaces @m | ? { $_.Name -eq 'verbatimviewerdev' }
 
 $a = @{
     WorkspaceId = $ws.Id;
@@ -69,5 +33,7 @@ $a = @{
 $aws = Get-AmlWorkspace @a
 $ews = Get-AmlExperiment @a
 $dws = Get-AmlDataset @a
-$mws = Get-AmlTrainedModel @a
+#$mws = Get-AmlTrainedModel @a
 $wws = Get-AmlWebService @a
+$trainWs = $wws | ? { $_.Name -eq 'vox train experiment' }
+$trainEps = Get-AmlWebServiceEndpoint @a -WebServiceId $trainWs.Id
