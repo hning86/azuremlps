@@ -391,7 +391,7 @@ Please note:
 * For Standard Workspace the _-ThrottleLevel_ values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of _-MaxConcurrentCalls_ is ignored and the parameter is defaulted to 4. When it is set to 'High', the valid value of _-MaxConcurrentCalls_ is between 1 and 200. Check out this [article](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-scaling-endpoints/) for more on Web Service Endpoints scaling. 
 
 #### Refresh-AmlWebServiceEndpoint
-Refreshing Endpoint takes the graph behind the default endpoint and applies it to the specified non-default Endpoint. When you republish/update a Web Service from an Experiment, only the default Endpoint is updated. You will need to use the refersh method to update the non-default Endpoints. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. Without it, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
+Refreshing Endpoint takes the graph behind the default endpoint and applies it to the specified non-default Endpoint. When you republish/update a Web Service from an Experiment, only the default Endpoint is updated. You will need to use the refresh method to update the non-default Endpoints. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. Without it, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 ```
 #Refresh the endpoint 'ep03'
