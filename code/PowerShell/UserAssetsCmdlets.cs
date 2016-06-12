@@ -199,16 +199,16 @@ namespace AzureMLPS.PowerShell
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
         [Parameter(Mandatory = true)]
-        public string OldAssetModuleId { get; set; }
-        [Parameter(Mandatory = true)]
-        public string NewAssetModuleId { get; set; }
-        [Parameter(Mandatory = true)]
         [ValidateSet("TrainedModel", "Transform", "Dataset")]
         public string AssetType { get; set; }
-
+        [Parameter(Mandatory = true)]
+        public UserAsset ExistingAsset { get; set; }
+        [Parameter(Mandatory = true)]
+        public UserAsset NewAsset { get; set; }
+        
         protected override void ProcessRecord()
         {
-            if (OldAssetModuleId == NewAssetModuleId)
+            if (ExistingAsset.Id == NewAsset.Id)
             {
                 WriteWarning("Source and target are the same asset. No replacement is needed.");
                 return;
@@ -226,17 +226,20 @@ namespace AzureMLPS.PowerShell
             int count = 0;
             foreach (var node in graph["Graph"]["ModuleNodes"])
                 foreach (var inputPort in node["InputPortsInternal"])
-                    if (inputPort[assetTypeNames[AssetType]] == OldAssetModuleId)
+                    if (inputPort[assetTypeNames[AssetType]] == ExistingAsset.Id)
                     {
-                        inputPort[assetTypeNames[AssetType]] = NewAssetModuleId;
+                        inputPort[assetTypeNames[AssetType]] = NewAsset.Id;
                         count++;
                     }
 
             string clientData = graph["Graph"]["SerializedClientData"];
-            graph["Graph"]["SerializedClientData"] = clientData.Replace(OldAssetModuleId, NewAssetModuleId);
+            graph["Graph"]["SerializedClientData"] = clientData.Replace(ExistingAsset.Id, NewAsset.Id);
             rawJson = jss.Serialize(graph);
             Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
-            WriteObject(string.Format("{0} has been replaced.", AssetType));
+            if (count > 0)
+                WriteObject(string.Format("{0} \"{1}\" in the experiment \"{2}\" has been replaced with \"{3}\".", AssetType, ExistingAsset.Name, exp.Description, NewAsset.Name));
+            else
+                WriteWarning(string.Format("{0} \"{1}\" with id \"{2}\" cannot be found in the experiment \"{3}\".", AssetType, ExistingAsset.Name, ExistingAsset.Id, exp.Description));
         }
     }
 }

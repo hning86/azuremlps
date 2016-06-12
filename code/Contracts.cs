@@ -39,31 +39,13 @@ namespace AzureML.Contract
         public string AuthorizationToken { get; set; }
         public string Location { get; set; }
     }
-    public class Dataset
+    public class Dataset : UserAsset
     {
         public EndPoint VisualizeEndPoint { get; set; }
         public EndPoint SchemaEndPoint { get; set; }
-        public string SchemaStatus { get; set; }
-        public string Id { get; set; }
-        public string DataTypeId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string FamilyId { get; set; }
-        public string SourceOrigin { get; set; }
-        public int Size { get; set; }
-        public string CreatedDate { get; set; }
-        public string Owner { get; set; }
-        public string ExperimentId { get; set; }
-        public string ClientVersion { get; set; }
-        public string PromotedFrom { get; set; }
-        public string UploadedFromFileName { get; set; }
-        public int ServiceVersion { get; set; }
-        public bool isLatest { get; set; }
-        public string Category { get; set; }
         public EndPoint DownloadLocation { get; set; }
-        public bool IsDeprecated { get; set; }
-        public string Culture { get; set; }
-        public int Batch { get; set; }
+        public string SchemaStatus { get; set; }
+        public string UploadedFromFileName { get; set; }
 
         public class EndPoint
         {
@@ -306,7 +288,7 @@ namespace AzureML.Contract
         public string ExperimentId { get; set; }
         public string FamilyId { get; set; }
         public string Id { get; set; }
-        public bool IsLatest { get; set; }
+        public bool IsLatest { get; set; }        
         public string Name { get; set; }
         public string Owner { get; set; }
         public string PromotedFrom { get; set; }
@@ -318,6 +300,13 @@ namespace AzureML.Contract
             public string Language { get; set; }
             public string Version { get; set; }
         }
+        public int Size { get; set; }
+        public string CreatedDate { get; set; }
+        public string ClientVersion { get; set; }
+        public int ServiceVersion { get; set; }
+        public string Category { get; set; }
+        public bool IsDeprecated { get; set; }
+        public string Description { get; set; }
 
     }
 
