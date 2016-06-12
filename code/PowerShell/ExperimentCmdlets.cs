@@ -1,8 +1,12 @@
 ﻿using AzureML.Contract;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Web.Script.Serialization;
 
 namespace AzureML.PowerShell
 {    
@@ -258,6 +262,55 @@ namespace AzureML.PowerShell
                 Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
                 WriteObject(exp);
             }
-        }        
-    }    
+        }
+    }
+
+    [Cmdlet("Get", "AmlExperimentNode")]
+    public class GetExperimentNode : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true)]
+        public string Comment { get; set; }
+        protected override void ProcessRecord()
+        {
+            string rawJson = string.Empty;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            List<GraphNode> nodes = new List<GraphNode>();
+            foreach (var node in graph["Graph"]["ModuleNodes"])
+            {
+                GraphNode gn = new GraphNode
+                {
+                    Id = node["Id"],
+                    ModuleId = node["ModuleId"],
+                    Comment = node["Comment"]
+                };
+                if (gn.Comment.ToLower().Trim() == Comment.ToLower().Trim()) nodes.Add(gn);
+            }
+            WriteObject(nodes, true);
+        }
+    }
+
+
+    [Cmdlet("Layout", "AmlExperiment")]
+    public class LayoutExperiment : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = false)]
+        public string ExperimentId { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            string rawJson = string.Empty;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            rawJson = Sdk.AutoLayoutGraph(rawJson);
+            MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(rawJson));
+            ser = new DataContractJsonSerializer(typeof(Experiment));
+            exp = (Experiment)ser.ReadObject(ms);
+            Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
+            WriteObject("Graph auto-layout finished.");
+        }
+    }   
+
 }

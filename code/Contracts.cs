@@ -37,7 +37,7 @@ namespace AzureML.Contract
     {
         public string WorkspaceId { get; set; }
         public string AuthorizationToken { get; set; }
-        public string Location { get; set; }        
+        public string Location { get; set; }
     }
     public class Dataset
     {
@@ -52,8 +52,8 @@ namespace AzureML.Contract
         public string SourceOrigin { get; set; }
         public int Size { get; set; }
         public string CreatedDate { get; set; }
-        public string Owner { get; set; }   
-        public string ExperimentId { get; set; }     
+        public string Owner { get; set; }
+        public string ExperimentId { get; set; }
         public string ClientVersion { get; set; }
         public string PromotedFrom { get; set; }
         public string UploadedFromFileName { get; set; }
@@ -119,7 +119,7 @@ namespace AzureML.Contract
                 public string RelativeLocation { get; set; }
                 public string SasBlobToken { get; set; }
             }
-            
+
         }
     }
 
@@ -159,11 +159,11 @@ namespace AzureML.Contract
         public string OwnerId { get; set; }
         public string StorageAccountName { get; set; }
         public string WorkspaceState { get; set; }
-        public string EditorLink { get; set; } 
+        public string EditorLink { get; set; }
         public AuthorizationToken AuthorizationToken { get; set; }
     }
 
-   
+
     public class Experiment
     {
         public string ExperimentId { get; set; }
@@ -206,11 +206,11 @@ namespace AzureML.Contract
         public int ItemsComplete { get; set; }
         public int ItemsPending { get; set; }
         public string Status { get; set; }
-        public string ActivityId { get; set; }          
+        public string ActivityId { get; set; }
     }
 
     public class HttpResult
-    {        
+    {
         public bool IsSuccess { get; set; }
         public int StatusCode { get; set; }
         public string ReasonPhrase { get; set; }
@@ -227,7 +227,7 @@ namespace AzureML.Contract
 
     }
 
-    public class AmlRestApiException: Exception
+    public class AmlRestApiException : Exception
     {
         public AmlRestApiException(HttpResult hr) : base("Error: [" + hr.StatusCode + " (" + hr.ReasonPhrase + ")]: " + hr.Payload) { }
     }
@@ -239,7 +239,7 @@ namespace AzureML.Contract
         public float CenterY { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public string UserData { get; set; }        
+        public string UserData { get; set; }
     }
 
     public class StudioGraphEdge
@@ -261,9 +261,15 @@ namespace AzureML.Contract
         public string Id { get; set; }
         public List<StudioGraphNode> Nodes { get; set; }
         public List<StudioGraphEdge> Edges { get; set; }
-        public string UserData { get; set; }        
+        public string UserData { get; set; }
     }
 
+    public class GraphNode
+    {
+        public string Id { get; set; }
+        public string ModuleId { get; set; }
+        public string Comment { get; set; }
+    }
     public class Module
     {
         public string Id { get; set; }
@@ -272,7 +278,7 @@ namespace AzureML.Contract
         public string Category { get; set; }
         public string FamilyId { get; set; }
         public bool IsDeterministic { get; set; }
-        public bool IsBlocking { get; set; }        
+        public bool IsBlocking { get; set; }
         public string ModuleType { get; set; }
         public string ReleaseState { get; set; }
         public ModuleLanguageMetadata ModuleLanguage { get; set; }
@@ -286,9 +292,39 @@ namespace AzureML.Contract
         public string ClientVersion { get; set; }
         public string ServiceVersion { get; set; }
         public int Batch { get; set; }
-        public class ModuleLanguageMetadata {
+        public class ModuleLanguageMetadata
+        {
             public string Language { get; set; }
             public string Version { get; set; }
         }
+    }
+
+    public class UserAsset
+    {
+        public int Batch { get; set; }
+        public string DataTypeId { get; set; }
+        public string ExperimentId { get; set; }
+        public string FamilyId { get; set; }
+        public string Id { get; set; }
+        public bool IsLatest { get; set; }
+        public string Name { get; set; }
+        public string Owner { get; set; }
+        public string PromotedFrom { get; set; }
+        public string ResourceUploadId { get; set; }
+        public string SourceOrigin { get; set; }
+        public TrainedModelLanguageMetadata Language { get; set; }
+        public class TrainedModelLanguageMetadata
+        {
+            public string Language { get; set; }
+            public string Version { get; set; }
+        }
+
+    }
+
+    public enum UserAssetType
+    {
+        TrainedModel,
+        Transform,
+        Dataset
     }
 }

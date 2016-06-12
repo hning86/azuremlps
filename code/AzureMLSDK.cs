@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.2.6";        
+        public const string Version = "0.2.7";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
@@ -708,6 +708,105 @@ namespace AzureML
                     }
             }            
             return graph;
+        }
+        #endregion
+
+        #region User Assets
+        public UserAsset[] GetTrainedModels (WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/trainedmodels", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+            {
+                UserAsset[] tms = jss.Deserialize<UserAsset[]>(hr.Payload);
+                return tms;
+            }
+            throw new AmlRestApiException(hr);
+        }
+
+        public UserAsset[] GetTransforms(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/transformmodules", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+            {
+                UserAsset[] tms = jss.Deserialize<UserAsset[]>(hr.Payload);
+                return tms;
+            }
+            throw new AmlRestApiException(hr);
+        }
+
+        public void PromoteUserAsset(WorkspaceSetting setting, string experimentId, string nodeId, string nodeOutputName, string assetName, string assetDescription, UserAssetType assetType, string familyId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/{1}", setting.WorkspaceId, assetType == UserAssetType.Transform ? "transformmodules" : (assetType == UserAssetType.TrainedModel ? "trainedmodels" : "datasources"));
+            string postPayloadInJson = string.Empty;
+            switch (assetType)
+            {
+                case UserAssetType.Transform:
+                    var transformPayload = new
+                    {
+                        ExperimentId = experimentId,
+                        ModuleNodeId = nodeId,
+                        OutputName = nodeOutputName,
+                        Transform = new
+                        {
+                            Name = assetName,
+                            DataTypeId = "iTransformDotNet",
+                            Description = assetDescription,
+                            SourceOrigin = "FromOutputPromotion",
+                            FamilyId = familyId
+                        }
+                    };
+                    postPayloadInJson = jss.Serialize(transformPayload);
+                    break;
+                case UserAssetType.TrainedModel:
+                    var trainedModelPayload = new
+                    {
+                        ExperimentId = experimentId,
+                        ModuleNodeId = nodeId,
+                        OutputName = nodeOutputName,
+                        TrainedModel = new
+                        {
+                            Name = assetName,
+                            DataTypeId = "iLearnerDotNet",
+                            Description = assetDescription,
+                            SourceOrigin = "FromOutputPromotion",
+                            FamilyId = familyId
+                        }
+                    };
+                    postPayloadInJson = jss.Serialize(trainedModelPayload);
+                    break;
+                case UserAssetType.Dataset:
+                    var datasetPayload = new
+                    {
+                        ExperimentId = experimentId,
+                        ModuleNodeId = nodeId,
+                        OutputName = nodeOutputName,
+                        DataSource = new
+                        {
+                            Name = assetName,
+                            DataTypeId = "Dataset",
+                            Description = assetDescription,
+                            SourceOrigin = "FromOutputPromotion",
+                            FamilyId = familyId
+                        }
+                    };
+                    postPayloadInJson = jss.Serialize(datasetPayload);
+                    break;
+            }
+            HttpResult hr = Util.HttpPost(queryUrl, postPayloadInJson).Result;
+            if (hr.IsSuccess)
+            {
+                return;
+            }
+            throw new AmlRestApiException(hr);
         }
         #endregion
 

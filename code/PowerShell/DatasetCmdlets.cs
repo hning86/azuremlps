@@ -1,5 +1,7 @@
 ﻿using AzureML.Contract;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,10 +12,30 @@ namespace AzureML.PowerShell
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
     public class GetDatasetCmdlet : AzureMLPsCmdlet
     {
+        [Parameter(Mandatory = false)]
+        public string ExperimentId { get; set; }
         protected override void ProcessRecord()
-        {            
-            Dataset[] datasets = Sdk.GetDataset(GetWorkspaceSetting());
-            WriteObject(datasets, true);
+        {                        
+            List<Dataset> datasetsInWorkspace = new List<Dataset>(Sdk.GetDataset(GetWorkspaceSetting()));
+            if (string.IsNullOrEmpty(ExperimentId))
+                WriteObject(datasetsInWorkspace, true);
+            else // find all datasets in the specified experiment
+            {
+                List<Dataset> datasetsInExperiment = new List<Dataset>();
+                string rawJson;
+                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                dynamic graph = jss.Deserialize<object>(rawJson);
+                foreach (var node in graph["Graph"]["ModuleNodes"])
+                    foreach (var inputPort in node["InputPortsInternal"])
+                        if (!string.IsNullOrEmpty(inputPort["DataSourceId"]))
+                        {
+                            var dataset = datasetsInWorkspace.SingleOrDefault(ds => ds.Id == inputPort["DataSourceId"]);
+                            if (dataset != null && !datasetsInExperiment.Contains(dataset))
+                                datasetsInExperiment.Add(dataset);
+                        }
+                WriteObject(datasetsInExperiment, true);
+            }
         }
     }
 
