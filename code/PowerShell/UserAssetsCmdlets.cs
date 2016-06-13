@@ -9,64 +9,103 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
 namespace AzureMLPS.PowerShell
-{    
+{
     [Cmdlet("Get", "AmlTrainedModel")]
     public class GetTrainedModel : AzureMLPsCmdlet
     {
-        [Parameter(Mandatory = false)]
+        protected override void ProcessRecord()
+        {
+            UserAsset[] trainedModelsInWorkspace = Sdk.GetTrainedModels(GetWorkspaceSetting());
+            WriteObject(trainedModelsInWorkspace, true);
+        }
+    }
+
+    [Cmdlet("Get", "AmlTrainedModelInExperiment")]
+    public class GetTrainedModelInExperiment : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
             List<UserAsset> trainedModelsInWorkspace = new List<UserAsset>(Sdk.GetTrainedModels(GetWorkspaceSetting()));
-            if (string.IsNullOrEmpty(ExperimentId))
-                WriteObject(trainedModelsInWorkspace, true);
-            else // find all transforms in the specified experiment
-            {
-                List<UserAsset> trainedModelsInExperiment = new List<UserAsset>();
-                string rawJson;
-                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
-                JavaScriptSerializer jss = new JavaScriptSerializer();
-                dynamic graph = jss.Deserialize<object>(rawJson);
-                foreach (var node in graph["Graph"]["ModuleNodes"])
-                    foreach (var inputPort in node["InputPortsInternal"])
-                        if (!string.IsNullOrEmpty(inputPort["TrainedModelId"]))
-                        {
-                            var trainedModel = trainedModelsInWorkspace.SingleOrDefault(tm => tm.Id == inputPort["TrainedModelId"]);
-                            if (trainedModel != null && !trainedModelsInExperiment.Contains(trainedModel))
-                                trainedModelsInExperiment.Add(trainedModel);
+            Dictionary<string, UserAssetBase> trainedModelsInExperiment = new Dictionary<string, UserAssetBase>();
+            string rawJson;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            foreach (var node in graph["Graph"]["ModuleNodes"])
+                foreach (var inputPort in node["InputPortsInternal"])
+                {
+                    string id = inputPort["TrainedModelId"];
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        string familyId = id.Split('.')[1];
+                        UserAssetBase trainedModel = trainedModelsInWorkspace.SingleOrDefault(tm => tm.Id == id || tm.FamilyId == familyId);
+                        if (trainedModel != null && !trainedModelsInExperiment.ContainsKey(id))
+                        {                            
+                            bool isLatest = (trainedModelsInWorkspace.SingleOrDefault(t => t.Id == id) != null);
+                            trainedModelsInExperiment.Add(id, new UserAssetBase
+                            {
+                                Id = id,
+                                FamilyId = familyId,
+                                DataTypeId = trainedModel.DataTypeId,
+                                IsLatest = isLatest,
+                                Name = trainedModel.Name
+                            });
                         }
-                WriteObject(trainedModelsInExperiment, true);
-            }
+                    }
+                }
+            WriteObject(trainedModelsInExperiment.Values, true);
         }
     }
 
     [Cmdlet("Get", "AmlTransform")]
     public class GetTransform : AzureMLPsCmdlet
     {
+        protected override void ProcessRecord()
+        {
+            UserAsset[] transformsInWorkspace = Sdk.GetTransforms(GetWorkspaceSetting());
+            WriteObject(transformsInWorkspace, true);
+        }
+    }
+
+
+    [Cmdlet("Get", "AmlTransformInExperiment")]
+    public class GetTransformInExperiment : AzureMLPsCmdlet
+    {
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
             List<UserAsset> transformsInWorkspace = new List<UserAsset>(Sdk.GetTransforms(GetWorkspaceSetting()));
-            if (string.IsNullOrEmpty(ExperimentId))
-                WriteObject(transformsInWorkspace, true);
-            else // find all transforms in the specified experiment
-            {
-                List<UserAsset> transformsInExperiment = new List<UserAsset>();
-                string rawJson;
-                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
-                JavaScriptSerializer jss = new JavaScriptSerializer();
-                dynamic graph = jss.Deserialize<object>(rawJson);
-                foreach (var node in graph["Graph"]["ModuleNodes"])
-                    foreach (var inputPort in node["InputPortsInternal"])
-                        if (!string.IsNullOrEmpty(inputPort["TransformModuleId"]))
+            Dictionary<string, UserAssetBase> transformsInExperiment = new Dictionary<string, UserAssetBase>();
+            string rawJson;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            foreach (var node in graph["Graph"]["ModuleNodes"])
+                foreach (var inputPort in node["InputPortsInternal"])
+                {
+                    string id = inputPort["TransformModuleId"];
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        string familyId = id.Split('.')[1];
+                        UserAssetBase transform = transformsInWorkspace.SingleOrDefault(tm => tm.Id == id || tm.FamilyId == familyId);
+                        if (transform != null && !transformsInExperiment.ContainsKey(id))
                         {
-                            var transform = transformsInWorkspace.Single(tran => tran.Id == inputPort["TransformModuleId"]);
-                            if (transform != null && !transformsInExperiment.Contains(transform))
-                                transformsInExperiment.Add(transform);
+                            bool isLatest = (transformsInWorkspace.SingleOrDefault(t => t.Id == id) != null);
+                            transformsInExperiment.Add(id, new UserAssetBase
+                            {
+                                Id = id,
+                                FamilyId = familyId,
+                                DataTypeId = transform.DataTypeId,
+                                IsLatest = isLatest,
+                                Name = transform.Name
+                            });
                         }
-                WriteObject(transformsInExperiment, true);
-            }
+                    }
+                }
+            WriteObject(transformsInExperiment.Values, true);
         }
     }
 
@@ -107,7 +146,7 @@ namespace AzureMLPS.PowerShell
             }
 
             Sdk.PromoteUserAsset(GetWorkspaceSetting(), ExperimentId, TransformModuleNodeId, NodeOutputPortName, TransformName, TransformDescription, UserAssetType.Transform, familyId);
-            WriteObject(string.Format("Transform \"{0}\"' has been successfully promoted.", TransformName));
+            WriteObject(string.Format("Transform \"{0}\" has been successfully promoted.", TransformName));
         }
     }
 
@@ -148,7 +187,7 @@ namespace AzureMLPS.PowerShell
             }
 
             Sdk.PromoteUserAsset(GetWorkspaceSetting(), ExperimentId, TrainModuleNodeId, NodeOutputPortName, TrainedModelName, TrainedModelDescription, UserAssetType.TrainedModel, familyId);
-            WriteObject(string.Format("Trained Model \"{0}\"' has been successfully promoted.", TrainedModelName));
+            WriteObject(string.Format("Trained Model \"{0}\" has been successfully promoted.", TrainedModelName));
         }
     }
 
@@ -189,7 +228,108 @@ namespace AzureMLPS.PowerShell
             }
 
             Sdk.PromoteUserAsset(GetWorkspaceSetting(), ExperimentId, ModuleNodeId, NodeOutputPortName, DatasetName, DatasetDescription, UserAssetType.Dataset, familyId);
-            WriteObject(string.Format("Dataset \"{0}\"' has been successfully promoted.", DatasetName));
+            WriteObject(string.Format("Dataset \"{0}\" has been successfully promoted.", DatasetName));
+        }
+    }
+    
+    [Cmdlet("Update", "AmlExperimentUserAsset")]
+    public class UpdateAmlExperimentUserAsset : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true, ParameterSetName = "AllAssets")]
+        public SwitchParameter All { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "AllAssets")]
+        [Parameter(Mandatory = true, ParameterSetName = "IndividualAsset")]
+        public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "IndividualAsset")]
+        public string AssetName { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "IndividualAsset")]
+        public UserAssetType AssetType { get; set; }
+
+        protected override void ProcessRecord()
+        {
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            List<string> updatedAssetIds = new List<string>();
+            string rawJson = "";
+            UserAsset[] assetsInWorkspace = new UserAsset[] { };
+
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            dynamic graph = jss.Deserialize<object>(rawJson);
+
+            Dictionary<UserAssetType, string> assetNodeNames = new Dictionary<UserAssetType, string>();
+            assetNodeNames.Add(UserAssetType.TrainedModel, "TrainedModelId");
+            assetNodeNames.Add(UserAssetType.Transform, "TransformModuleId");
+            assetNodeNames.Add(UserAssetType.Dataset, "DataSourceId");
+
+            Dictionary<UserAssetType, string> assetTypeNames = new Dictionary<UserAssetType, string>();
+            assetTypeNames.Add(UserAssetType.TrainedModel, "ILearnerDotNet");
+            assetTypeNames.Add(UserAssetType.Transform, "ITransformDotNet");
+            assetTypeNames.Add(UserAssetType.Dataset, "Dataset");
+            List<UserAssetType> foundTypes = new List<UserAssetType>();
+
+            foreach (dynamic node in graph["Graph"]["ModuleNodes"])
+                foreach (dynamic inputPort in node["InputPortsInternal"])
+                    foreach (UserAssetType assetType in assetNodeNames.Keys)
+                    {
+                        string assetId = inputPort[assetNodeNames[assetType]];
+                        if (!string.IsNullOrEmpty(assetId) && !foundTypes.Contains(assetType))
+                            foundTypes.Add(assetType);
+                    }
+
+            if (foundTypes.Count > 0)
+            {
+                if (All.IsPresent || (foundTypes.Contains(UserAssetType.Dataset) && AssetType == UserAssetType.Dataset))
+                    assetsInWorkspace = assetsInWorkspace.Union(Sdk.GetDataset(GetWorkspaceSetting())).ToArray();
+                if (All.IsPresent || (foundTypes.Contains(UserAssetType.TrainedModel) && AssetType == UserAssetType.TrainedModel))
+                    assetsInWorkspace = assetsInWorkspace.Union(Sdk.GetTrainedModels(GetWorkspaceSetting())).ToArray();
+                if (All.IsPresent || (foundTypes.Contains(UserAssetType.Transform) && AssetType == UserAssetType.Transform))
+                    assetsInWorkspace = assetsInWorkspace.Union(Sdk.GetTransforms(GetWorkspaceSetting())).ToArray();
+
+                UserAsset foundAsset = null;
+                if (!string.IsNullOrEmpty(AssetName))
+                {
+                    foundAsset = assetsInWorkspace.SingleOrDefault(a => a.Name.ToLower() == AssetName.ToLower() && a.DataTypeId == assetTypeNames[AssetType]);
+                    if (foundAsset == null)
+                        throw new Exception(string.Format("{0} \"{1}\" is not found in the current workspace.", assetTypeNames[AssetType], AssetName));
+                }
+
+                List<string> updatedAssets = new List<string>();
+
+                foreach (dynamic node in graph["Graph"]["ModuleNodes"])
+                    foreach (dynamic inputPort in node["InputPortsInternal"])
+                        foreach (UserAssetType assetType in assetNodeNames.Keys)
+                        {
+                            string experimentAssetId = inputPort[assetNodeNames[assetType]];
+                            if (!string.IsNullOrEmpty(experimentAssetId))
+                            {
+                                string familyId = experimentAssetId.Split('.')[1];
+                                if (All.IsPresent || (foundAsset != null && foundAsset.FamilyId == familyId))
+                                {
+                                    string assetName = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId).Name;
+                                    UserAsset workspaceAsset = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId);
+                                    if (workspaceAsset == null)
+                                        throw new Exception(string.Format("Can't find {0} of family id \"{1}\" in the workspace.", familyId));
+                                    if (workspaceAsset.Id != experimentAssetId)
+                                    {
+                                        if (!updatedAssetIds.Contains(experimentAssetId))
+                                        {
+                                            inputPort[assetNodeNames[AssetType]] = workspaceAsset.Id;
+                                            WriteObject(string.Format("{0} \"{1}\" has been updated from \"{2}\" to \"{3}\"", AssetType, assetName, experimentAssetId, workspaceAsset.Id));
+                                            updatedAssetIds.Add(experimentAssetId);
+                                        }
+                                    }            
+                                }
+                            }
+                        }
+                if (updatedAssetIds.Count == 0)
+                    WriteObject(string.Format("{0} already up-to-date.", All.IsPresent ? "All assets are" : AssetType + " \"" + AssetName + "\" is"));
+                else
+                {
+                    rawJson = jss.Serialize(graph);
+                    Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
+                }
+            }
+            else
+                WriteObject("No updatable asset is found.");
         }
     }
 
@@ -198,13 +338,12 @@ namespace AzureMLPS.PowerShell
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true)]        
+        public UserAssetType AssetType { get; set; }
         [Parameter(Mandatory = true)]
-        [ValidateSet("TrainedModel", "Transform", "Dataset")]
-        public string AssetType { get; set; }
+        public UserAssetBase ExistingAsset { get; set; }
         [Parameter(Mandatory = true)]
-        public UserAsset ExistingAsset { get; set; }
-        [Parameter(Mandatory = true)]
-        public UserAsset NewAsset { get; set; }
+        public UserAssetBase NewAsset { get; set; }
         
         protected override void ProcessRecord()
         {
@@ -218,17 +357,17 @@ namespace AzureMLPS.PowerShell
 
             JavaScriptSerializer jss = new JavaScriptSerializer();
             dynamic graph = jss.Deserialize<object>(rawJson);
-            Dictionary<string, string> assetTypeNames = new Dictionary<string, string>();
-            assetTypeNames.Add("TrainedModel", "TrainedModelId");
-            assetTypeNames.Add("Transform", "TransformModuleId");
-            assetTypeNames.Add("Dataset", "DataSourceId");
+            Dictionary<UserAssetType, string> assetNodeNames = new Dictionary<UserAssetType, string>();
+            assetNodeNames.Add(UserAssetType.TrainedModel, "TrainedModelId");
+            assetNodeNames.Add(UserAssetType.Transform, "TransformModuleId");
+            assetNodeNames.Add(UserAssetType.Dataset, "DataSourceId");
 
             int count = 0;
             foreach (var node in graph["Graph"]["ModuleNodes"])
                 foreach (var inputPort in node["InputPortsInternal"])
-                    if (inputPort[assetTypeNames[AssetType]] == ExistingAsset.Id)
+                    if (inputPort[assetNodeNames[AssetType]] == ExistingAsset.Id)
                     {
-                        inputPort[assetTypeNames[AssetType]] = NewAsset.Id;
+                        inputPort[assetNodeNames[AssetType]] = NewAsset.Id;
                         count++;
                     }
 

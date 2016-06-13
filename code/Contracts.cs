@@ -281,15 +281,20 @@ namespace AzureML.Contract
         }
     }
 
-    public class UserAsset
+    public class UserAssetBase
     {
-        public int Batch { get; set; }
-        public string DataTypeId { get; set; }
-        public string ExperimentId { get; set; }
+        public string Name { get; set; }
         public string FamilyId { get; set; }
         public string Id { get; set; }
-        public bool IsLatest { get; set; }        
-        public string Name { get; set; }
+        public bool IsLatest { get; set; }
+        public string DataTypeId { get; set; }
+
+
+    }
+    public class UserAsset : UserAssetBase
+    {
+        public int Batch { get; set; }
+        public string ExperimentId { get; set; }
         public string Owner { get; set; }
         public string PromotedFrom { get; set; }
         public string ResourceUploadId { get; set; }
@@ -307,7 +312,6 @@ namespace AzureML.Contract
         public string Category { get; set; }
         public bool IsDeprecated { get; set; }
         public string Description { get; set; }
-
     }
 
     public enum UserAssetType

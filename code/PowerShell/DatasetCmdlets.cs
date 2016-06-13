@@ -10,37 +10,58 @@ using System.Web.Script.Serialization;
 namespace AzureML.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
-    public class GetDatasetCmdlet : AzureMLPsCmdlet
+    public class GetDataset : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
-        {                        
-            List<Dataset> datasetsInWorkspace = new List<Dataset>(Sdk.GetDataset(GetWorkspaceSetting()));
-            if (string.IsNullOrEmpty(ExperimentId))
-                WriteObject(datasetsInWorkspace, true);
-            else // find all datasets in the specified experiment
-            {
-                List<Dataset> datasetsInExperiment = new List<Dataset>();
-                string rawJson;
-                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
-                JavaScriptSerializer jss = new JavaScriptSerializer();
-                dynamic graph = jss.Deserialize<object>(rawJson);
-                foreach (var node in graph["Graph"]["ModuleNodes"])
-                    foreach (var inputPort in node["InputPortsInternal"])
-                        if (!string.IsNullOrEmpty(inputPort["DataSourceId"]))
+        {            
+            Dataset[] datasetsInWorkspace = Sdk.GetDataset(GetWorkspaceSetting());
+            WriteObject(datasetsInWorkspace, true);
+        }
+    }   
+
+    [Cmdlet(VerbsCommon.Get, "AmlDatasetInExperiment")]
+    public class GetDatasetInExperiment : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = false)]
+        public string ExperimentId { get; set; }
+        protected override void ProcessRecord()
+        {
+            List<Dataset> datasetInWorkspace = new List<Dataset>(Sdk.GetDataset(GetWorkspaceSetting()));
+            Dictionary<string, UserAssetBase> datasetInExperiment = new Dictionary<string, UserAssetBase>();
+            string rawJson;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            foreach (var node in graph["Graph"]["ModuleNodes"])
+                foreach (var inputPort in node["InputPortsInternal"])
+                {
+                    string id = inputPort["DataSourceId"];
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        string familyId = id.Split('.')[1];
+                        UserAssetBase dataset = datasetInWorkspace.SingleOrDefault(tm => tm.Id == id || tm.FamilyId == familyId);
+                        if (dataset != null && !datasetInExperiment.ContainsKey(id))
                         {
-                            var dataset = datasetsInWorkspace.SingleOrDefault(ds => ds.Id == inputPort["DataSourceId"]);
-                            if (dataset != null && !datasetsInExperiment.Contains(dataset))
-                                datasetsInExperiment.Add(dataset);
+                            bool isLatest = (datasetInWorkspace.SingleOrDefault(t => t.Id == id) != null);
+                            datasetInExperiment.Add(id, new UserAssetBase
+                            {
+                                Id = id,
+                                FamilyId = familyId,
+                                DataTypeId = dataset.DataTypeId,
+                                IsLatest = isLatest,
+                                Name = dataset.Name
+                            });
                         }
-                WriteObject(datasetsInExperiment, true);
-            }
+                    }
+                }
+            WriteObject(datasetInExperiment.Values, true);
         }
     }
 
     [Cmdlet("Upload", "AmlDataset")]
-    public class UploadDatasetCmdlet : AzureMLPsCmdlet
+    public class UploadDataset : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = false)]
         [ValidateSet("GenericCSV", "GenericCSVNoHeader", "GenericTSV", "GenericTSVNoHeader", "ARFF", "Zip", "RData", "PlainText")]
@@ -106,7 +127,7 @@ namespace AzureML.PowerShell
     }
 
     [Cmdlet("Download", "AmlDataset")]
-    public class DownloadDatasetCmdlet : AzureMLPsCmdlet
+    public class DownloadDataset : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "Dataset Id")]
         public string DatasetId { get; set; }
@@ -138,7 +159,7 @@ namespace AzureML.PowerShell
     }
 
     [Cmdlet(VerbsCommon.Remove, "AmlDataset")]
-    public class RemoveDatasetCmdlet : AzureMLPsCmdlet
+    public class RemoveDataset : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = true)]
         public string DatasetFamilyId { get; set; }
