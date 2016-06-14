@@ -8,11 +8,16 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
   * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
   * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
-* __Manage Dataset__
-  * List all Datasets in an Experiment or the current Workspace (*[Get-AmlDataset](#get-amldataset)*)
+* __Manage User Assets (Dataset, Trained Model, Transform)__
+  * List all Datasets in an Experiment or Workspace (*[Get-AmlDataset](#get-amldataset)*)
+  * Promote a Dataset from an Experiment into Workspace (*[Promote-AmlDataset](#promote-amldataset)*)
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
+  * List all Trained Models in an Experiment or Workspace (*[Get-AmlTrainedModel](#get-amltrainedmodel)*)
+  * Promote a TrainedModel from an Experiment into Workspace (*[Promote-AmlTrainedModel](#Promote-amltrainedmodel)*)
+  * List all Transforms in an Experiment or Workspace (*[Get-AmlTransform](#get-amltransform)*)
+  * Promote a Transform from an Experiment into Workspace (*[Promote-AmlTransform](#promote-amltransform)*)
 * __Manage Custom Module__
   * Add a new custom module to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
   * List all modules (*[Get-AmlModule](#get-amlmodule)*)
@@ -24,6 +29,9 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
+  * Find a module node in an Experiment using its comment. (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
+  * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amltrainedmodel)*)
+  * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
 * __Manage Web Service__
   * Deploy a Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
@@ -198,7 +206,7 @@ $ws.FriendlyName
 ```
 This commandlet leverages the config.json file.
 
-### Manage Dataset
+### Manage User Assets (Dataset, Trained MOdel, Transform)
 #### Get-AmlDataset
 ```
 # Get a list of all datasets in an Experiment 'abc':
@@ -210,17 +218,32 @@ $ds = Get-AmlDataset -Scope Workspace
 $ds | Format-Table Name,DataTypeId,Size,Owner
 ```
 
+#### Promote-AmlDataset
+To use this commandlet, you need to first locate the module in your experiment where one of the output ports produces the dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port first. 
+
+Also, if there is already a dataset of the identical name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
+
+```
+# Find experiment named 'abc' and run it
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+Start-AmlExperiment -ExperimentId $exp.ExperimentId
+# Find the a node in the experiment with a comment 'Split My Data'. In this case it is a Split module
+$node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Split My Data'
+# Promote the outcome of one of the left output port of the Split node, and overwrite the previous version.
+Promote-AmlDataset -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Result dataset1' -DatasetName 'MyData' -DataSetDescription 'My Data' -Overwrite
+```
+
 #### Download-AmlDataset
 ```
-#Find a dataset named 'Movie tweets' in the Workspace using Get-AmlDataset:
+# Find a dataset named 'Movie tweets' in the Workspace using Get-AmlDataset:
 $dsMT = Get-AmlDataset | where Name -eq 'Movie tweets'
-#Download the Movie Tweets dataset:
+# Download the Movie Tweets dataset:
 Download-AmlDataset -DatasetId $dsMT.Id -DownloadFileName 'C:\Temp\MovieTweets.csv'
 ```
 
 #### Upload-AmlDataset
 ```
-#Upload a local file in .csv format to Workspace
+# Upload a local file in .csv format to Workspace
 Upload-AmlDataset -FileFormat GenericCSV -UploadFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -Description 'Tweeter data on popular movies'
 ```
 Please note the supported file formats are: 
@@ -236,26 +259,82 @@ Please note the supported file formats are:
 
 #### Remove-AmlDataset
 ```
-#Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
+# Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
 $dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
-#Delete the dataset from Workspace
+# Delete the dataset from Workspace
 Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
+
+#### Get-AmlTrainedModel
+```
+# Get a list of all Trained Models in an Experiment 'abc':
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+$ds = Get-AmlTrainedModel -Scope Experiment -ExperimentId $exp.ExperimentId
+# Get a list of all Trained Models in a Workspace:
+$ds = Get-AmlTrainedModel -Scope Workspace
+# Display the list in a table format with selected properties
+$ds | Format-Table Name, Id, FamilyId
+```
+
+#### Promote-AmlTrainedModel
+To use this commandlet, you need to first locate the Train module in your experiment where the output port produces the Trained Model you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the Train Model module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
+
+Also, if there is already a Trained Model of with the same name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
+
+```
+# Find experiment named 'abc' and run it
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Run the experiment at least once so the result is cached.
+Start-AmlExperiment -ExperimentId $exp.ExperimentId
+# Find the Train Model module node in the experiment with a comment 'Train me'.
+$node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me'
+# Promote the Trained Model from the output port of the Train Model module, and overwrite the previous version.
+Promote-AmlTrainedModel -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Trained model' -TrainedModelName 'MyModel' -TrainedModelDescription 'My Model' -Overwrite
+```
+
+
+#### Get-AmlTransform
+```
+# Get a list of all Transforms in an Experiment 'abc':
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+$ds = Get-AmlTransform -Scope Experiment -ExperimentId $exp.ExperimentId
+# Get a list of all Transforms in a Workspace:
+$ds = Get-AmlTransform -Scope Workspace
+# Display the list in a table format with selected properties
+$ds | Format-Table Name,Id, FamilyId
+```
+
+#### Promote-AmlTransform
+To use this commandlet, you need to first locate the module in your experiment where the output port produces the Transform you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the transform-producing module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
+
+Also, if there is already a Transform of with the same name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
+
+```
+# Find experiment named 'abc' and run it
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Run the experiment at least once so the result is cached.
+Start-AmlExperiment -ExperimentId $exp.ExperimentId
+# Find the Clean Missing Data module in the experiment where a Clean Transform is produced with a comment 'Clean me'.
+$node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Clean me'
+# Promote the Transform from the output port of the transform-producing module, and overwrite the previous version.
+Promote-AmlTransform -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Cleaning transformation' -TransformName 'CleanMe02' -TransformDescription 'Clean Me v2' -Overwrite
+```
+
 
 ### Manage Custom Module
 #### New-AmlCustomModule
 ```
-#Upload a new Custom Module from C:\Temp\MyModule.zip
+# Upload a new Custom Module from C:\Temp\MyModule.zip
 New-AmlCustomModule -CustomModuleZipFileName 'C:\Temp\MyModule.zip'
 ```
 
 #### Get-AmlModule
 ```
-#List all modules
+# List all modules
 Get-AmlModule
-#List custom modules only
+# List custom modules only
 Get-AmlModule -Custom
-#Get "Add Rows" module
+# Get "Add Rows" module
 Get-AmlModule | where Name -eq 'Add Rows'
 ```
 
@@ -263,21 +342,21 @@ Get-AmlModule | where Name -eq 'Add Rows'
 #### Get-AmlExperiment 
 
 ```
-#Get all Experiments in the Workspace
+# Get all Experiments in the Workspace
 $exps = Get-AmlExperiment
-#Display all Experiments in a table format
+# Display all Experiments in a table format
 $exps | Format-Table
 ```
 ```
-#Get the metadata of the Experiment named 'xyz' in the Workspace
+# Get the metadata of the Experiment named 'xyz' in the Workspace
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Display the Experiment status
+# Display the Experiment status
 $exp.Status.StatusCode
 ```
 
 #### Export-AmlExperimentGraph
 ```
-#Export an Experiment named "xyz" to "MyExp.json"
+# Export an Experiment named "xyz" to "MyExp.json"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'c:\Temp\MyExp.json'
 ```
@@ -285,49 +364,84 @@ Please note that the exported JSON file only contains references to the exact in
 
 #### Import-AmlExperimentGraph
 ```
-#Import a JSON file 'MyExp.json' to overwrite the Experiment where the file is exported out of
+# Import a JSON file 'MyExp.json' to overwrite the Experiment where the file is exported out of
 Import-AmlExperimentGraph -InputFile 'C:\Temp\MyExp.json' -Overwrite
-#Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
+# Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
 Import-AmlExperimentGraph -InputFile 'MyExp.json' -NewName 'abc'
 ```
 
 
 #### Start-AmlExperiment
 ```
-#Find the Experiment named "xyz"
+# Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Run the Experiment
+# Run the Experiment
 Start-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
 #### Remove-AmlExperiment
 ```
-#Find the Experiment named "xyz"
+# Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Delete the Experiment
+# Delete the Experiment
 Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
-#### Copy-AmlExperiment
 
+#### Copy-AmlExperiment
 ```
-#Find the Experiment named "xyz"
+# Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-#Copy that Experiment from current Workspace to another Workspace
+# Copy that Experiment from current Workspace to another Workspace
 Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
 ```
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
+
+#### Get-AmlExperimentNode
+```
+# Find the Experiment named "abc"
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Get the node(s) with a user comment "Train My Model"
+$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train My Model'
+# Display the node
+$node
+```
+
+#### Replace-AmlExperimentUserAsset
+This commandlet lets you replace a user asset (Dataset, Trained Model or Transform) in an Experiment with another one from the Workspace. If you simply want to update an asset to the latest version, use *Update-AmlExperimentUserAsset* instead.
+```
+# Find the Experiment named 'abc'
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Find the transform you want to replace
+$oldTransform = Get-AmlTransform -Scope Experiment -ExperimentId $exp.ExperimentId | where Name -eq 'Transform A'
+# Find the the Transform in the Workspcae you want to use instead
+$newTransform = Get-AmlTransform -Scope Workspace | where Name -eq 'Transform B'
+# Replace Transform A with Transform B
+Replace-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'Transform' -ExistingAsset $oldTransform -NewAsset $newTransform
+```
+
+
+#### Update-AmlExperimentUserAsset
+This commandlet lets you update user assets (Dataset, Trained Model, Transform) in an Experiment to their latest versions.
+```
+# Find the Experiment named 'abc'
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Update all user assets (including Datasets, Trained Models and Transforms) in an Experiment
+Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -All 
+# Update a particular trained model named "My Model"
+Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'TrainedModel' -AssetName 'My Model'
+```
 
 ### Manage Web Service
 
 #### Get-AmlWebService
 ```
-#Get all Web Services in Workspace
+# Get all Web Services in Workspace
 $webServices = Get-AmlWebService
-#Display them in table format
+# Display them in table format
 $webServices | Format-Table Id,Name,EndpointCount
 ```
 
 ```
-#Get metadata of a specific Web Service with Id stored in $webSvcId
+# Get metadata of a specific Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
 
@@ -336,23 +450,23 @@ Get-AmlWebService -WebServiceId $webSvcId
 This commandlet deploys a new Web Service with a default endpoint from a Predictive Experiment.
 
 ```
-#Get the Predictive Experiment metadata 
+# Get the Predictive Experiment metadata 
 $exp = (Get-AmlExperiment | where Description -eq 'xyz')[0]
-#Deploy Web Service from the Predictive Experiment
+# Deploy Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
-#Display newly created Web Service
+# Display newly created Web Service
 $webService
 ```
 
-<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of the predictive experiment as well as a new copy of web service. This is a server side issue that will be addressed soon.</span>
+<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of web service. This is a server side issue that will be addressed soon.</span>
 
 
 #### Remove-AmlWebService 
 
 ```
-#Get the first Web Service named 'abc'
+# Get the first Web Service named 'abc'
 $webSvc = (Get-AmlWebService | Where Name -eq 'abc')[0]
-#Delete the Web Service
+# Delete the Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
 
@@ -361,7 +475,7 @@ Remove-AmlWebService -WebServiceId $webSvc.Id
 #### Get-AmlWebServiceEndpoint
 
 ```
-#List all Endpoints of a Web Service named 'abc'
+# List all Endpoints of a Web Service named 'abc'
 $webSvc = Get-AmlWebService | where Name -eq 'abc'
 $endpoints = Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id
 $endpoints | Format-Table
@@ -369,19 +483,19 @@ $endpoints | Format-Table
 
 
 ```
-#Show metadata of the Endpoint named 'ep01'
+# Show metadata of the Endpoint named 'ep01'
 Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 Please note that you can supply the Web Service Endpoint API Key as the value of the _-AuthorizationToken_ parameter in lieu of Workspace authorization token for this call. The same applies to the rest of the Endpoint management APIs.
 
 ```
-#Show metadata of the endpoint named 'ep01', where the apiKey is stored in $apiKey
+# Show metadata of the endpoint named 'ep01', where the apiKey is stored in $apiKey
 Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01' -AuthorizationToken $apiKey
 ```
 
 #### Remove-AmlWebServiceEndpoint
 ```
-#Delete the Endpoint named 'ep01'
+# Delete the Endpoint named 'ep01'
 Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
 #### Add-AmlWebServiceEndpoint
@@ -397,7 +511,7 @@ Please note:
 Refreshing Endpoint takes the graph behind the default endpoint and applies it to the specified non-default Endpoint. When you republish/update a Web Service from an Experiment, only the default Endpoint is updated. You will need to use the refresh method to update the non-default Endpoints. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. Without it, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
 ```
-#Refresh the endpoint 'ep03'
+# Refresh the endpoint 'ep03'
 Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -OverwriteResources
 ```
 
@@ -405,21 +519,21 @@ Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -Ove
 Patch Web Service Endpoint is used for updating a trained model in an existing Endpoint. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accomplish that by calling the BES endpoint using [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet on the training Web Service. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. Please browse [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
 
 ```
-#The name of the Trained Model in the existing Endpoint you are trying to patch. 
-#You can obtain this from the Trained Model module in the Predictive Experiment graph, 
-#or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
+# The name of the Trained Model in the existing Endpoint you are trying to patch. 
+# You can obtain this from the Trained Model module in the Predictive Experiment graph, 
+# or through the Resources field in the returned result of Get-WebServiceEndpoint commandlet.
 $resName = 'Income Predictor [Trained Model]'
-#This is the base location of the Windows Azure storage account where the new model is stored as a .ilearner file.
+# This is the base location of the Windows Azure storage account where the new model is stored as a .ilearner file.
 $baseLoc = 'http://mystorageaccount.blob.core.windows.net'
-#The relative location of the .ilearner file, basically the container name and the path to the blob.
+# The relative location of the .ilearner file, basically the container name and the path to the blob.
 $relativeLoc = 'mycontainer/retrain/new_model.ilearner'
 # The SAS token on the ilearner file to allow Read access.
 $sasToken = '?sr=b&se=2016-02-05T04......'
-#Web Service Id
+# Web Service Id
 $webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
-#endpoint name
+# endpoint name
 $epName = 'ep02'
-#Update the Endpoint with the new Trained Model.
+# Update the Endpoint with the new Trained Model.
 Patch-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName $epName -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 ```
 ### Call Azure ML Web Service APIs
@@ -448,13 +562,13 @@ _input.json_
 Next, you can call the RRS Endpoint using the commandlet. Please note you can obtain the RRS POST request URL and the API key using the _Get-AmlWebServiceEndpoint_ commandlet. You can also read them off the RRS API Documentation page.
 
 ```
-#POST Request URL for RRS Endpoint 'abc' on Web Service 'xyz'
+# POST Request URL for RRS Endpoint 'abc' on Web Service 'xyz'
 $webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
 $ep = Get-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName 'abc'
 $postUrl =  $ep.ApiLocation + '/execute?api-version=2.0&details=true'
-#Base-64 encoded API key
+# Base-64 encoded API key
 $apiKey = $ep.PrimaryKey
-#Invoke RRS Endpoint
+# Invoke RRS Endpoint
 Invoke-AmlWebServiceRRSEndpoint -POSTRequestUrl $postUrl -ApiKey $apiKey -inputFile 'C:\Temp\input.json' -outputFile 'C:\Temp\predictions.json'
 ```
 The above example shows feeding the input json data using a local file, and getting the results written back into a local file. You can also directly feed the input json string using _-InputJsonText_ parameter, and harvest the resulting json string directly without specifying the _-OutputJsonFile_ parameter. 
@@ -485,13 +599,13 @@ _jobConfig.json_
 Now you are ready to invoke the BES Endpoint.
 
 ```
-#Find the submit job request Url for BES Endpoint 'abc' on Web Service 'xyz'
+# Find the submit job request Url for BES Endpoint 'abc' on Web Service 'xyz'
 $webSvcId = (Get-AmlWebService | where Name -eq 'xyz').Id
 $ep = Get-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName 'abc'
 $jobSubmitUrl =  $ep.ApiLocation + '/jobs?api-version=2.0'
-#Base-64 encoded API key
+# Base-64 encoded API key
 $apiKey = $ep.PrimaryKey
-#Invoke BES Endpoint
+# Invoke BES Endpoint
 Invoke-AmlWebServiceBESEndpoint -SubmitJobRequestUrl $jobSubmitUrl -ApiKey $apiKey -JobConfigFile '.\jobConfig.json'
 ```
 
