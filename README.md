@@ -219,9 +219,9 @@ $ds | Format-Table Name,DataTypeId,Size,Owner
 ```
 
 #### Promote-AmlDataset
-To use this commandlet, you need to first locate the module in your experiment where one of the output ports produces the dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port first. 
+To use this commandlet, you need to first locate the module in your experiment where the output port produces the Dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the Train Model module first, and then use the Get-AmlExperimentNode commandlet to grab the node id.
 
-Also, if there is already a dataset of the identical name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
+Also, if there is already a Dataset of with the same name you supply to this commandlet, you must use -Overwrite parameter, otherwise you will receive a HTTP 409 (Conflict) error.
 
 ```
 # Find experiment named 'abc' and run it
