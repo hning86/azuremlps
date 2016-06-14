@@ -281,6 +281,8 @@ $ds | Format-Table Name, Id, FamilyId
 #### Promote-AmlTrainedModel
 To use this commandlet, you need to first locate the Train module in your experiment where the output port produces the Trained Model you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the Train Model module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
 
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/PromoteTrainedModel.png)
+
 Also, if there is already a Trained Model of with the same name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
 
 ```
@@ -308,6 +310,8 @@ $ds | Format-Table Name,Id, FamilyId
 
 #### Promote-AmlTransform
 To use this commandlet, you need to first locate the module in your experiment where the output port produces the Transform you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the transform-producing module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
+
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/PromoteTransform.png)
 
 Also, if there is already a Transform of with the same name you supply to this commandlet, you must use *-Overwrite* parameter, otherwise you will receive a HTTP 409 (Conflict) error.
 
