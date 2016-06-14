@@ -15,7 +15,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
   * List all Trained Models in an Experiment or Workspace (*[Get-AmlTrainedModel](#get-amltrainedmodel)*)
-  * Promote a TrainedModel from an Experiment into Workspace (*[Promote-AmlTrainedModel](#promote-amltrainedmodel)*)
+  * Promote a Trained Model from an Experiment into Workspace (*[Promote-AmlTrainedModel](#promote-amltrainedmodel)*)
   * List all Transforms in an Experiment or Workspace (*[Get-AmlTransform](#get-amltransform)*)
   * Promote a Transform from an Experiment into Workspace (*[Promote-AmlTransform](#promote-amltransform)*)
 * __Manage Custom Module__
