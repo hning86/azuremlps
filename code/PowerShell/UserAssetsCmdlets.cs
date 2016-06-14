@@ -13,20 +13,24 @@ namespace AzureMLPS.PowerShell
     [Cmdlet("Get", "AmlTrainedModel")]
     public class GetTrainedModel : AzureMLPsCmdlet
     {
-        protected override void ProcessRecord()
-        {
-            UserAsset[] trainedModelsInWorkspace = Sdk.GetTrainedModels(GetWorkspaceSetting());
-            WriteObject(trainedModelsInWorkspace, true);
-        }
-    }
-
-    [Cmdlet("Get", "AmlTrainedModelInExperiment")]
-    public class GetTrainedModelInExperiment : AzureMLPsCmdlet
-    {
         [Parameter(Mandatory = true)]
+        [ValidateSet("Experiment", "Workspace")]
+        public string Scope { get; set; }
+        
+        [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
+            if (Scope.ToLower() == "workspace")
+            {
+                WriteObject(Sdk.GetTrainedModels(GetWorkspaceSetting()), true);
+                return;
+            }
+            if (string.IsNullOrEmpty(ExperimentId))
+            {
+                WriteWarning("ExperimentId must be specified.");
+                return;
+            }
             List<UserAsset> trainedModelsInWorkspace = new List<UserAsset>(Sdk.GetTrainedModels(GetWorkspaceSetting()));
             Dictionary<string, UserAssetBase> trainedModelsInExperiment = new Dictionary<string, UserAssetBase>();
             string rawJson;
@@ -62,21 +66,24 @@ namespace AzureMLPS.PowerShell
     [Cmdlet("Get", "AmlTransform")]
     public class GetTransform : AzureMLPsCmdlet
     {
-        protected override void ProcessRecord()
-        {
-            UserAsset[] transformsInWorkspace = Sdk.GetTransforms(GetWorkspaceSetting());
-            WriteObject(transformsInWorkspace, true);
-        }
-    }
-
-
-    [Cmdlet("Get", "AmlTransformInExperiment")]
-    public class GetTransformInExperiment : AzureMLPsCmdlet
-    {
+        [Parameter(Mandatory = true)]
+        [ValidateSet("Experiment", "Workspace")]
+        public string Scope { get; set; }
+        
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
+            if (Scope.ToLower() == "workspace")
+            {                
+                WriteObject(Sdk.GetTransforms(GetWorkspaceSetting()), true);
+                return;
+            }
+            if (string.IsNullOrEmpty(ExperimentId))
+            {
+                WriteWarning("ExperimentId must be specified.");
+                return;
+            }
             List<UserAsset> transformsInWorkspace = new List<UserAsset>(Sdk.GetTransforms(GetWorkspaceSetting()));
             Dictionary<string, UserAssetBase> transformsInExperiment = new Dictionary<string, UserAssetBase>();
             string rawJson;

@@ -12,22 +12,24 @@ namespace AzureML.PowerShell
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
     public class GetDataset : AzureMLPsCmdlet
     {
-        [Parameter(Mandatory = false)]
-        public string ExperimentId { get; set; }
-        protected override void ProcessRecord()
-        {            
-            Dataset[] datasetsInWorkspace = Sdk.GetDataset(GetWorkspaceSetting());
-            WriteObject(datasetsInWorkspace, true);
-        }
-    }   
+        [Parameter(Mandatory = true)]
+        [ValidateSet("Experiment", "Workspace")]
+        public string Scope { get; set; }
 
-    [Cmdlet(VerbsCommon.Get, "AmlDatasetInExperiment")]
-    public class GetDatasetInExperiment : AzureMLPsCmdlet
-    {
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
+            if (Scope.ToLower() == "workspace")
+            {
+                WriteObject(Sdk.GetDataset(GetWorkspaceSetting()), true);
+                return;
+            }
+            if (string.IsNullOrEmpty(ExperimentId))
+            {
+                WriteWarning("ExperimentId must be specified.");
+                return;
+            }
             List<Dataset> datasetInWorkspace = new List<Dataset>(Sdk.GetDataset(GetWorkspaceSetting()));
             Dictionary<string, UserAssetBase> datasetInExperiment = new Dictionary<string, UserAssetBase>();
             string rawJson;
