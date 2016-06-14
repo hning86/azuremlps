@@ -402,11 +402,15 @@ Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
 
 #### Get-AmlExperimentNode
+This commandlet lets you find information, including Id, FamilyId etc. of node(s) with a certain user comment.
+
+![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/PromoteTrainedModel.png)
+
 ```
 # Find the Experiment named "abc"
 $exp = Get-AmlExperiment | where Description -eq 'abc'
 # Get the node(s) with a user comment "Train My Model"
-$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train My Model'
+$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Display the node
 $node
 ```
