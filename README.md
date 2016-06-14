@@ -9,7 +9,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
   * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
 * __Manage Dataset__
-  * List all Datasets in Workspace (*[Get-AmlDataset](#get-amldataset)*)
+  * List all Datasets in an Experiment or the current Workspace (*[Get-AmlDataset](#get-amldataset)*)
   * Download a Dataset file from Workspace to local file directory (*[Download-AmlDataset](#download-amldataset)*)
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
@@ -201,8 +201,11 @@ This commandlet leverages the config.json file.
 ### Manage Dataset
 #### Get-AmlDataset
 ```
+# Get a list of all datasets in an Experiment 'abc':
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+$ds = Get-AmlDataset -Scope Experiment -ExperimentId $exp.ExperimentId
 # Get a list of all datasets in a Workspace:
-$ds = Get-AmlDataset
+$ds = Get-AmlDataset -Scope Workspace
 # Display the list in a table format with selected properties
 $ds | Format-Table Name,DataTypeId,Size,Owner
 ```
