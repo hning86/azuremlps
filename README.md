@@ -15,7 +15,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Upload a Dataset file from local file directory to Workspace (*[Upload-AmlDataset](#upload-amldataset)*)
   * Delete a Dataset file in Workspace (*[Remove-AmlDataset](#remove-amldataset)*)
   * List all Trained Models in an Experiment or Workspace (*[Get-AmlTrainedModel](#get-amltrainedmodel)*)
-  * Promote a TrainedModel from an Experiment into Workspace (*[Promote-AmlTrainedModel](#Promote-amltrainedmodel)*)
+  * Promote a TrainedModel from an Experiment into Workspace (*[Promote-AmlTrainedModel](#promote-amltrainedmodel)*)
   * List all Transforms in an Experiment or Workspace (*[Get-AmlTransform](#get-amltransform)*)
   * Promote a Transform from an Experiment into Workspace (*[Promote-AmlTransform](#promote-amltransform)*)
 * __Manage Custom Module__
@@ -30,7 +30,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
   * Find a module node in an Experiment using its comment. (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
-  * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amltrainedmodel)*)
+  * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
 * __Manage Web Service__
   * Deploy a Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
