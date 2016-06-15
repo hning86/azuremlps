@@ -206,7 +206,7 @@ $ws.FriendlyName
 ```
 This commandlet leverages the config.json file.
 
-### Manage User Assets (Dataset, Trained MOdel, Transform)
+### Manage User Assets (Dataset, Trained Model, Transform)
 #### Get-AmlDataset
 ```
 # Get a list of all datasets in an Experiment 'abc':
