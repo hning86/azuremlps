@@ -145,7 +145,7 @@ $storageAccountName = '<my_storage_account_name'
 $storageAccountKey = '<my_storage_account_key>'
 $ownerEmail = 'myname@mycompany.com'
 # Create a new Azure ML Worksace named 'ABCD'
-New-AmlWorkspace -AzureSubscriptionId $azureSubscriptionId -ManagementCertThumbprint -$mgmtCertThumb -WorkspaceName 'ABCD' -Location $location -storageAccountName $storageAccountName -StorageAccountKey $storageAccountKey -OwnerEmail $ownerEmail
+New-AmlWorkspace -AzureSubscriptionId $azureSubscriptionId -ManagementCertThumbprint $mgmtCertThumb -WorkspaceName 'ABCD' -Location $location -storageAccountName $storageAccountName -StorageAccountKey $storageAccountKey -OwnerEmail $ownerEmail
 ```
 
 For quick reference, you can create self-signed certificate using _makecert.exe_, which is a command line tool that comes with Visual Studio and/or Windows SDK. The following command creates the private key in the CurrentUser/My store, and also output the public key in a file that you can upload into Azure management portal. 
