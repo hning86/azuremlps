@@ -275,11 +275,11 @@ This commandlet leverages the config.json file.
 ```
 # Get a list of all Trained Models in an Experiment 'abc':
 $exp = Get-AmlExperiment | where Description -eq 'abc'
-$ds = Get-AmlTrainedModel -Scope Experiment -ExperimentId $exp.ExperimentId
+$trainedModels = Get-AmlTrainedModel -Scope Experiment -ExperimentId $exp.ExperimentId
 # Get a list of all Trained Models in a Workspace:
-$ds = Get-AmlTrainedModel -Scope Workspace
+$trainedModels = Get-AmlTrainedModel -Scope Workspace
 # Display the list in a table format with selected properties
-$ds | Format-Table Name, Id, FamilyId
+$trainedModels | Format-Table Name, Id, FamilyId
 ```
 This commandlet leverages the config.json file.
 
@@ -306,11 +306,11 @@ This commandlet leverages the config.json file.
 ```
 # Get a list of all Transforms in an Experiment 'abc':
 $exp = Get-AmlExperiment | where Description -eq 'abc'
-$ds = Get-AmlTransform -Scope Experiment -ExperimentId $exp.ExperimentId
+$transforms = Get-AmlTransform -Scope Experiment -ExperimentId $exp.ExperimentId
 # Get a list of all Transforms in a Workspace:
-$ds = Get-AmlTransform -Scope Workspace
+$transforms = Get-AmlTransform -Scope Workspace
 # Display the list in a table format with selected properties
-$ds | Format-Table Name,Id, FamilyId
+$transforms | Format-Table Name,Id, FamilyId
 ```
 This commandlet leverages the config.json file.
 
