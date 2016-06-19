@@ -219,7 +219,7 @@ $ds | Format-Table Name,DataTypeId,Size,Owner
 ```
 
 #### Promote-AmlDataset
-To use this commandlet, you need to first locate the module in your experiment where the output port produces the Dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the Train Model module first, and then use the Get-AmlExperimentNode commandlet to grab the node id.
+To use this commandlet, you need to first locate the module in your experiment where the output port produces the Dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to that dataset-producing module first, and then use the Get-AmlExperimentNode commandlet to grab the node id.
 
 ![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/PromoteDataset.png)
 
