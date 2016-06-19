@@ -226,8 +226,6 @@ To use this commandlet, you need to first locate the module in your experiment w
 
 Also, if there is already a Dataset of with the same name you supply to this commandlet, you must use -Overwrite parameter, otherwise you will receive a HTTP 409 (Conflict) error.
 
-This commandlet leverages the config.json file.
-
 ```
 # Find experiment named 'abc' and run it
 $exp = Get-AmlExperiment | where Description -eq 'abc'
@@ -271,6 +269,7 @@ $dsFlight = Get-AmlDataset | where Name -eq 'Flight Data'
 # Delete the dataset from Workspace
 Remove-AmlDataset -DatasetFamilyId $dsFlight.FamilyId
 ```
+This commandlet leverages the config.json file.
 
 #### Get-AmlTrainedModel
 ```
@@ -282,6 +281,7 @@ $ds = Get-AmlTrainedModel -Scope Workspace
 # Display the list in a table format with selected properties
 $ds | Format-Table Name, Id, FamilyId
 ```
+This commandlet leverages the config.json file.
 
 #### Promote-AmlTrainedModel
 To use this commandlet, you need to first locate the Train module in your experiment where the output port produces the Trained Model you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the Train Model module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
@@ -300,7 +300,7 @@ $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me
 # Promote the Trained Model from the output port of the Train Model module, and overwrite the previous version.
 Promote-AmlTrainedModel -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Trained model' -TrainedModelName 'MyModel' -TrainedModelDescription 'My Model' -Overwrite
 ```
-
+This commandlet leverages the config.json file.
 
 #### Get-AmlTransform
 ```
@@ -312,6 +312,7 @@ $ds = Get-AmlTransform -Scope Workspace
 # Display the list in a table format with selected properties
 $ds | Format-Table Name,Id, FamilyId
 ```
+This commandlet leverages the config.json file.
 
 #### Promote-AmlTransform
 To use this commandlet, you need to first locate the module in your experiment where the output port produces the Transform you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to the transform-producing module first, and then use the *Get-AmlExperimentNode* commandlet to grab the node id.
@@ -330,7 +331,7 @@ $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Clean me
 # Promote the Transform from the output port of the transform-producing module, and overwrite the previous version.
 Promote-AmlTransform -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Cleaning transformation' -TransformName 'CleanMe02' -TransformDescription 'Clean Me v2' -Overwrite
 ```
-
+This commandlet leverages the config.json file.
 
 ### Manage Custom Module
 #### New-AmlCustomModule
@@ -338,6 +339,7 @@ Promote-AmlTransform -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -Nod
 # Upload a new Custom Module from C:\Temp\MyModule.zip
 New-AmlCustomModule -CustomModuleZipFileName 'C:\Temp\MyModule.zip'
 ```
+This commandlet leverages the config.json file.
 
 #### Get-AmlModule
 ```
@@ -348,6 +350,7 @@ Get-AmlModule -Custom
 # Get "Add Rows" module
 Get-AmlModule | where Name -eq 'Add Rows'
 ```
+This commandlet leverages the config.json file.
 
 ### Manage Experiment
 #### Get-AmlExperiment 
@@ -364,6 +367,7 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 # Display the Experiment status
 $exp.Status.StatusCode
 ```
+This commandlet leverages the config.json file.
 
 #### Export-AmlExperimentGraph
 ```
@@ -373,6 +377,8 @@ Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'c:\Temp\M
 ```
 Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment. Also, please make sure you use absolute path when referring to the json file.
 
+This commandlet leverages the config.json file.
+
 #### Import-AmlExperimentGraph
 ```
 # Import a JSON file 'MyExp.json' to overwrite the Experiment where the file is exported out of
@@ -380,7 +386,7 @@ Import-AmlExperimentGraph -InputFile 'C:\Temp\MyExp.json' -Overwrite
 # Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
 Import-AmlExperimentGraph -InputFile 'MyExp.json' -NewName 'abc'
 ```
-
+This commandlet leverages the config.json file.
 
 #### Start-AmlExperiment
 ```
@@ -389,6 +395,8 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 # Run the Experiment
 Start-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
+This commandlet leverages the config.json file.
+
 #### Remove-AmlExperiment
 ```
 # Find the Experiment named "xyz"
@@ -396,6 +404,7 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 # Delete the Experiment
 Remove-AmlExperiment -ExperimentId $exp.ExperimentId
 ```
+This commandlet leverages the config.json file.
 
 #### Copy-AmlExperiment
 ```
@@ -405,6 +414,8 @@ $exp = Get-AmlExperiment | where Description -eq 'xyz'
 Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
 ```
 Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
+
+This commandlet leverages the config.json file.
 
 #### Get-AmlExperimentNode
 This commandlet lets you find information, including Id, FamilyId etc. of node(s) with a certain user comment.
@@ -419,6 +430,7 @@ $node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Display the node
 $node
 ```
+This commandlet leverages the config.json file.
 
 #### Replace-AmlExperimentUserAsset
 This commandlet lets you replace a user asset (Dataset, Trained Model or Transform) in an Experiment with another one from the Workspace. If you simply want to update an asset to the latest version, use *Update-AmlExperimentUserAsset* instead.
@@ -432,7 +444,7 @@ $newTransform = Get-AmlTransform -Scope Workspace | where Name -eq 'Transform B'
 # Replace Transform A with Transform B
 Replace-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'Transform' -ExistingAsset $oldTransform -NewAsset $newTransform
 ```
-
+This commandlet leverages the config.json file.
 
 #### Update-AmlExperimentUserAsset
 This commandlet lets you update user assets (Dataset, Trained Model, Transform) in an Experiment to their latest versions.
@@ -444,6 +456,7 @@ Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -All
 # Update a particular trained model named "My Model"
 Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'TrainedModel' -AssetName 'My Model'
 ```
+This commandlet leverages the config.json file.
 
 ### Manage Web Service
 
@@ -459,6 +472,7 @@ $webServices | Format-Table Id,Name,EndpointCount
 # Get metadata of a specific Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
+This commandlet leverages the config.json file.
 
 #### New-AmlWebService
 
@@ -475,6 +489,7 @@ $webService
 
 <span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of web service. This is a server side issue that will be addressed soon.</span>
 
+This commandlet leverages the config.json file.
 
 #### Remove-AmlWebService 
 
@@ -484,6 +499,7 @@ $webSvc = (Get-AmlWebService | Where Name -eq 'abc')[0]
 # Delete the Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
+This commandlet leverages the config.json file.
 
 ### Manage Web Servcie Endpoint ###
 
@@ -507,12 +523,15 @@ Please note that you can supply the Web Service Endpoint API Key as the value of
 # Show metadata of the endpoint named 'ep01', where the apiKey is stored in $apiKey
 Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01' -AuthorizationToken $apiKey
 ```
+This commandlet leverages the config.json file.
 
 #### Remove-AmlWebServiceEndpoint
 ```
 # Delete the Endpoint named 'ep01'
 Remove-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep01'
 ```
+This commandlet leverages the config.json file.
+
 #### Add-AmlWebServiceEndpoint
 ```
 Add-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'newep01' -Description 'New Endpoint 01' -ThrottleLevel 'High' -MaxConcurrentCalls 20
@@ -522,6 +541,8 @@ Please note:
 * For Free Workspace, the _-ThrottleLevel_ can only be set to 'Low', the default value. The supplied value for _-MaxConcurrentCalls_ is ignored and the parameter is always defaulted to 4. And the maximum number of Endpoints you can create (including the default one) on a Web Service is 3. 
 * For Standard Workspace the _-ThrottleLevel_ values can be set to either 'Low' or 'High'. When it is set to 'Low', the supplied value of _-MaxConcurrentCalls_ is ignored and the parameter is defaulted to 4. When it is set to 'High', the valid value of _-MaxConcurrentCalls_ is between 1 and 200. Check out this [article](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-scaling-endpoints/) for more on Web Service Endpoints scaling. 
 
+This commandlet leverages the config.json file.
+
 #### Refresh-AmlWebServiceEndpoint
 Refreshing Endpoint takes the graph behind the default endpoint and applies it to the specified non-default Endpoint. When you republish/update a Web Service from an Experiment, only the default Endpoint is updated. You will need to use the refresh method to update the non-default Endpoints. The _-OverwriteResources_ switch, when set, also causes the Trained Model used in the Endpoint to be replaced with the latest one from the Predictive Experiment. Without it, the Trained Model is not refreshed but the rest of the graph is. Also, default Endpoint cannot be refreshed.
 
@@ -529,6 +550,7 @@ Refreshing Endpoint takes the graph behind the default endpoint and applies it t
 # Refresh the endpoint 'ep03'
 Refresh-AmlWebServiceEndpoint -WebServiceId $webSvc.Id -EndpointName 'ep03' -OverwriteResources
 ```
+This commandlet leverages the config.json file.
 
 #### Patch-AmlWebServiceEndpoint
 Patch Web Service Endpoint is used for updating a trained model in an existing Endpoint. Essentially, you can produce a Trained Model and save it in a _.ilearner_ format in an Azure storage account as a blob. You can accomplish that by calling the BES endpoint using [_Invoke-AmlWebServiceBESEndpoint_](#invoke-amlwebservicebesendpoint) commandlet on the training Web Service. And then you can use _Patch-AmlWebServiceEndpoint_ commandlet to replace a specified Trained Model in an existing non-default Web Service Endpoint with this new _.ilearner_ file. Please browse [Retraining Machine Learning models programatically](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-retrain-models-programmatically/) for more details.
@@ -551,6 +573,8 @@ $epName = 'ep02'
 # Update the Endpoint with the new Trained Model.
 Patch-AmlWebServiceEndpoint -WebServiceId $webSvcId -EndpointName $epName -ResourceName $resName -BaseLocation $baseLoc -RelativeLocation $relativeLoc -SasBlobToken $sasToken
 ```
+This commandlet leverages the config.json file.
+
 ### Call Azure ML Web Service APIs
 The following two commandlets allow you to call Azure ML Web Service API in Request-Response Service (RRS) style, as well as Batch Execution Service (BES) style. Please note that they do not require configuration files.
 
