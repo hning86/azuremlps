@@ -3,7 +3,7 @@
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
 * __Manage Workspace__
-  * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*) 
+  * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*)
   * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
   * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
@@ -170,7 +170,7 @@ And here is how you can grab the thumbprint of a particular certificate using Po
 ```
 
 #### List-AmlWorkspaces
-Please note that this commandlet can only list Standard Wokspaces. Free Workspaces are not tied to any Azure subscriptions so they will not be listed here.
+Please note that this commandlet can only list Standard Wokspaces. Free Workspaces are not tied to any Azure subscriptions so they will not be listed here. This commandlet requires the presence of the Azure management certificate.
 
 ```
 List-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>'
@@ -217,6 +217,7 @@ $ds = Get-AmlDataset -Scope Workspace
 # Display the list in a table format with selected properties
 $ds | Format-Table Name,DataTypeId,Size,Owner
 ```
+This commandlet leverages the config.json file.
 
 #### Promote-AmlDataset
 To use this commandlet, you need to first locate the module in your experiment where the output port produces the Dataset you'd like to promote. So you need to gather the experiment id, node id, and the name of the output port. In order to get the node id, you need to add a unique comment to that dataset-producing module first, and then use the Get-AmlExperimentNode commandlet to grab the node id.
@@ -224,6 +225,8 @@ To use this commandlet, you need to first locate the module in your experiment w
 ![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/PromoteDataset.png)
 
 Also, if there is already a Dataset of with the same name you supply to this commandlet, you must use -Overwrite parameter, otherwise you will receive a HTTP 409 (Conflict) error.
+
+This commandlet leverages the config.json file.
 
 ```
 # Find experiment named 'abc' and run it
@@ -234,6 +237,7 @@ $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Split My
 # Promote the outcome of one of the left output port of the Split node, and overwrite the previous version.
 Promote-AmlDataset -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Result dataset1' -DatasetName 'MyData' -DataSetDescription 'My Data' -Overwrite
 ```
+This commandlet leverages the config.json file.
 
 #### Download-AmlDataset
 ```
@@ -242,6 +246,7 @@ $dsMT = Get-AmlDataset | where Name -eq 'Movie tweets'
 # Download the Movie Tweets dataset:
 Download-AmlDataset -DatasetId $dsMT.Id -DownloadFileName 'C:\Temp\MovieTweets.csv'
 ```
+This commandlet leverages the config.json file.
 
 #### Upload-AmlDataset
 ```
@@ -258,7 +263,7 @@ Please note the supported file formats are:
 * Zip
 * RData
 * PlainText
-
+This commandlet leverages the config.json file.
 #### Remove-AmlDataset
 ```
 # Find a dataset named 'Flight Data' in the Workspace using Get-AmlDataset:
