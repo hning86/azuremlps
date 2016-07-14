@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.7
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.8
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -21,6 +21,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Custom Module__
   * Add a new custom module to Workspace (*[New-AmlCustomModule](#new-amlcustommodule)*)
   * List all modules (*[Get-AmlModule](#get-amlmodule)*)
+  * Update modules within an experiment (*[Update-AmlExperimentModule](#update-amlexperimentmodule)*)
 * __Manage Experiment__
   * List all Experiments in Workspace (*[Get-AmlExperiment](#get-amlexperiment)*)
   * Get the metadata of a specific Experiment (*[Get-AmlExperiment](#get-amlexperiment)*)
@@ -352,6 +353,17 @@ Get-AmlModule | where Name -eq 'Add Rows'
 ```
 This commandlet leverages the config.json file.
 
+#### Update-AmlModuleExperimentModule
+```
+# Get the metadata of the Experiment named 'xyz' in the Workspace
+$exp = Get-AmlExperiment | where Description -eq 'xyz'
+# Update all "Add Row" modules within that experiment, provided that a new version of "Add Row" exists in the workspace.
+Update-AmlExperimentModule -ExperimentId $exp.ExperimentId -ModuleName 'Add Row'
+# Update all modules within that experiment, provided that a new version exists in the workspace.
+Update-AmlExperimentModule -ExperimentId $exp.ExperimentId -All
+```
+This commandlet leverages the config.json file.
+
 ### Manage Experiment
 #### Get-AmlExperiment 
 
@@ -410,10 +422,13 @@ This commandlet leverages the config.json file.
 ```
 # Find the Experiment named "xyz"
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
-# Copy that Experiment from current Workspace to another Workspace
+# Make a copy of that Experiment in the current Workspace
+Copy-AmlExperiment -ExperimentId $exp.ExperimentId -NewExperimentName 'xyz_Copy'
+# Copy that Experiment from current Workspace to another Workspace within the same region
 Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>'
+# Copy that Experiment from current Workspace to another Workspace in a different region (such as Southeast Asia)
+Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_id>' -DestinationWorkspaceAuthorizationToken '<auth_token>' -DestinationLocation 'Southeast Asia'
 ```
-Please note that the current Workspace and the destination Workspace must be in the same region. Cross-region copy is currently not supported.
 
 This commandlet leverages the config.json file.
 
