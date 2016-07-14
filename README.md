@@ -354,7 +354,8 @@ Get-AmlModule | where Name -eq 'Add Rows'
 This commandlet leverages the config.json file.
 
 #### Update-AmlExperimentModule
-This commandlet finds all modules, or modules with a specfic name in an experiment, checks to see if a new version exists in the worspace, and if so, update the experiment graph with the new version. 
+This commandlet finds all modules, or modules with a specfic name in an experiment, checks to see if a new version exists in the worspace, and if so, update the experiment graph with the new version. This applies to both system built-in modules, as well as custom modules user creates.
+
 ```
 # Get the metadata of the Experiment named 'xyz' in the Workspace
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
