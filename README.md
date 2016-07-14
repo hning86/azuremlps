@@ -353,7 +353,7 @@ Get-AmlModule | where Name -eq 'Add Rows'
 ```
 This commandlet leverages the config.json file.
 
-#### Update-AmlModuleExperimentModule
+#### Update-AmlExperimentModule
 ```
 # Get the metadata of the Experiment named 'xyz' in the Workspace
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
