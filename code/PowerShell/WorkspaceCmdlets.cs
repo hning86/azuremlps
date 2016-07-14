@@ -75,7 +75,7 @@ namespace AzureML.PowerShell
             pr.CurrentOperation = "Getting status...";
             WriteProgress(pr);
             string wsId = createWS.Result;
-            WorkspaceRdfe ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+            WorkspaceRdfe ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId, Location);
             pr.CurrentOperation = "Status: " + ws.WorkspaceState;
             WriteProgress(pr);
             while (ws.WorkspaceState != "Enabled")
@@ -87,7 +87,7 @@ namespace AzureML.PowerShell
                 else
                     pr.PercentComplete = 1;                
                 Thread.Sleep(500);
-                ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId);
+                ws = Sdk.GetCreateWorkspaceStatus(ManagementCertThumbprint, AzureSubscriptionId, wsId, Location);
             }
             pr.PercentComplete = 100;
             WriteProgress(pr);
@@ -107,7 +107,9 @@ namespace AzureML.PowerShell
         public string WorkspaceId;
         protected override void ProcessRecord()
         {
-            Sdk.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId);
+            var workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
+            var workspace = workspaces.SingleOrDefault(w => w.Id.ToLower() == WorkspaceId.ToLower());
+            Sdk.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId, workspace.Region);
             WriteObject("Workspace removed.");
         }
     }

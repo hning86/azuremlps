@@ -31,6 +31,8 @@ namespace AzureML.PowerShell
     {
         [Parameter(Mandatory = true)]
         public string PredictiveExperimentId { get; set; }
+        [Parameter(Mandatory = false)]
+        public SwitchParameter Update { get; set; }
         protected override void ProcessRecord()
         {            
             ProgressRecord pr = new ProgressRecord(1, "Deploy Web Service", "Predictive Experiment Name: ");
@@ -45,7 +47,7 @@ namespace AzureML.PowerShell
             pr.CurrentOperation = "Deploying web service";
             pr.PercentComplete = 2;
             WriteProgress(pr);
-            WebServiceCreationStatus status = Sdk.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId);
+            WebServiceCreationStatus status = Sdk.DeployWebServiceFromPredictiveExperiment(GetWorkspaceSetting(), PredictiveExperimentId, Update.IsPresent);
 
             while (status.Status != "Completed")
             {

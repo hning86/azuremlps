@@ -9,20 +9,21 @@ using System.Text;
 using System.Web.Script.Serialization;
 
 namespace AzureML.PowerShell
-{    
+{
     [Cmdlet(VerbsCommon.Remove, "AmlExperiment")]
     public class RemoveExperiment : AzureMLPsCmdlet
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
-        
+
         protected override void ProcessRecord()
-        {            
+        {
             Sdk.RemoveExperimentById(GetWorkspaceSetting(), ExperimentId);
             WriteObject("Experiment removed.");
         }
     }
 
+    // Note this Commandlet users an unsupported API that might break in the future!
     [Cmdlet(VerbsCommon.Copy, "AmlExperimentFromGallery")]
     public class CopyExperimentFromGallery : AzureMLPsCmdlet
     {
@@ -35,6 +36,7 @@ namespace AzureML.PowerShell
 
         protected override void ProcessRecord()
         {
+            WriteWarning("Note this Commandlet uses an unsupported API that might break in the future!");
             ProgressRecord pr = new ProgressRecord(1, "Copy from Gallery", "Gallery Experiment");
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Unpacking experiment from Gallery to workspace...";
@@ -45,10 +47,10 @@ namespace AzureML.PowerShell
                 if (pr.PercentComplete < 100)
                     pr.PercentComplete++;
                 else
-                    pr.PercentComplete = 1;                
+                    pr.PercentComplete = 1;
                 pr.StatusDescription = "Status: " + activity.Status;
                 WriteProgress(pr);
-                activity = Sdk.GetActivityStatus(GetWorkspaceSetting(), WorkspaceId, AuthorizationToken, activity.ActivityId, false);
+                activity = Sdk.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, false);
             }
             pr.StatusDescription = "Status: " + activity.Status;
             pr.PercentComplete = 100;
@@ -60,18 +62,27 @@ namespace AzureML.PowerShell
     [Cmdlet(VerbsCommon.Copy, "AmlExperiment")]
     public class CopyExperiment : AzureMLPsCmdlet
     {
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = true, ParameterSetName = "Copy Within the Current Workspace")]
+        [Parameter(Mandatory = true, ParameterSetName = "Copy across Workspaces")]
         public string ExperimentId { get; set; }
-        [Parameter(Position = 0, Mandatory = false)]
+
+        [Parameter(Position = 0, Mandatory = false, ParameterSetName = "Copy across Workspaces")]
+        [ValidateSet("South Central US", "West Europe", "Southeast Asia")]
+        public string DestinationLocation { get; set; }
+
+        [Parameter(Mandatory = true, ParameterSetName = "Copy across Workspaces")]
         public string DestinationWorkspaceId { get; set; }
-        [Parameter(Position = 1, Mandatory = false)]
+
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Copy across Workspaces")]
         public string DestinationWorkspaceAuthorizationToken { get; set; }
-        [Parameter(Mandatory = false)]
+
+        [Parameter(Mandatory = false, ParameterSetName = "Copy Within the Current Workspace")]
         public string NewExperimentName { get; set; }
-        protected  override void ProcessRecord()
+        protected override void ProcessRecord()
         {
-            WorkspaceSetting ws = GetWorkspaceSetting();
-            if (string.IsNullOrEmpty(DestinationWorkspaceId) || ws.WorkspaceId.ToLower() == DestinationWorkspaceId.ToLower())
+            WorkspaceSetting sourceWSSetting = GetWorkspaceSetting();
+
+            if (string.IsNullOrEmpty(DestinationWorkspaceId) || sourceWSSetting.WorkspaceId.ToLower() == DestinationWorkspaceId.ToLower())
             {
                 // copying in the same workspace
                 ProgressRecord pr = new ProgressRecord(1, "Copy Experiment", "Experiment Name:");
@@ -80,21 +91,31 @@ namespace AzureML.PowerShell
                 WriteProgress(pr);
 
                 string rawJson = string.Empty;
-                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                Experiment exp = Sdk.GetExperimentById(sourceWSSetting, ExperimentId, out rawJson);
 
                 pr.StatusDescription = "Experiment Name: " + exp.Description;
                 pr.CurrentOperation = "Copying...";
                 pr.PercentComplete = 2;
                 WriteProgress(pr);
-                Sdk.SaveExperimentAs(GetWorkspaceSetting(), exp, rawJson, NewExperimentName);
+                Sdk.SaveExperimentAs(sourceWSSetting, exp, rawJson, NewExperimentName);
                 pr.PercentComplete = 100;
                 WriteProgress(pr);
-                WriteObject("Experiment \"" + exp.Description + "\" copied from within the current workspace.");
+                WriteObject("A copy of experiment \"" + exp.Description + "\"is created in the current workspace.");
             }
             else
             {
                 if (!string.IsNullOrEmpty(NewExperimentName))
                     WriteWarning("New name is ignored when copying Experiment across Workspaces.");
+
+                // if no destination location is set, use the one the current workspace is in.
+                if (string.IsNullOrEmpty(DestinationLocation))
+                    DestinationLocation = sourceWSSetting.Location;
+
+                var destWSSetting = GetWorkspaceSetting(DestinationLocation, DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken);
+
+                var sourceWS = Sdk.GetWorkspaceFromAmlRP(sourceWSSetting);
+                var destWS = Sdk.GetWorkspaceFromAmlRP(destWSSetting);
+
                 // copying across workspaces
                 ProgressRecord pr = new ProgressRecord(1, "Copy Experiment", "Experiment Name:");
                 pr.CurrentOperation = "Getting experiment...";
@@ -102,18 +123,18 @@ namespace AzureML.PowerShell
                 WriteProgress(pr);
 
                 string rawJson = string.Empty;
-                Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+                Experiment exp = Sdk.GetExperimentById(sourceWSSetting, ExperimentId, out rawJson);
 
                 pr.StatusDescription = "Experiment Name: " + exp.Description;
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 2;
                 WriteProgress(pr);
-                PackingServiceActivity activity = Sdk.PackExperiment(GetWorkspaceSetting(), ExperimentId);
+                PackingServiceActivity activity = Sdk.PackExperiment(sourceWSSetting, ExperimentId);
 
                 pr.CurrentOperation = "Packing experiment from source workspace to storage...";
                 pr.PercentComplete = 3;
                 WriteProgress(pr);
-                activity = Sdk.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
+                activity = Sdk.GetActivityStatus(sourceWSSetting, activity.ActivityId, true);
                 while (activity.Status != "Complete")
                 {
                     if (pr.PercentComplete < 100)
@@ -121,7 +142,7 @@ namespace AzureML.PowerShell
                     else
                         pr.PercentComplete = 1;
                     WriteProgress(pr);
-                    activity = Sdk.GetActivityStatus(GetWorkspaceSetting(), activity.ActivityId, true);
+                    activity = Sdk.GetActivityStatus(sourceWSSetting, activity.ActivityId, true);
                 }
 
                 pr.CurrentOperation = "Unpacking experiment from storage to destination workspace...";
@@ -130,7 +151,8 @@ namespace AzureML.PowerShell
                 else
                     pr.PercentComplete = 1;
                 WriteProgress(pr);
-                activity = Sdk.UnpackExperiment(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.Location);
+
+                activity = Sdk.UnpackExperiment(destWSSetting, activity.Location, Location);
                 while (activity.Status != "Complete")
                 {
                     if (pr.PercentComplete < 100)
@@ -138,12 +160,12 @@ namespace AzureML.PowerShell
                     else
                         pr.PercentComplete = 1;
                     WriteProgress(pr);
-                    activity = Sdk.GetActivityStatus(GetWorkspaceSetting(), DestinationWorkspaceId, DestinationWorkspaceAuthorizationToken, activity.ActivityId, false);
+                    activity = Sdk.GetActivityStatus(destWSSetting, activity.ActivityId, false);
                 }
                 pr.PercentComplete = 100;
                 WriteProgress(pr);
-                WriteObject("Experiment \"" + exp.Description + "\" copied over from another workspace.");
-            }         
+                WriteObject(string.Format("Experiment \"{0}\" has been successfully copied from workspace \"{1}\" to \"{2}\".", exp.Description, sourceWS.FriendlyName, destWS.FriendlyName));
+            }
         }
     }
 
@@ -155,7 +177,7 @@ namespace AzureML.PowerShell
         [Parameter(Mandatory = true)]
         public string OutputFile { get; set; }
         protected override void ProcessRecord()
-        {            
+        {
             string rawJson = string.Empty;
             Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
             File.WriteAllText(OutputFile, rawJson);
@@ -247,7 +269,7 @@ namespace AzureML.PowerShell
         public GetExperiment() { }
 
         protected override void ProcessRecord()
-        {           
+        {
             if (string.IsNullOrEmpty(ExperimentId))
             {
                 // get all experiments in the workspace

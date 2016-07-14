@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.2.7";        
+        public const string Version = "0.2.8";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
@@ -210,7 +210,7 @@ namespace AzureML
             string payload = jss.Serialize(new
                 {
                     Name = workspaceName,
-                    Location = location,
+                    Region = location,
                     StorageAccountName = storageAccountName,
                     StorageAccountKey = storageAccountKey,
                     OwnerId = ownerEmail,
@@ -230,9 +230,9 @@ namespace AzureML
             return d["Id"];
         }
 
-        public WorkspaceRdfe GetCreateWorkspaceStatus(string managementCertThumbprint, string azureSubscriptionId, string workspaceId)
+        public WorkspaceRdfe GetCreateWorkspaceStatus(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
         {
-            string reqUrl = string.Format(_azMgmtApiBaseUrl + "/{1}", azureSubscriptionId, workspaceId);
+            string reqUrl = string.Format(_azMgmtApiBaseUrl + "/{1}?Region={2}", azureSubscriptionId, workspaceId, HttpUtility.HtmlEncode(region));
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
             
             WebResponse resp = httpReq.GetResponse();
@@ -243,9 +243,9 @@ namespace AzureML
         }
              
 
-        public void RemoveWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceId)
+        public void RemoveWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
         {
-            string reqUrl = string.Format(_azMgmtApiBaseUrl + "{1}", azureSubscriptionId, workspaceId);
+            string reqUrl = string.Format(_azMgmtApiBaseUrl + "{1}?Region={2}", azureSubscriptionId, workspaceId, HttpUtility.HtmlEncode(region));
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "DELETE");
             
             WebResponse resp = httpReq.GetResponse();
@@ -533,6 +533,7 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&experimentid={1}/&clearCredentials=true&includeAuthorId=false", setting.WorkspaceId, experimentId);
+            //Console.WriteLine("Packing: POST " + queryUrl);
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {                
@@ -541,19 +542,14 @@ namespace AzureML
             }
             throw new AmlRestApiException(hr);
         }
+
         public PackingServiceActivity GetActivityStatus(WorkspaceSetting setting, string activityId, bool isPacking)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            return GetActivityStatus(setting, setting.WorkspaceId, setting.AuthorizationToken, activityId, isPacking);
-        }
-
-        public PackingServiceActivity GetActivityStatus(WorkspaceSetting setting, string wsId, string authCode, string activityId, bool isPacking)
-        {
-            ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?{1}ActivityId={2}", wsId, (isPacking ? "package" : "unpack"), activityId);
-            HttpResult hr = Util.HttpGet(authCode, queryUrl, true).Result;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?{1}ActivityId={2}", setting.WorkspaceId, (isPacking ? "package" : "unpack"), activityId);
+            //Console.WriteLine("Getting activity: GET " + queryUrl);
+            HttpResult hr = Util.HttpGet(queryUrl, true).Result;
 
             if (hr.IsSuccess)
             {                
@@ -565,12 +561,13 @@ namespace AzureML
         }
 
 
-        public PackingServiceActivity UnpackExperiment(WorkspaceSetting setting, string destWorkspaceId, string destWorkspaceAuthCode, string packedLocation)
+        public PackingServiceActivity UnpackExperiment(WorkspaceSetting setting, string packedLocation, string sourceRegion)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}", destWorkspaceId, HttpUtility.UrlEncode(packedLocation));
-            HttpResult hr = Util.HttpPut(destWorkspaceAuthCode, queryUrl, string.Empty).Result;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}{2}", setting.WorkspaceId, HttpUtility.UrlEncode(packedLocation), "&region=" + sourceRegion.Replace(" ", string.Empty));
+            //Console.WriteLine("Unpacking: PUT " + queryUrl);
+            HttpResult hr = Util.HttpPut(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {                
                 PackingServiceActivity activity = jss.Deserialize<PackingServiceActivity>(hr.Payload);
@@ -586,6 +583,7 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}&communityUri={2}&entityId={3}", setting.WorkspaceId, HttpUtility.UrlEncode(packageUri), HttpUtility.UrlEncode(galleryUrl), entityId);
+            //Console.WriteLine("Upacking from Gallery: PUT " + queryUrl);
             HttpResult hr = Util.HttpPut(setting.AuthorizationToken, queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {                
@@ -841,11 +839,11 @@ namespace AzureML
                 throw new AmlRestApiException(hr);
         }
 
-        public WebServiceCreationStatus DeployWebServiceFromPredictiveExperiment(WorkspaceSetting setting, string predictiveExperimentId)
+        public WebServiceCreationStatus DeployWebServiceFromPredictiveExperiment(WorkspaceSetting setting, string predictiveExperimentId, bool updateExistingWebServiceDefaultEndpoint)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false", setting.WorkspaceId, predictiveExperimentId);
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false{2}", setting.WorkspaceId, predictiveExperimentId, updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "");
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {             

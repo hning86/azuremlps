@@ -85,5 +85,15 @@ namespace AzureML.PowerShell
             };
             return setting;
         }                                           
+        protected WorkspaceSetting GetWorkspaceSetting( string location, string wsId, string wsAuthToken)
+        {
+            WorkspaceSetting setting = new WorkspaceSetting
+            {
+                WorkspaceId = wsId,
+                AuthorizationToken = wsAuthToken,
+                Location = location
+            };
+            return setting;
+        }
     }    
 }

@@ -16,7 +16,7 @@ namespace AzureMLPS.PowerShell
         [Parameter(Mandatory = true)]
         [ValidateSet("Experiment", "Workspace")]
         public string Scope { get; set; }
-        
+
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
@@ -46,7 +46,7 @@ namespace AzureMLPS.PowerShell
                         string familyId = id.Split('.')[1];
                         UserAssetBase trainedModel = trainedModelsInWorkspace.SingleOrDefault(tm => tm.Id == id || tm.FamilyId == familyId);
                         if (trainedModel != null && !trainedModelsInExperiment.ContainsKey(id))
-                        {                            
+                        {
                             bool isLatest = (trainedModelsInWorkspace.SingleOrDefault(t => t.Id == id) != null);
                             trainedModelsInExperiment.Add(id, new UserAssetBase
                             {
@@ -69,13 +69,13 @@ namespace AzureMLPS.PowerShell
         [Parameter(Mandatory = true)]
         [ValidateSet("Experiment", "Workspace")]
         public string Scope { get; set; }
-        
+
         [Parameter(Mandatory = false)]
         public string ExperimentId { get; set; }
         protected override void ProcessRecord()
         {
             if (Scope.ToLower() == "workspace")
-            {                
+            {
                 WriteObject(Sdk.GetTransforms(GetWorkspaceSetting()), true);
                 return;
             }
@@ -238,7 +238,57 @@ namespace AzureMLPS.PowerShell
             WriteObject(string.Format("Dataset \"{0}\" has been successfully promoted.", DatasetName));
         }
     }
-    
+
+    [Cmdlet("Update", "AmlExperimentModule")]
+    public class UpdateAmlExperimentModule: AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true, ParameterSetName = "All modules")]
+        [Parameter(Mandatory = true, ParameterSetName = "Modules with a specific name")]
+        public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "All modules")]
+        public SwitchParameter All { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "Modules with a specific name")]
+        public string ModuleName { get; set; }
+        protected override void ProcessRecord()
+        {
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+
+            var modules = Sdk.GetModules(GetWorkspaceSetting());
+            
+            string rawJson = "";
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            List<string> updatedModules = new List<string>();
+            foreach (dynamic node in graph["Graph"]["ModuleNodes"])
+            {
+                string moduleId = node["ModuleId"];
+                string familyId = moduleId.Split('.')[1];
+                if (!modules.Any(m => m.FamilyId.Equals(familyId, StringComparison.InvariantCultureIgnoreCase)))
+                    throw new Exception(string.Format("The module with family id \"{0}\" in the experiment cannot be found in the workspace!", moduleId));
+                var module = modules.SingleOrDefault(m => m.FamilyId.Equals(familyId, StringComparison.InvariantCultureIgnoreCase));
+                if (!module.Id.Equals(moduleId, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (string.IsNullOrEmpty(ModuleName) || module.Name.Equals(ModuleName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        //needs update
+                        WriteObject(string.Format("Module \"{0}\" with family id of \"{1}\" is updated from batch \"{2}\" to \"{3}\".", module.Name, module.FamilyId, moduleId.Split('.')[2], module.Id.Split('.')[2]));
+                        node["ModuleId"] = module.Id;
+                        updatedModules.Add(module.Name);
+                    }
+                }
+            }
+
+            if (updatedModules.Count > 0)
+            {
+                rawJson = jss.Serialize(graph);
+                Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);                
+            }
+            else
+                WriteObject("All modules are already up-to-date, so no update is needed.");
+        }
+
+    }
+
     [Cmdlet("Update", "AmlExperimentUserAsset")]
     public class UpdateAmlExperimentUserAsset : AzureMLPsCmdlet
     {
@@ -255,7 +305,7 @@ namespace AzureMLPS.PowerShell
         protected override void ProcessRecord()
         {
             JavaScriptSerializer jss = new JavaScriptSerializer();
-            List<string> updatedAssetIds = new List<string>();
+            Dictionary<string, string> updatedAssetIds = new Dictionary<string, string>();
             string rawJson = "";
             UserAsset[] assetsInWorkspace = new UserAsset[] { };
 
@@ -299,8 +349,8 @@ namespace AzureMLPS.PowerShell
                         throw new Exception(string.Format("{0} \"{1}\" is not found in the current workspace.", assetTypeNames[AssetType], AssetName));
                 }
 
-                List<string> updatedAssets = new List<string>();
-
+                //Dictionary<string, string> updatedAssets = new Dictionary<string, string>();
+                bool foundAssetWithAssetNameInExperiment = false;
                 foreach (dynamic node in graph["Graph"]["ModuleNodes"])
                     foreach (dynamic inputPort in node["InputPortsInternal"])
                         foreach (UserAssetType assetType in assetNodeNames.Keys)
@@ -309,28 +359,35 @@ namespace AzureMLPS.PowerShell
                             if (!string.IsNullOrEmpty(experimentAssetId))
                             {
                                 string familyId = experimentAssetId.Split('.')[1];
-                                if (All.IsPresent || (foundAsset != null && foundAsset.FamilyId == familyId))
+                                if (All.IsPresent || foundAsset.FamilyId == familyId)
                                 {
+                                    foundAssetWithAssetNameInExperiment = true;
                                     string assetName = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId).Name;
                                     UserAsset workspaceAsset = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId);
                                     if (workspaceAsset == null)
                                         throw new Exception(string.Format("Can't find {0} of family id \"{1}\" in the workspace.", familyId));
                                     if (workspaceAsset.Id != experimentAssetId)
                                     {
-                                        if (!updatedAssetIds.Contains(experimentAssetId))
+                                        if (!updatedAssetIds.ContainsKey(experimentAssetId))
                                         {
                                             inputPort[assetNodeNames[AssetType]] = workspaceAsset.Id;
                                             WriteObject(string.Format("{0} \"{1}\" has been updated from \"{2}\" to \"{3}\"", AssetType, assetName, experimentAssetId, workspaceAsset.Id));
-                                            updatedAssetIds.Add(experimentAssetId);
+                                            updatedAssetIds.Add(experimentAssetId, workspaceAsset.Id);
                                         }
-                                    }            
+                                    }
                                 }
                             }
                         }
+                if (!foundAssetWithAssetNameInExperiment)
+                    throw new Exception(string.Format("Can't find {0} named \"{1}\" in the experiment.", AssetType, AssetName));
+
                 if (updatedAssetIds.Count == 0)
                     WriteObject(string.Format("{0} already up-to-date.", All.IsPresent ? "All assets are" : AssetType + " \"" + AssetName + "\" is"));
                 else
                 {
+                    string clientData = graph["Graph"]["SerializedClientData"];
+                    foreach (var assetId in updatedAssetIds.Keys)
+                        graph["Graph"]["SerializedClientData"] = clientData.Replace(assetId, updatedAssetIds[assetId]);
                     rawJson = jss.Serialize(graph);
                     Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
                 }
@@ -345,13 +402,13 @@ namespace AzureMLPS.PowerShell
     {
         [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
-        [Parameter(Mandatory = true)]        
+        [Parameter(Mandatory = true)]
         public UserAssetType AssetType { get; set; }
         [Parameter(Mandatory = true)]
         public UserAssetBase ExistingAsset { get; set; }
         [Parameter(Mandatory = true)]
         public UserAssetBase NewAsset { get; set; }
-        
+
         protected override void ProcessRecord()
         {
             if (ExistingAsset.Id == NewAsset.Id)
