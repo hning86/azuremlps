@@ -142,7 +142,7 @@ To create a new Azure ML Workspace, you need to first generate a self-signed cer
 $azureSubscriptionId = '<azure_subscription_id>'
 $mgmtCertThumb = '12345'
 $location = 'South Central US'
-$storageAccountName = '<my_storage_account_name'
+$storageAccountName = '<my_storage_account_name>'
 $storageAccountKey = '<my_storage_account_key>'
 $ownerEmail = 'myname@mycompany.com'
 # Create a new Azure ML Worksace named 'ABCD'
