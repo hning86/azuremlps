@@ -29,8 +29,8 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Import a JSON file to overwrite an existing Experiment or create a new Experiment (*[Import-AmlExperimentGraph](#import-amlexperimentgraph)*)
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
-  * Copy an Experiment from a Workspace to another Workspace within the same region (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Find a module node in an Experiment using its comment. (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
+  * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy-amlexperiment)*)
+  * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
 * __Manage Web Service__
