@@ -498,13 +498,13 @@ This commandlet deploys a new Web Service with a default endpoint from a Predict
 ```
 # Get the Predictive Experiment metadata 
 $exp = (Get-AmlExperiment | where Description -eq 'xyz')[0]
-# Deploy Web Service from the Predictive Experiment
+# Deploy a new Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
 # Display newly created Web Service
 $webService
+# Update an existing Web Service from the Predictive Experiment
+$webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId -Update
 ```
-
-<span style="color:red">Known issue: calling _New-AmlWebService_ will produce a new copy of web service. This is a server side issue that will be addressed soon.</span>
 
 This commandlet leverages the config.json file.
 
