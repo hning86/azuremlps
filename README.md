@@ -30,7 +30,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Copy an Experiment from Cortanan Intellignce Gallery (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
+  * Copy an Experiment from [Cortanan Intellignce Gallery](https://gallery.cortanaintelligence.com/) (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
   * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
@@ -436,7 +436,7 @@ Copy-AmlExperiment -ExperimentId $exp.ExperimentId -DestinationWorkspaceId '<ws_
 This commandlet leverages the config.json file.
 
 #### Copy-AmlExperimentFromGallery
-This commandlet allows user to clone a published experiment from the Cortana Intelligence Gallery into the current Workspace.
+This commandlet allows user to clone a published experiment from the [Cortana Intelligence Gallery](https://gallery.cortanaintelligence.com/) into the current Workspace.
 ```
 # These are the relevant parameters for the Gallery experiment https://gallery.cortanaintelligence.com/Experiment/Data-Mining-2016-Presidential-Campaign-Finance-Data-1
 $pkgUri = 'https://storage.azureml.net/directories/e842ffe6058e42eb918a6b6abf0a7436/items'
