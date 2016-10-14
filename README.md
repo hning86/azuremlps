@@ -30,7 +30,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Copy an Experiment from Cortanan Intellignce Gallery (*[Copy-AmlExperimentFromGallery](#copy-AmlExperimentFromGallery)*)
+  * Copy an Experiment from Cortanan Intellignce Gallery (*[Copy-AmlExperimentFromGallery](#Copy-AmlExperimentFromGallery)*)
   * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
@@ -445,6 +445,9 @@ $entityId = 'Data-Mining-2016-Presidential-Campaign-Finance-Data-1'
 # Clone this Experiment into the current Workspace
 Copy-AmlExperimentFromGallery -PackageUri $pkgUri -GalleryUri $galleryUri -EntityId $entityId
 ```
+
+This commandlet leverages the config.json file.
+
 
 #### Get-AmlExperimentNode
 This commandlet lets you find information, including Id, FamilyId etc. of node(s) with a certain user comment.
