@@ -5,10 +5,10 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Manage Workspace__
   * DEPRECATED: Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*)
   * DEPRECATED: List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
+  * DEPRECATED: Delete a Workspace (*[Remove-AmlWorkspace](#remove-amlworkspace)*)
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
   * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
-  * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
-  * DEPRECATED: Delete a Workspace (*[Remove-AmlWorkspace](#remove-amlworkspace)*)
+  * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)  
 * __Manage User Assets (Dataset, Trained Model, Transform)__
   * List all Datasets in an Experiment or Workspace (*[Get-AmlDataset](#get-amldataset)*)
   * Promote a Dataset from an Experiment into Workspace (*[Promote-AmlDataset](#promote-amldataset)*)
