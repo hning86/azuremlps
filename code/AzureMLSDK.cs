@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.2.8";        
+        public const string Version = "0.3.0";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
@@ -591,8 +591,19 @@ namespace AzureML
                 return activity;
             }
             throw new AmlRestApiException(hr);
-        }     
+        }
 
+        public string ExportAmlWebServiceDefinitionFromExperiment(WorkspaceSetting setting, string experimentId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservicedefinition", setting.WorkspaceId, experimentId);
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+                return hr.Payload;
+            throw new AmlRestApiException(hr);
+        }
+            
         public string AutoLayoutGraph(string jsonGraph)
         {            
             StudioGraph sg = CreateStudioGraph(jss.Deserialize<object>(jsonGraph));            
@@ -707,6 +718,8 @@ namespace AzureML
             }            
             return graph;
         }
+
+        
         #endregion
 
         #region User Assets

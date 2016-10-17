@@ -1,4 +1,5 @@
 ﻿using AzureML.Contract;
+using System;
 using System.Management.Automation;
 
 
@@ -42,6 +43,15 @@ namespace AzureML.PowerShell
             WriteProgress(pr);
             string rawJson = string.Empty;
             Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), PredictiveExperimentId, out rawJson);
+            if (exp.Status.StatusCode != "Finished")
+            {
+                // if (exp.Status.StatusCode == "InDraft")
+                //       WriteWarning("Experiment is in draft mode. You should run the experiment first before deploying the web service.");
+                //   else
+                //throw new Exception(string.Format("Experiment status is {0}. Web service cannot be created.", exp.Status.StatusCode));
+
+                throw new Exception("Experiment must be in Finished state. The current state is: " + exp.Status.StatusCode);
+            }
 
             pr.StatusDescription += exp.Description;
             pr.CurrentOperation = "Deploying web service";
@@ -75,5 +85,5 @@ namespace AzureML.PowerShell
             Sdk.RemoveWebServiceById(GetWorkspaceSetting(), WebServiceId);
             WriteObject("Web service \"" + ws.Name + "\" was removed.");
         }
-    }
+    }    
 }

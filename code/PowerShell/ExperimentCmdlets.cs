@@ -333,6 +333,27 @@ namespace AzureML.PowerShell
             Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
             WriteObject("Graph auto-layout finished.");
         }
-    }   
+    }
 
+    [Cmdlet("Export", "AmlWebServiceDefinitionFromExperiment")]
+    public class ExportAmlWebServiceDefinitionFromExperiment : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true)]
+        public string OutputFile { get; set; }
+        protected override void ProcessRecord()
+        {
+            string rawJson = string.Empty;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            if (exp.Status.StatusCode != "Finished")
+              throw new Exception("Experiment must be in Finished state. The current state is: " + exp.Status.StatusCode);
+            else
+            {
+                string output = Sdk.ExportAmlWebServiceDefinitionFromExperiment(GetWorkspaceSetting(), ExperimentId);
+                File.WriteAllText(OutputFile, output);
+                WriteObject(string.Format("Experiment graph exported to file \"{0}\"", OutputFile));
+            }
+        }
+    }
 }
