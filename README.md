@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.2.8
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.1
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -502,6 +502,32 @@ Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -All
 # Update a particular trained model named "My Model"
 Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'TrainedModel' -AssetName 'My Model'
 ```
+This commandlet leverages the config.json file.
+
+#### Export-AmlWebServiceDefinitionFromExperiment
+This commandlet exports a Web Service definition file in JSON format. You can then deploy this definition in any web service plan you own as a New (as opposed to class) Web Service.
+
+```
+# Find the Experiment named 'abc'
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Run the Experiment
+Start-AmlExperiment -ExperimentId $exp.ExperimentId
+# Export web service definition file
+Export-AmlWebServiceDefinitionFromExperiment -ExperimentId $exp.ExperimentId
+```
+
+Please note that you will need to manually add storage account information and Web Service plan ID under the property node before you can deploy this Web Service. Here is an example:
+
+```
+"StorageAccount":{
+  "name": "YourStorageAccountName", 
+  "key": "YourStorageAccountKey" 
+}, 
+"CommitmentPlan":{ 
+  "id": "subscriptions//resourceGroups//providers/Microsoft.MachineLearning/commitmentPlans/ 
+}
+```
+
 This commandlet leverages the config.json file.
 
 ### Manage Classic Web Service
