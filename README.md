@@ -3,11 +3,12 @@
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
 * __Manage Workspace__
-  * Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*)
-  * List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
+  * DEPRECATED: Create new Workspace using a management certificate (*[New-AmlWorkspace](#new-amlworkspace)*)
+  * DEPRECATED: List all Workspaces in an Azure subscription (*[List-AmlWorkspaces](#list-amlworkspaces)*)
   * Add users to a Workspace (*[Add-AmlWorkspaceUsers](#add-amlworkspaceusers)*)
   * Get users of a Workspace (*[Get-AmlWorkspaceUsers](#get-amlworkspaceusers)*)
   * Get the metadata of a Workspace (*[Get-AmlWorkspace](#get-amlworkspace)*)
+  * DEPRECATED: Delete a Workspace (*[Remove-AmlWorkspace](#remove-amlworkspace)*)
 * __Manage User Assets (Dataset, Trained Model, Transform)__
   * List all Datasets in an Experiment or Workspace (*[Get-AmlDataset](#get-amldataset)*)
   * Promote a Dataset from an Experiment into Workspace (*[Promote-AmlDataset](#promote-amldataset)*)
@@ -137,6 +138,8 @@ Get-Help Get-AmlWorkspace
 
 #### New-AmlWorkspace
 
+DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to create a new Workspace.
+
 To create a new Azure ML Workspace, you need to first generate a self-signed certificate, store it in the current user's certificate store, and then upload the public key portion (.cer file) into Azure management portal. The _New-AmlWorkspace_ commandlet will communicate with Azure management API using this certificate to ensure this is an authorized access. Read [more information](https://www.simple-talk.com/cloud/security-and-compliance/windows-azure-management-certificates/) on this subject.
 
 ```
@@ -172,11 +175,23 @@ And here is how you can grab the thumbprint of a particular certificate using Po
 ```
 
 #### List-AmlWorkspaces
+
+DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to list existing Workspaces.
+
 Please note that this commandlet can only list Standard Wokspaces. Free Workspaces are not tied to any Azure subscriptions so they will not be listed here. This commandlet requires the presence of the Azure management certificate.
 
 ```
 List-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>'
 ```
+
+#### Remove-AmlWorkspace
+
+DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to delete a Workspace.
+
+```
+Remove-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>' -WorkspaceId $workspaceId
+```
+
 
 #### Add-AmlWorkspaceUsers
 
@@ -189,7 +204,6 @@ This commandlet leverages the config.json file.
 
 
 #### Get-AmlWorkspaceUsers
-
 
 ```
 # Get all users of the current workspace
