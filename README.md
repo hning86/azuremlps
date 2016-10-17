@@ -35,7 +35,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
-  * Export a Web Service definition file from the Experiment (*[Export-AmlWebServiceDefinitionFromExperiment](export-amlwebservicedefinitionfromexperiment)*)
+  * Export a Web Service definition file from the Experiment (*[Export-AmlWebServiceDefinitionFromExperiment](#export-amlwebservicedefinitionfromexperiment)*)
 * __Manage Classic Web Service__
   * Deploy a classic Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all classic Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
