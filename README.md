@@ -504,34 +504,34 @@ Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'Traine
 ```
 This commandlet leverages the config.json file.
 
-### Manage Web Service
+### Manage Classic Web Service
 
 #### Get-AmlWebService
 ```
-# Get all Web Services in Workspace
+# Get all classic Web Services in Workspace
 $webServices = Get-AmlWebService
 # Display them in table format
 $webServices | Format-Table Id,Name,EndpointCount
 ```
 
 ```
-# Get metadata of a specific Web Service with Id stored in $webSvcId
+# Get metadata of a specific classic Web Service with Id stored in $webSvcId
 Get-AmlWebService -WebServiceId $webSvcId
 ```
 This commandlet leverages the config.json file.
 
 #### New-AmlWebService
 
-This commandlet deploys a new Web Service with a default endpoint from a Predictive Experiment.
+This commandlet deploys a new classic Web Service with a default endpoint from a Predictive Experiment.
 
 ```
 # Get the Predictive Experiment metadata 
 $exp = (Get-AmlExperiment | where Description -eq 'xyz')[0]
-# Deploy a new Web Service from the Predictive Experiment
+# Deploy a new classic Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId
-# Display newly created Web Service
+# Display newly created classic Web Service
 $webService
-# Update an existing Web Service from the Predictive Experiment
+# Update an existing classic Web Service from the Predictive Experiment
 $webService = New-AmlWebService -PredictiveExperimentId $exp.ExperimentId -Update
 ```
 
@@ -540,24 +540,23 @@ This commandlet leverages the config.json file.
 #### Remove-AmlWebService 
 
 ```
-# Get the first Web Service named 'abc'
+# Get the first classic Web Service named 'abc'
 $webSvc = (Get-AmlWebService | Where Name -eq 'abc')[0]
-# Delete the Web Service
+# Delete the classic Web Service
 Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
 This commandlet leverages the config.json file.
 
-### Manage Web Servcie Endpoint ###
+### Manage Classic Web Servcie Endpoint ###
 
 #### Get-AmlWebServiceEndpoint
 
 ```
-# List all Endpoints of a Web Service named 'abc'
+# List all Endpoints of a classic Web Service named 'abc'
 $webSvc = Get-AmlWebService | where Name -eq 'abc'
 $endpoints = Get-AmlWebServiceEndpoint -WebServiceId $webSvc.Id
 $endpoints | Format-Table
 ```
-
 
 ```
 # Show metadata of the Endpoint named 'ep01'
