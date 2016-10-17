@@ -35,18 +35,18 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
-* __Manage Web Service__
-  * Deploy a Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
-  * List all Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
-  * Get the attributes of a specific Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
-  * Delete a Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
-* __Manage Web Service Endpoint__
-  * List all Endpoints of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
-  * Get attributes of a specific Endpoint of a Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
-  * Create a new Endpoint on an existing Web Service (*[Add-AmlWebServiceEndpoint](#add-amlwebserviceendpoint)*)
-  * Delete a Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
-  * Refresh a Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh-amlwebserviceendpoint)*)
-  * Patch a Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch-amlwebserviceendpoint)*)
+* __Manage Classic Web Service__
+  * Deploy a classic Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
+  * List all classic Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
+  * Get the attributes of a specific classic Web Service (*[Get-AmlWebService](#get-amlwebservice)*)
+  * Delete a classic Web Service (*[Remove-AmlWebService](#remove-amlwebservice)*)
+* __Manage Classic Web Service Endpoint__
+  * List all Endpoints of a classic Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
+  * Get attributes of a specific Endpoint of a classic Web Service (*[Get-AmlWebServiceEndpoint](#get-amlwebserviceendpoint)*)
+  * Create a new Endpoint on an existing classic Web Service (*[Add-AmlWebServiceEndpoint](#add-amlwebserviceendpoint)*)
+  * Delete a classic Web Service Endpoint (*[Remove-AmlWebServiceEndpoint](#remove-amlwebserviceendpoint)*)
+  * Refresh a classic Web Service Endpoint (*[Refresh-AmlWebServiceEndpoint](#refresh-amlwebserviceendpoint)*)
+  * Patch a classic Web Service Endpoint (*[Patch-AmlWebServiceEndpoint](#patch-amlwebserviceendpoint)*)
 * __Call Azure ML Web Service APIs__
   * Invoke a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Invoke a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
