@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.3.1";        
+        public const string Version = "0.3.2";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
@@ -338,15 +338,21 @@ namespace AzureML
                 throw new AmlRestApiException(hr);            
             Dataset ds = jss.Deserialize<Dataset>(hr.Payload);
             string downloadUrl = ds.DownloadLocation.BaseUri + ds.DownloadLocation.Location + ds.DownloadLocation.AccessCredential;
-            hr = await Util.HttpGet(downloadUrl, false);
+            await DownloadFileAsync(downloadUrl, filename);
+        }
+
+        public async Task DownloadFileAsync(string url, string filename)
+        {                              
+            HttpResult hr = await Util.HttpGet(url, false);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
+            if (File.Exists(filename))
+                throw new Exception(filename + " alread exists.");
             FileStream fs = File.Create(filename);
             hr.PayloadStream.Seek(0, SeekOrigin.Begin);
             hr.PayloadStream.CopyTo(fs);
             fs.Close();
         }
-
         public async Task<string> UploadResourceAsnyc(WorkspaceSetting setting, string fileFormat, string fileName)
         {
             ValidateWorkspaceSetting(setting);
@@ -856,7 +862,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false{2}", setting.WorkspaceId, predictiveExperimentId, updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "");
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false{2}", setting.WorkspaceId, predictiveExperimentId, updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "");            
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {             

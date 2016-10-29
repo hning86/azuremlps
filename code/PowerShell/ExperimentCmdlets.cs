@@ -7,6 +7,8 @@ using System.Management.Automation;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Web.Script.Serialization;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace AzureML.PowerShell
 {
@@ -315,11 +317,71 @@ namespace AzureML.PowerShell
         }
     }
 
+    [Cmdlet("Download", "AmlExperimentNodeOutput")]
+    public class DownloadExperimentNodeOutput : AzureMLPsCmdlet
+    {
+        [Parameter(Mandatory = true)]
+        public string ExperimentId { get; set; }
+        [Parameter(Mandatory = true)]
+        public string NodeId { get; set; }        
+        [Parameter(Mandatory = true)]
+        public string OutputPortName { get; set; }
+        [Parameter(Mandatory = true)]
+        public string DownloadFileName { get; set; }
+        protected override void ProcessRecord()
+        {            
+            string rawJson = string.Empty;
+            Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            dynamic graph = jss.Deserialize<object>(rawJson);
+            List<GraphNode> nodes = new List<GraphNode>();
+            bool foundNode = false;
+            bool foundPort = false;
+            foreach (var node in graph["NodeStatuses"])
+                if (string.Compare(node["NodeId"], NodeId, true) == 0)
+                {
+                    foundNode = true;                    
+                    foreach (var port in node["OutputEndpoints"])
+                        if (string.Compare(port["Name"], OutputPortName, true) == 0)
+                        {
+                            foundPort = true;
+                            if (File.Exists(DownloadFileName))
+                                throw new Exception(DownloadFileName + " aleady exists.");
+
+                            ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download file \"{0}\" from Azure ML Studio", DownloadFileName));
+                            pr.PercentComplete = 1;
+                            pr.CurrentOperation = "Downloading...";
+                            WriteProgress(pr);
+
+                            string sasUrl = port["BaseUri"] + port["Location"] + port["AccessCredential"];
+                            Task task = Sdk.DownloadFileAsync(sasUrl, DownloadFileName);
+                            while (!task.IsCompleted)
+                            {
+                                if (pr.PercentComplete < 100)
+                                    pr.PercentComplete++;
+                                else
+                                    pr.PercentComplete = 1;
+                                Thread.Sleep(500);
+                                WriteProgress(pr);
+                            }
+                            pr.PercentComplete = 100;
+                            WriteProgress(pr);
+
+                            WriteObject(DownloadFileName + " is downloaded successfully.");
+                            return;
+                        }
+                }
+            if (!foundNode)
+                throw new Exception("Node not found! Please make sure the node exists, and you have run the experiment at least once.");
+            if (!foundPort)
+                throw new Exception("Port not found! Please make sure you supplied the correct port name.");
+        }
+    }
 
     [Cmdlet("Layout", "AmlExperiment")]
     public class LayoutExperiment : AzureMLPsCmdlet
     {
-        [Parameter(Mandatory = false)]
+        [Parameter(Mandatory = true)]
         public string ExperimentId { get; set; }
 
         protected override void ProcessRecord()

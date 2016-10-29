@@ -1,4 +1,5 @@
 ﻿using AzureML.Contract;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -138,6 +139,9 @@ namespace AzureML.PowerShell
 
         protected override void ProcessRecord()
         {
+            if (File.Exists(DownloadFileName))
+                throw new Exception(DownloadFileName + " aleady exists.");
+
             ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download dataset \"{0}\" from Azure ML Studio", DownloadFileName));
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Downloading...";
