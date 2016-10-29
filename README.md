@@ -480,7 +480,26 @@ $node
 ```
 This commandlet leverages the config.json file.
 
+#### Download-AmlExperimentNodeOutput
+This commandlet lets you download the output of a module node in an experiment
+
+```
+# Find the Experiment named "abc"
+$exp = Get-AmlExperiment | where Description -eq 'abc'
+# Get the node(s) with a user comment "Train me"
+$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
+# Download the output of the Train Model module, which is an ilearner file.
+Download-AmlExperimentOutputNode -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -DownloadFileName 'myModel.ilearner'
+# Get the node(s) with a user comment "Get CSV"
+$node2 = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Get CSV'
+# Download the output of an Convert to CSV module, which is a csv file.
+Download-AmlExperimentOutputNode -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -DownloadFileName 'myScoredDataset.csv'
+
+```
+This commandlet leverages the config.json file.
+
 #### Replace-AmlExperimentUserAsset
+
 This commandlet lets you replace a user asset (Dataset, Trained Model or Transform) in an Experiment with another one from the Workspace. If you simply want to update an asset to the latest version, use *Update-AmlExperimentUserAsset* instead.
 ```
 # Find the Experiment named 'abc'
