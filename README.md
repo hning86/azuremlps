@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.1
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.2
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -36,6 +36,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
   * Export a Web Service definition file from the Experiment (*[Export-AmlWebServiceDefinitionFromExperiment](#export-amlwebservicedefinitionfromexperiment)*)
+  * Download the output of a node in an Experiment (*[Download-AmlExperimentNodeOutput](#download-amlexperimentnodeoutput)*)
 * __Manage Classic Web Service__
   * Deploy a classic Web Service from a Predictive Experiment (*[New-AmlWebService](#new-amlwebservice)*)
   * List all classic Web Services in Workspace (*[Get-AmlWebService](#get-amlwebservice)*)
