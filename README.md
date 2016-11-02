@@ -251,7 +251,7 @@ Start-AmlExperiment -ExperimentId $exp.ExperimentId
 # Find the a node in the experiment with a comment 'Split My Data'. In this case it is a Split module
 $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Split My Data'
 # Promote the outcome of one of the left output port of the Split node, and overwrite the previous version.
-Promote-AmlDataset -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Result dataset1' -DatasetName 'MyData' -DataSetDescription 'My Data' -Overwrite
+Promote-AmlDataset -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputPortName 'Result dataset1' -DatasetName 'MyData' -DataSetDescription 'My Data' -Overwrite
 ```
 This commandlet leverages the config.json file.
 
@@ -316,7 +316,7 @@ Start-AmlExperiment -ExperimentId $exp.ExperimentId
 # Find the Train Model module node in the experiment with a comment 'Train me'.
 $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Promote the Trained Model from the output port of the Train Model module, and overwrite the previous version.
-Promote-AmlTrainedModel -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Trained model' -TrainedModelName 'MyModel' -TrainedModelDescription 'My Model' -Overwrite
+Promote-AmlTrainedModel -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputPortName 'Trained model' -TrainedModelName 'MyModel' -TrainedModelDescription 'My Model' -Overwrite
 ```
 This commandlet leverages the config.json file.
 
@@ -347,7 +347,7 @@ Start-AmlExperiment -ExperimentId $exp.ExperimentId
 # Find the Clean Missing Data module in the experiment where a Clean Transform is produced with a comment 'Clean me'.
 $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Clean me'
 # Promote the Transform from the output port of the transform-producing module, and overwrite the previous version.
-Promote-AmlTransform -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputName 'Cleaning transformation' -TransformName 'CleanMe02' -TransformDescription 'Clean Me v2' -Overwrite
+Promote-AmlTransform -ExperimentId $exp.ExperimentId -ModuleNodeId $node.Id -NodeOutputPortName 'Cleaning transformation' -TransformName 'CleanMe02' -TransformDescription 'Clean Me v2' -Overwrite
 ```
 This commandlet leverages the config.json file.
 
