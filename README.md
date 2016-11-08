@@ -393,7 +393,8 @@ $exps = Get-AmlExperiment
 # Display all Experiments in a table format
 $exps | Format-Table
 ```
-```
+
+```powershell
 # Get the metadata of the Experiment named 'xyz' in the Workspace
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 # Display the Experiment status
@@ -715,13 +716,13 @@ _jobConfig.json_
 	"GolbalParameters": { "Random seed": 12345 },
 	"Inputs": {
 		"input1" : {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey"
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey",
 			"RelativeLocation": "mycontainer/input/input.csv"
 		}
 	},
 	"Outputs": {
 		"output1": {
-			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey"
+			"ConnetionString": "DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=mystorageaccountkey",
 			"RelativeLocation": "mycontainer/output/output.csv"
 		}
 	} 
