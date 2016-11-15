@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.2
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.3
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -90,6 +90,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 	* This value can be found in the Workspace drop-down. It is the Azure region the Workspace is provisioned in. Currently supported values for this configuration are:
 		* South Central US (use this value for all Free Workspaces)
 		* Southeast Asia
+		* Japan East
 		* West Europe	
 		* Germany Central
 		
