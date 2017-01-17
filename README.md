@@ -492,11 +492,11 @@ $exp = Get-AmlExperiment | where Description -eq 'abc'
 # Get the node(s) with a user comment "Train me"
 $node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Download the output of the Train Model module, which is an ilearner file.
-Download-AmlExperimentOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -DownloadFileName 'myModel.ilearner'
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -DownloadFileName 'myModel.ilearner'
 # Get the node(s) with a user comment "Get CSV"
 $node2 = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Get CSV'
 # Download the output of an Convert to CSV module, which is a csv file.
-Download-AmlExperimentOutputNode -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -DownloadFileName 'myScoredDataset.csv'
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -DownloadFileName 'myScoredDataset.csv'
 
 ```
 This commandlet leverages the config.json file.
