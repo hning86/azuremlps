@@ -477,7 +477,7 @@ This commandlet lets you find information, including Id, FamilyId etc. of node(s
 # Find the Experiment named "abc"
 $exp = Get-AmlExperiment | where Description -eq 'abc'
 # Get the node(s) with a user comment "Train me"
-$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
+$node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Display the node
 $node
 ```
