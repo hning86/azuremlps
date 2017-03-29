@@ -1024,5 +1024,106 @@ namespace AzureML
             return jobStatus;
         }
         #endregion
+
+        #region Project
+        public Project[] GetProjects(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/projectcontainers", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+            {
+                Project[] projects = jss.Deserialize<Project[]>(hr.Payload);
+                return projects;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        public Project GetProject(WorkspaceSetting setting, string projectId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/projectcontainers/{1}", setting.WorkspaceId, projectId);
+            HttpResult hr = Util.HttpGet(queryUrl).Result;
+            if (hr.IsSuccess)
+            {
+                Project project = jss.Deserialize<Project>(hr.Payload);
+                return project;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        public Project CreateProject(WorkspaceSetting setting, string name, string description)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/projectcontainers", setting.WorkspaceId);
+
+            string body = jss.Serialize(new Project()
+            {
+                Name = name,
+                Description = description,
+                Contents = new Assets()
+            });
+
+            HttpResult hr = Util.HttpPost(queryUrl, body).Result;
+            if (hr.IsSuccess)
+            {
+                Project project = jss.Deserialize<Project>(hr.Payload);
+                return project;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        public Assets GetAssetDependencies(WorkspaceSetting setting, Assets assetsToCheck)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/projectcontainers/dependencies", setting.WorkspaceId);
+            string body = jss.Serialize(assetsToCheck);
+
+            HttpResult hr = Util.HttpPost(queryUrl, body).Result;
+            if (hr.IsSuccess)
+            {
+                Assets assets = jss.Deserialize<Assets>(hr.Payload);
+                return assets;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        public Project AddAssetsToProject(WorkspaceSetting setting, Assets assetsToAdd, string projectId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string queryUrl = StudioApi + string.Format("workspaces/{0}/projectcontainers/{1}?includeDependencies=true", setting.WorkspaceId, projectId);
+
+            // Getting project details first
+            Project projectToUpdate = GetProject(setting, projectId);
+            // Getting asset dependencies
+            Assets dependencies = GetAssetDependencies(setting, assetsToAdd);
+            // Merging both assets
+            Assets assetsWithDependencies = Assets.Merge(assetsToAdd, dependencies);
+
+            // Update assets only
+            projectToUpdate.Contents = Assets.Merge(projectToUpdate.Contents, assetsWithDependencies);
+
+            string body = jss.Serialize(projectToUpdate);
+
+            HttpResult hr = Util.HttpPut(queryUrl, body).Result;
+            if (hr.IsSuccess)
+            {
+                Project project = jss.Deserialize<Project>(hr.Payload);
+                return project;
+            }
+            else
+                throw new AmlRestApiException(hr);
+        }
+
+        #endregion
     }
 }

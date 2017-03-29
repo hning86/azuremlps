@@ -58,6 +58,7 @@
     <Compile Include="PowerShell\DatasetCmdlets.cs" />
     <Compile Include="PowerShell\ExperimentCmdlets.cs" />
     <Compile Include="PowerShell\InvokeWebServiceCmdlets.cs" />
+    <Compile Include="PowerShell\ProjectCmdlets.cs" />
     <Compile Include="PowerShell\UserAssetsCmdlets.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="PowerShell\WebServiceCmdlets.cs" />

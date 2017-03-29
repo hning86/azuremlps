@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AzureML.Contract
 {
@@ -319,5 +320,60 @@ namespace AzureML.Contract
         TrainedModel,
         Transform,
         Dataset
+    }
+
+    public class Project
+    {
+        public string ContainerId { get; set; }
+        public string EntityTag { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Creator { get; set; }
+        public string CreatedTime { get; set; }
+        public string ChangedTime { get; set; }        
+        public Assets Contents { get; set; }
+
+        public Project()
+        {
+            Contents = new Assets();
+        }
+    }
+
+    public class Assets
+    {
+        public string[] Experiment { get; set; }
+        public string[] Notebook { get; set; }
+        public string[] DataSource { get; set; }
+        public string[] WebService { get; set; }
+        public string[] Module { get; set; }
+        public string[] TrainedModel { get; set; }
+        public string[] Transform { get; set; }
+
+        public Assets ()
+        {
+            Experiment = new string[0];
+            Notebook = new string[0];
+            DataSource = new string[0];
+            WebService = new string[0];
+            Module = new string[0];
+            TrainedModel = new string[0];
+            Transform = new string[0];
+        }
+
+
+        public static Assets Merge(Assets a1, Assets a2)
+        {
+            Assets mergedAssets = new Assets();
+
+            mergedAssets.DataSource = a1.DataSource.Union(a2.DataSource).ToArray();
+            mergedAssets.Experiment = a1.Experiment.Union(a2.Experiment).ToArray();
+            mergedAssets.Module = a1.Module.Union(a2.Module).ToArray();
+            mergedAssets.Notebook = a1.Notebook.Union(a2.Notebook).ToArray();
+            mergedAssets.TrainedModel = a1.TrainedModel.Union(a2.TrainedModel).ToArray();
+            mergedAssets.Transform = a1.Transform.Union(a2.Transform).ToArray();
+            mergedAssets.WebService = a1.WebService.Union(a2.WebService).ToArray();
+
+            return mergedAssets;
+        }
     }
 }
