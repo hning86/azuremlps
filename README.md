@@ -410,7 +410,7 @@ This commandlet leverages the config.json file.
 $exp = Get-AmlExperiment | where Description -eq 'xyz'
 Export-AmlExperimentGraph -ExperimentId $exp.ExperimentId -OutputFile 'c:\Temp\MyExp.json'
 ```
-Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, make sure the exact same instance and version of those assets do exist in the Workspace, otherwise you will not be able to create a valid Experiment. Also, please make sure you use absolute path when referring to the json file.
+Please note that the exported JSON file only contains references to the exact instance and version of the assets (modules, trained models, datasets, etc.). The assets themselves are NOT serialized into the JSON file. As a consequence, when you import it back into the Workspace, unless you are importing it back into the same Workspace, or unless your graph only contains global assets such as built-in modules, you will not be able to create a valid Experiment. And you might see the Studio UX crashes when attempting to open this invalid experiment. In other words, importing an exported graph that contains user datasets, trained models, custom modules, etc. into a new workspace will not work. Also, please make sure you use absolute path when referring to the json file.
 
 This commandlet leverages the config.json file.
 
@@ -421,6 +421,7 @@ Import-AmlExperimentGraph -InputFile 'C:\Temp\MyExp.json' -Overwrite
 # Import a JSON file 'MyExp.json' to create a new Experiment named 'abc'
 Import-AmlExperimentGraph -InputFile 'MyExp.json' -NewName 'abc'
 ```
+Please see the above warning in the Export-AmlExperimentGraph documentation about the limitation of importing a JSON graph. 
 This commandlet leverages the config.json file.
 
 #### Start-AmlExperiment
