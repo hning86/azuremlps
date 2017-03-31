@@ -486,7 +486,7 @@ $node
 This commandlet leverages the config.json file.
 
 #### Download-AmlExperimentNodeOutput
-This commandlet lets you download the output payload, or the viualization JSON content, of a module node in an experiment
+This commandlet lets you download the output payload, or the visualization JSON content, of a module node in an experiment.
 
 ```powershell
 # Find the Experiment named "abc"
@@ -495,13 +495,13 @@ $exp = Get-AmlExperiment | where Description -eq 'abc'
 $node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Download the output of the Train Model module, which is an ilearner file.
 Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -OutputType Payload -DownloadFileName 'myModel.ilearner'
-# Download the visualization JSON content of a Train Model module, which is a json file.
+# Download the visualization content of a Train Model module, which is a json file.
 Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -OutputType Visualization -DownloadFileName 'myModelViz.json'
 
 # Get the node(s) with a user comment "Get CSV"
 $node2 = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Get CSV'
 # Download the output of an Convert to CSV module, which is a csv file.
-Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -OutputType Payload -DownloadFileName 'myScoredDataset.csv'
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -DownloadFileName 'myScoredDataset.csv'
 
 ```
 This commandlet leverages the config.json file.
