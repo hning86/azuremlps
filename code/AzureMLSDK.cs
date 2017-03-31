@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.3.3";        
+        public const string Version = "0.3.4";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
@@ -80,6 +80,10 @@ namespace AzureML
                 case "germany central":
                     key = "germanycentral.";
                     SetAPIEndpoints(key, ".de");
+                    break;
+                case "west central us":
+                    key = "westcentralus";
+                    SetAPIEndpoints(key, ".net");
                     break;
                 case "integration test":
                     key = "";

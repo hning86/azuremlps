@@ -69,7 +69,7 @@ namespace AzureML.PowerShell
         public string ExperimentId { get; set; }
 
         [Parameter(Position = 0, Mandatory = false, ParameterSetName = "Copy across Workspaces")]
-        [ValidateSet("South Central US", "West Europe", "Southeast Asia")]
+        [ValidateSet("South Central US", "West Europe", "Southeast Asia", "Japan East", "West Central US")]
         public string DestinationLocation { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "Copy across Workspaces")]
@@ -328,6 +328,9 @@ namespace AzureML.PowerShell
         public string OutputPortName { get; set; }
         [Parameter(Mandatory = true)]
         public string DownloadFileName { get; set; }
+        [Parameter(Mandatory = false)]
+        [ValidateSet("Payload", "Visualization")]
+        public string OutputType { get; set; }
         protected override void ProcessRecord()
         {            
             string rawJson = string.Empty;
@@ -340,36 +343,81 @@ namespace AzureML.PowerShell
             foreach (var node in graph["NodeStatuses"])
                 if (string.Compare(node["NodeId"], NodeId, true) == 0)
                 {
-                    foundNode = true;                    
-                    foreach (var port in node["OutputEndpoints"])
-                        if (string.Compare(port["Name"], OutputPortName, true) == 0)
-                        {
-                            foundPort = true;
-                            if (File.Exists(DownloadFileName))
-                                throw new Exception(DownloadFileName + " aleady exists.");
-
-                            ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download file \"{0}\" from Azure ML Studio", DownloadFileName));
-                            pr.PercentComplete = 1;
-                            pr.CurrentOperation = "Downloading...";
-                            WriteProgress(pr);
-
-                            string sasUrl = port["BaseUri"] + port["Location"] + port["AccessCredential"];
-                            Task task = Sdk.DownloadFileAsync(sasUrl, DownloadFileName);
-                            while (!task.IsCompleted)
+                    foundNode = true;
+                    if (string.IsNullOrEmpty(OutputType) || OutputType == "Payload")
+                    {
+                        foreach (var port in node["OutputEndpoints"])
+                            if (string.Compare(port["Name"], OutputPortName, true) == 0)
                             {
-                                if (pr.PercentComplete < 100)
-                                    pr.PercentComplete++;
-                                else
-                                    pr.PercentComplete = 1;
-                                Thread.Sleep(500);
-                                WriteProgress(pr);
-                            }
-                            pr.PercentComplete = 100;
-                            WriteProgress(pr);
+                                foundPort = true;
+                                if (File.Exists(DownloadFileName))
+                                    throw new Exception(DownloadFileName + " aleady exists.");
 
-                            WriteObject(DownloadFileName + " is downloaded successfully.");
-                            return;
+                                ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download file \"{0}\" from Azure ML Studio", DownloadFileName));
+                                pr.PercentComplete = 1;
+                                pr.CurrentOperation = "Downloading...";
+                                WriteProgress(pr);
+
+                                string sasUrl = port["BaseUri"] + port["Location"] + port["AccessCredential"];
+                                Task task = Sdk.DownloadFileAsync(sasUrl, DownloadFileName);
+                                while (!task.IsCompleted)
+                                {
+                                    if (pr.PercentComplete < 100)
+                                        pr.PercentComplete++;
+                                    else
+                                        pr.PercentComplete = 1;
+                                    Thread.Sleep(500);
+                                    WriteProgress(pr);
+                                }
+                                pr.PercentComplete = 100;
+                                WriteProgress(pr);
+
+                                WriteObject(DownloadFileName + " is downloaded successfully.");
+                                return;
+                            }
+                    }
+                    else if (OutputType == "Visualization")
+                    {                        
+                        foreach (var port in node["MetadataOutputEndpoints"])
+                        {
+                            if (string.Compare(port.Key, OutputPortName, true) == 0)
+                            {
+                                foundPort = true;
+                                foreach (var subNode in port.Value)
+                                {
+                                    if (subNode["Key"] == "visualization")
+                                    {
+                                        var subNodeValues = subNode["Value"];
+                                        string sasUrl = subNodeValues["BaseUri"] + subNodeValues["Location"] + subNodeValues["AccessCredential"];
+                                        Task task = Sdk.DownloadFileAsync(sasUrl, DownloadFileName);
+
+                                        if (File.Exists(DownloadFileName))
+                                            throw new Exception(DownloadFileName + " aleady exists.");
+
+                                        ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download file \"{0}\" from Azure ML Studio", DownloadFileName));
+                                        pr.PercentComplete = 1;
+                                        pr.CurrentOperation = "Downloading...";
+                                        WriteProgress(pr);
+
+                                        while (!task.IsCompleted)
+                                        {
+                                            if (pr.PercentComplete < 100)
+                                                pr.PercentComplete++;
+                                            else
+                                                pr.PercentComplete = 1;
+                                            Thread.Sleep(500);
+                                            WriteProgress(pr);
+                                        }
+                                        pr.PercentComplete = 100;
+                                        WriteProgress(pr);
+
+                                        WriteObject(DownloadFileName + " is downloaded successfully.");
+                                        return;
+                                    }
+                                }                                
+                            }                            
                         }
+                    }
                 }
             if (!foundNode)
                 throw new Exception("Node not found! Please make sure the node exists, and you have run the experiment at least once.");

@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.3
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.4
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -93,6 +93,7 @@ Most of the commandlets require 3 pieces of key information in order to function
 		* Japan East
 		* West Europe	
 		* Germany Central
+		* West Central US
 		
 	![image](https://raw.githubusercontent.com/hning86/azuremlps/master/screenshots/WorkspaceRegion.png)
 
@@ -484,7 +485,7 @@ $node
 This commandlet leverages the config.json file.
 
 #### Download-AmlExperimentNodeOutput
-This commandlet lets you download the output of a module node in an experiment
+This commandlet lets you download the output payload, or the viualization JSON content, of a module node in an experiment
 
 ```powershell
 # Find the Experiment named "abc"
@@ -492,11 +493,14 @@ $exp = Get-AmlExperiment | where Description -eq 'abc'
 # Get the node(s) with a user comment "Train me"
 $node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Download the output of the Train Model module, which is an ilearner file.
-Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -DownloadFileName 'myModel.ilearner'
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -OutputType Payload -DownloadFileName 'myModel.ilearner'
+# Download the visualization JSON content of a Train Model module, which is a json file.
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node.Id -OutputPortName 'Trained model' -OutputType Visualization -DownloadFileName 'myModelViz.json'
+
 # Get the node(s) with a user comment "Get CSV"
 $node2 = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Get CSV'
 # Download the output of an Convert to CSV module, which is a csv file.
-Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -DownloadFileName 'myScoredDataset.csv'
+Download-AmlExperimentNodeOutput -ExperimentId $exp.ExperimentId -NodeId $node2.Id -OutputPortName 'Results dataset' -OutputType Payload -DownloadFileName 'myScoredDataset.csv'
 
 ```
 This commandlet leverages the config.json file.
