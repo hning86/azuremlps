@@ -82,7 +82,7 @@ namespace AzureML
                     SetAPIEndpoints(key, ".de");
                     break;
                 case "west central us":
-                    key = "uswestcentral";
+                    key = "uswestcentral.";
                     SetAPIEndpoints(key, ".net");
                     break;
                 case "integration test":
