@@ -31,7 +31,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Run an Experiment (*[Start-AmlExperiment](#start-amlexperiment)*)
   * Delete an Experiment (*[Remove-AmlExperiment](#remove-amlexperiment)*)
   * Copy an Experiment from a Workspace to another Workspace (*[Copy-AmlExperiment](#copy-amlexperiment)*)
-  * Copy an Experiment from [Cortanan Intellignce Gallery](https://gallery.cortanaintelligence.com/) (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
+  * Copy an Experiment from [Cortana Intellignce Gallery](https://gallery.cortanaintelligence.com/) (*[Copy-AmlExperimentFromGallery](#copy-amlexperimentfromgallery)*)
   * Find a module node in an Experiment using its comment (*[Get-AmlExperimentNode](#get-amlexperimentnode)*)
   * Replace a user asset in an Experiment with another asset from Workspace (*[Replace-AmlExperimentUserAsset](#replace-amlexperimentuserasset)*)
   * Update user assets in an Experiment with the latest version (*[Update-AmlExperimentUserAsset](#update-amlexperimentuserasset)*)
@@ -479,7 +479,7 @@ This commandlet lets you find information, including Id, FamilyId etc. of node(s
 # Find the Experiment named "abc"
 $exp = Get-AmlExperiment | where Description -eq 'abc'
 # Get the node(s) with a user comment "Train me"
-$node = Get-AmlExperiment -ExperimentId $exp.ExperimentId -Comment 'Train me'
+$node = Get-AmlExperimentNode -ExperimentId $exp.ExperimentId -Comment 'Train me'
 # Display the node
 $node
 ```
