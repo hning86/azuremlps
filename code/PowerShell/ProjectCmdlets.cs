@@ -14,7 +14,7 @@ namespace AzureML.PowerShell
         protected override void ProcessRecord()
         {
             Project[] projects = Sdk.GetProjects(GetWorkspaceSetting());
-            WriteObject(projects);
+            WriteObject(projects, true);
         }
     }
 
