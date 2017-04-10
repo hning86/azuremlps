@@ -535,26 +535,26 @@ Update-AmlExperimentUserAsset -ExperimentId $exp.ExperimentId -AssetType 'Traine
 This commandlet leverages the config.json file.
 
 #### Export-AmlWebServiceDefinitionFromExperiment
-This commandlet exports a Web Service definition file in JSON format. You can then deploy this definition in any web service plan you own as a New (as opposed to class) Web Service.
+This commandlet exports a Web Service definition file in JSON format. You can then deploy this definition in any web service plan you own as an ARM-based New (as opposed to Classic) Web Service by using the new ARM-based PowerShell command [New-AzureRmMlWebService](https://docs.microsoft.com/en-us/powershell/module/azurerm.machinelearning/New-AzureRmMlWebService?view=azurermps-2.2.0).
 
 ```powershell
-# Find the Experiment named 'abc'
+# Find the predictive Experiment named 'abc'
 $exp = Get-AmlExperiment | where Description -eq 'abc'
-# Run the Experiment
+# Run the Experiment to ensure all schemas are properly populated
 Start-AmlExperiment -ExperimentId $exp.ExperimentId
-# Export web service definition file
-Export-AmlWebServiceDefinitionFromExperiment -ExperimentId $exp.ExperimentId
+# Export web service definition file to a json file.
+Export-AmlWebServiceDefinitionFromExperiment -ExperimentId $exp.ExperimentId -OutputFile myWS.json
 ```
 
-Please note that you will need to manually add storage account information and Web Service plan ID under the property node before you can deploy this Web Service. Here is an example:
+Please note that you will need to manually add storage account information and Web Service plan ID under the Properties node before you can deploy this Web Service. Here is an example:
 
 ```json
 "StorageAccount":{
-  "name": "YourStorageAccountName", 
-  "key": "YourStorageAccountKey" 
+  "name": "<YourStorageAccountName>", 
+  "key": "<YourStorageAccountKey>" 
 }, 
 "CommitmentPlan":{ 
-  "id": "subscriptions//resourceGroups//providers/Microsoft.MachineLearning/commitmentPlans/ 
+  "id": "subscriptions//resourceGroups//providers/Microsoft.MachineLearning/commitmentPlans/<YourPlanName>"
 }
 ```
 
