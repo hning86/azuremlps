@@ -1,22 +1,23 @@
 ﻿using AzureML.Contract;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AzureML
-{    public class ManagementUtil
     {
+    public class ManagementUtil
+    {
+        private static HttpClient _httpClient;
+
         internal string AuthorizationToken { get; set; }
         private string _sdkName { get; set; }
         internal ManagementUtil(string sdkName)
         {
             _sdkName = sdkName;
         }
+
         internal HttpClient GetAuthenticatedHttpClient()
         {
             return GetAuthenticatedHttpClient(AuthorizationToken);
@@ -24,14 +25,21 @@ namespace AzureML
 
         internal HttpClient GetAuthenticatedHttpClient(string authCode)
         {
-            HttpClient hc = new HttpClient();
+            if (_httpClient == null)
+            {
+                _httpClient = new HttpClient();
+            }
+
+            _httpClient.DefaultRequestHeaders.Clear();
+
             // used by O16N API
-            hc.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authCode);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authCode);
             // used by Studio API
-            hc.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", authCode);
+            _httpClient.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", authCode);
             // use a special header to track usage.
-            hc.DefaultRequestHeaders.Add("x-aml-sdk", _sdkName);            
-            return hc;
+            _httpClient.DefaultRequestHeaders.Add("x-aml-sdk", _sdkName);
+
+            return _httpClient;
         }
 
         internal async Task<HttpResult> HttpPost(string url, string jsonBody)
