@@ -85,7 +85,7 @@ namespace AzureML.PowerShell
             WriteProgress(pr);
 
             // step 1. upload file
-            Task<string> uploadTask = Sdk.UploadResourceAsnyc(GetWorkspaceSetting(), FileFormat, UploadFileName);
+            Task<string> uploadTask = Sdk.UploadResourceAsync(GetWorkspaceSetting(), FileFormat, UploadFileName);
             while (!uploadTask.IsCompleted)
             {
                 if (pr.PercentComplete < 100)
