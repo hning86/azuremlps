@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AzureML
-    {
+{
     public class ManagementUtil
     {
         private static HttpClient _httpClient;
@@ -47,10 +47,12 @@ namespace AzureML
             if (jsonBody == null)
                 jsonBody = string.Empty;
             HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
-            HttpResponseMessage resp = await hc.PostAsync(url, sc);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (HttpResponseMessage resp = await hc.PostAsync(url, sc))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
 
         internal async Task<HttpResult> HttpPatch(string url, string jsonBody)
@@ -58,19 +60,23 @@ namespace AzureML
             if (jsonBody == null)
                 jsonBody = string.Empty;
             HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
-            HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
 
         internal async Task<HttpResult> HttpPostFile(string url, string filePath)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
-            StreamContent sc = new StreamContent(File.OpenRead(filePath));
-            HttpResponseMessage resp = await hc.PostAsync(url, sc);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (StreamContent sc = new StreamContent(File.OpenRead(filePath)))
+            using (HttpResponseMessage resp = await hc.PostAsync(url, sc))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
 
         internal async Task<HttpResult> CreateHttpResult(HttpResponseMessage hrm)
@@ -89,13 +95,15 @@ namespace AzureML
         internal async Task<HttpResult> HttpDelete(string url)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
-            HttpResponseMessage resp = await hc.DeleteAsync(url);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (HttpResponseMessage resp = await hc.DeleteAsync(url))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
-        internal async Task<HttpResult> HttpPut(string url, string body)
+        internal Task<HttpResult> HttpPut(string url, string body)
         {
-            return await HttpPut(AuthorizationToken, url, body);
+            return HttpPut(AuthorizationToken, url, body);
         }
 
         internal async Task<HttpResult> HttpPut(string authCode, string url, string body)
@@ -103,19 +111,22 @@ namespace AzureML
             HttpClient hc = GetAuthenticatedHttpClient();
             if (authCode != string.Empty)
                 hc = GetAuthenticatedHttpClient(authCode);
-            HttpResponseMessage resp = await hc.PutAsync(url, new StringContent(body, Encoding.ASCII, "application/json"));
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
+            using (HttpResponseMessage resp = await hc.PutAsync(url, content))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
 
-        internal async Task<HttpResult> HttpGet(string url)
+        internal Task<HttpResult> HttpGet(string url)
         {
-            return await HttpGet(AuthorizationToken, url, true);
+            return HttpGet(AuthorizationToken, url, true);
         }
 
-        internal async Task<HttpResult> HttpGet(string url, bool withAuthHeader)
+        internal Task<HttpResult> HttpGet(string url, bool withAuthHeader)
         {
-            return await HttpGet(AuthorizationToken, url, withAuthHeader);
+            return HttpGet(AuthorizationToken, url, withAuthHeader);
         }
 
         internal async Task<HttpResult> HttpGet(string authCode, string url, bool withAutHeader)
@@ -123,18 +134,21 @@ namespace AzureML
             HttpClient hc = new HttpClient();
             if (withAutHeader)
                 hc = GetAuthenticatedHttpClient(authCode);
-            HttpResponseMessage resp = await hc.GetAsync(url);
-            HttpResult hr = await CreateHttpResult(resp);
-            return hr;
+            using (HttpResponseMessage resp = await hc.GetAsync(url))
+            {
+                HttpResult hr = await CreateHttpResult(resp);
+                return hr;
+            }
         }
     }
 
-    public static class ExtensionMethods { 
+    public static class ExtensionMethods
+    {
         public static Task<HttpResponseMessage> PatchAsJsonAsync(this HttpClient client, string requestUri, string jsonBody)
         {
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");            
-            var request = new HttpRequestMessage(new HttpMethod("PATCH"), requestUri) { Content = sc };
-            return client.SendAsync(request);
+            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), requestUri) { Content = sc })
+                return client.SendAsync(request);
         }
     }
 }
