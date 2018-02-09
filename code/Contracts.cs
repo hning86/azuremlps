@@ -200,6 +200,11 @@ namespace AzureML.Contract
         public Stream PayloadStream { get; set; }
     }
 
+    public class HttpResult<T> : HttpResult
+    {
+        public T DeserializedPayload { get; set; }
+    }
+
     public class WebServiceCreationStatus
     {
         public string ActivityId { get; set; }
