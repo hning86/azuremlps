@@ -189,12 +189,12 @@ namespace AzureML
             return hr;
         }
 
-        internal string SerializeObject(object body)
+        internal string Serialize(object body)
         {
             return _javaScriptSerializer.Serialize(body);
         }
 
-        internal T DeserializeObject<T>(string json)
+        internal T Deserialize<T>(string json)
         {
             return _javaScriptSerializer.Deserialize<T>(json);
         }

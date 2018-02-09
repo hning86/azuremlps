@@ -1,12 +1,9 @@
 ﻿using AzureML.Contract;
-using AzureML.PowerShell;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Runtime.Serialization.Json;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +12,7 @@ using System.Xml;
 using System.Text.RegularExpressions;
 
 namespace AzureML
-{    
+{
     public class ManagementSDK
     {
         public const string Version = "0.3.4";        
@@ -99,14 +96,14 @@ namespace AzureML
 
         private string GetExperimentGraphFromJson(string rawJson)
         {            
-            dynamic parsed = Util.DeserializeObject<object>(rawJson);
-            string graph = Util.SerializeObject(parsed["Graph"]);
+            dynamic parsed = Util.Deserialize<object>(rawJson);
+            string graph = Util.Serialize(parsed["Graph"]);
             return graph;
         }
         private string GetExperimentWebServiceFromJson(string rawJson)
         {         
-            dynamic parsed = Util.DeserializeObject<object>(rawJson);
-            string webService = Util.SerializeObject(parsed["WebService"]);
+            dynamic parsed = Util.Deserialize<object>(rawJson);
+            string webService = Util.Serialize(parsed["WebService"]);
             return webService;
         }
 
@@ -163,7 +160,7 @@ namespace AzureML
 
         public string UpdateNodesPositions(string jsonGraph, StudioGraph graph)
         {            
-            dynamic experimentDag = Util.DeserializeObject<object>(jsonGraph);
+            dynamic experimentDag = Util.Deserialize<object>(jsonGraph);
             List<string> regularNodes = ExtractNodesFromXml(experimentDag["Graph"]["SerializedClientData"]);                         
             List<string> webServiceNodes = ExtractNodesFromXml(experimentDag["WebService"]["SerializedClientData"]);            
 
@@ -201,7 +198,7 @@ namespace AzureML
             string result = sr.ReadToEnd();
             wr.Close();
             sr.Close();            
-            WorkspaceRdfe[] workspaces = Util.DeserializeObject<WorkspaceRdfe[]>(result);
+            WorkspaceRdfe[] workspaces = Util.Deserialize<WorkspaceRdfe[]>(result);
             return workspaces;
         }
 
@@ -212,7 +209,7 @@ namespace AzureML
 
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "PUT");            
             
-            string payload = Util.SerializeObject(new
+            string payload = Util.Serialize(new
                 {
                     Name = workspaceName,
                     Region = location,
@@ -231,7 +228,7 @@ namespace AzureML
             StreamReader sr = new StreamReader(resp.GetResponseStream());
             string result = sr.ReadToEnd();
                         
-            dynamic d = Util.DeserializeObject<object>(result);
+            dynamic d = Util.Deserialize<object>(result);
             return d["Id"];
         }
 
@@ -243,7 +240,7 @@ namespace AzureML
             WebResponse resp = httpReq.GetResponse();
             StreamReader sr = new StreamReader(resp.GetResponseStream());
             string result = sr.ReadToEnd();                        
-            WorkspaceRdfe ws = Util.DeserializeObject<WorkspaceRdfe>(result);
+            WorkspaceRdfe ws = Util.Deserialize<WorkspaceRdfe>(result);
             return ws;
         }
              
@@ -403,7 +400,7 @@ namespace AzureML
                 ClientPoll = true
             };
             string query = StudioApi + string.Format("workspaces/{0}/datasources", setting.WorkspaceId);
-            var body = Util.SerializeObject(schemaJob);
+            var body = Util.Serialize(schemaJob);
             HttpResult hr = await Util.HttpPost(query, body).ConfigureAwait(false);
             string dataSourceId = hr.Payload.Replace("\"", "");
             return dataSourceId;
@@ -421,7 +418,7 @@ namespace AzureML
             Util.AuthorizationToken = setting.AuthorizationToken;
             string query = StudioApi + string.Format("workspaces/{0}/datasources/{1}", setting.WorkspaceId, dataSourceId);
             HttpResult hr = await Util.HttpGet(query).ConfigureAwait(false);
-            dynamic parsed = Util.DeserializeObject<object>(hr.Payload);
+            dynamic parsed = Util.Deserialize<object>(hr.Payload);
             string schemaJobStatus = parsed["SchemaStatus"];
             return schemaJobStatus;
         }
@@ -637,12 +634,12 @@ namespace AzureML
 
         public async Task<string> AutoLayoutGraphAsync(string jsonGraph)
         {
-            StudioGraph sg = CreateStudioGraph(jss.Deserialize<object>(jsonGraph));
-            HttpResult hr = await Util.HttpPost(GraphLayoutApi + "AutoLayout", jss.Serialize(sg)).ConfigureAwait(false);
+            StudioGraph sg = CreateStudioGraph(Util.Deserialize<object>(jsonGraph));
+            HttpResult hr = await Util.HttpPost(GraphLayoutApi + "AutoLayout", Util.Serialize(sg)).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                sg = jss.Deserialize<StudioGraph>(hr.Payload);
-                string serializedGraph = jss.Serialize(sg);
+                sg = Util.Deserialize<StudioGraph>(hr.Payload);
+                string serializedGraph = Util.Serialize(sg);
                 jsonGraph = UpdateNodesPositions(jsonGraph, sg);
                 return jsonGraph;
             }
@@ -656,7 +653,7 @@ namespace AzureML
             xDoc.LoadXml(xml);
             foreach (XmlNode node in xDoc.SelectSingleNode("//NodePositions"))
             {
-                string nodeId = node.Attributes["Node"].Value;                
+                string nodeId = node.Attributes["Node"].Value;
                 nodes.Add(nodeId);
             }
             return nodes;
@@ -767,7 +764,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                UserAsset[] tms = jss.Deserialize<UserAsset[]>(hr.Payload);
+                UserAsset[] tms = Util.Deserialize<UserAsset[]>(hr.Payload);
                 return tms;
             }
             throw new AmlRestApiException(hr);
@@ -786,7 +783,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                UserAsset[] tms = jss.Deserialize<UserAsset[]>(hr.Payload);
+                UserAsset[] tms = Util.Deserialize<UserAsset[]>(hr.Payload);
                 return tms;
             }
             throw new AmlRestApiException(hr);
@@ -821,7 +818,7 @@ namespace AzureML
                             FamilyId = familyId
                         }
                     };
-                    postPayloadInJson = jss.Serialize(transformPayload);
+                    postPayloadInJson = Util.Serialize(transformPayload);
                     break;
                 case UserAssetType.TrainedModel:
                     var trainedModelPayload = new
@@ -838,7 +835,7 @@ namespace AzureML
                             FamilyId = familyId
                         }
                     };
-                    postPayloadInJson = jss.Serialize(trainedModelPayload);
+                    postPayloadInJson = Util.Serialize(trainedModelPayload);
                     break;
                 case UserAssetType.Dataset:
                     var datasetPayload = new
@@ -855,7 +852,7 @@ namespace AzureML
                             FamilyId = familyId
                         }
                     };
-                    postPayloadInJson = jss.Serialize(datasetPayload);
+                    postPayloadInJson = Util.Serialize(datasetPayload);
                     break;
             }
 
@@ -884,7 +881,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebService[] wss = jss.Deserialize<WebService[]>(hr.Payload);
+                WebService[] wss = Util.Deserialize<WebService[]>(hr.Payload);
                 return wss;
             }
             else
@@ -904,7 +901,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebService ws = jss.Deserialize<WebService>(hr.Payload);
+                WebService ws = Util.Deserialize<WebService>(hr.Payload);
                 return ws;
             }
             else
@@ -924,7 +921,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpPost(queryUrl, string.Empty).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebServiceCreationStatus status = jss.Deserialize<WebServiceCreationStatus>(hr.Payload);
+                WebServiceCreationStatus status = Util.Deserialize<WebServiceCreationStatus>(hr.Payload);
                 return status;
             }
             else
@@ -944,7 +941,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebServiceCreationStatus status = jss.Deserialize<WebServiceCreationStatus>(hr.Payload);
+                WebServiceCreationStatus status = Util.Deserialize<WebServiceCreationStatus>(hr.Payload);
                 return status;
             }
             else
@@ -981,7 +978,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebServiceEndPoint[] weps = jss.Deserialize<WebServiceEndPoint[]>(hr.Payload);
+                WebServiceEndPoint[] weps = Util.Deserialize<WebServiceEndPoint[]>(hr.Payload);
                 return weps;
             }
             else
@@ -1001,7 +998,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
             if (hr.IsSuccess)
             {
-                WebServiceEndPoint ep = jss.Deserialize<WebServiceEndPoint>(hr.Payload);
+                WebServiceEndPoint ep = Util.Deserialize<WebServiceEndPoint>(hr.Payload);
                 return ep;
             }
             else
@@ -1018,7 +1015,7 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, req.WebServiceId, req.EndpointName);
-            string body = jss.Serialize(req);
+            string body = Util.Serialize(req);
             HttpResult hr = await Util.HttpPut(queryUrl, body).ConfigureAwait(false);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1052,7 +1049,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string body = Util.SerializeObject(patchReq);
+            string body = Util.Serialize(patchReq);
             string url = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
             HttpResult hr = await Util.HttpPatch(url, body).ConfigureAwait(false);
             if (!hr.IsSuccess)
@@ -1135,7 +1132,7 @@ namespace AzureML
             HttpResult hr = await Util.HttpGet(getJobStatusApiLocation).ConfigureAwait(false);
             if (!hr.IsSuccess)
                 throw new Exception(hr.Payload);
-            dynamic parsed = jss.Deserialize<object>(hr.Payload);
+            dynamic parsed = Util.Deserialize<object>(hr.Payload);
             string jobStatus = parsed["StatusCode"];
             var results = hr.Payload;
             return Tuple.Create(jobStatus, results);
