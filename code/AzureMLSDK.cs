@@ -190,16 +190,21 @@ namespace AzureML
         #region Workspace
         public WorkspaceRdfe[] GetWorkspacesFromRdfe(string managementCertThumbprint, string azureSubscriptionId)
         {
-            string reqUrl = string.Format(_azMgmtApiBaseUrl, azureSubscriptionId);
-            HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");            
+            return GetWorkspacesFromRdfeAsync(managementCertThumbprint, azureSubscriptionId).GetAwaiter().GetResult();
+        }
 
-            HttpWebResponse wr = (HttpWebResponse)httpReq.GetResponse();            
-            StreamReader sr = new StreamReader(wr.GetResponseStream());
-            string result = sr.ReadToEnd();
-            wr.Close();
-            sr.Close();            
-            WorkspaceRdfe[] workspaces = Util.Deserialize<WorkspaceRdfe[]>(result);
-            return workspaces;
+        public async Task<WorkspaceRdfe[]> GetWorkspacesFromRdfeAsync(string managementCertThumbprint, string azureSubscriptionId)
+        {
+            string reqUrl = string.Format(_azMgmtApiBaseUrl, azureSubscriptionId);
+            HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
+
+            using (HttpWebResponse wr = (HttpWebResponse)await httpReq.GetResponseAsync().ConfigureAwait(false))
+            using (StreamReader sr = new StreamReader(wr.GetResponseStream()))
+            {
+                string result = await sr.ReadToEndAsync().ConfigureAwait(false);
+                WorkspaceRdfe[] workspaces = Util.Deserialize<WorkspaceRdfe[]>(result);
+                return workspaces;
+            }
         }
 
         public async Task<string> CreateWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceName, string location, string storageAccountName, string storageAccountKey, string ownerEmail, string source)
@@ -220,41 +225,59 @@ namespace AzureML
                     Source = source
                 });
             httpReq.ContentLength = payload.Length;
-            Stream stream = httpReq.GetRequestStream();
-            byte[] buffer = Encoding.UTF8.GetBytes(payload);
-            stream.Write(buffer, 0, buffer.Length);
+            using (Stream stream = httpReq.GetRequestStream())
+            {
+                byte[] buffer = Encoding.UTF8.GetBytes(payload);
+                await stream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+            }
 
-            WebResponse resp = await httpReq.GetResponseAsync();                       
-            StreamReader sr = new StreamReader(resp.GetResponseStream());
-            string result = sr.ReadToEnd();
-                        
-            dynamic d = Util.Deserialize<object>(result);
-            return d["Id"];
+            using (WebResponse resp = await httpReq.GetResponseAsync().ConfigureAwait(false))
+            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            {
+                string result = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+                dynamic d = Util.Deserialize<object>(result);
+                return d["Id"];
+            }
         }
 
         public WorkspaceRdfe GetCreateWorkspaceStatus(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
         {
+            return GetCreateWorkspaceStatusAsync(managementCertThumbprint, azureSubscriptionId, workspaceId, region).GetAwaiter().GetResult();
+        }
+
+        public async Task<WorkspaceRdfe> GetCreateWorkspaceStatusAsync(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
+        {
             string reqUrl = string.Format(_azMgmtApiBaseUrl + "/{1}?Region={2}", azureSubscriptionId, workspaceId, HttpUtility.HtmlEncode(region));
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
-            
-            WebResponse resp = httpReq.GetResponse();
-            StreamReader sr = new StreamReader(resp.GetResponseStream());
-            string result = sr.ReadToEnd();                        
-            WorkspaceRdfe ws = Util.Deserialize<WorkspaceRdfe>(result);
-            return ws;
+
+            using (WebResponse resp = await httpReq.GetResponseAsync().ConfigureAwait(false))
+            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            {
+                string result = await sr.ReadToEndAsync().ConfigureAwait(false);
+                WorkspaceRdfe ws = Util.Deserialize<WorkspaceRdfe>(result);
+                return ws;
+            }
         }
-             
 
         public void RemoveWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
         {
+            RemoveWorkspaceAsync(managementCertThumbprint, azureSubscriptionId, workspaceId, region).GetAwaiter().GetResult();
+        }
+
+        public async Task RemoveWorkspaceAsync(string managementCertThumbprint, string azureSubscriptionId, string workspaceId, string region)
+        {
             string reqUrl = string.Format(_azMgmtApiBaseUrl + "{1}?Region={2}", azureSubscriptionId, workspaceId, HttpUtility.HtmlEncode(region));
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "DELETE");
-            
-            WebResponse resp = httpReq.GetResponse();
-            long len = resp.ContentLength;
-            byte[] buffer = new byte[len];
-            resp.GetResponseStream().Read(buffer, 0, (int)len);
-            string result = UnicodeEncoding.ASCII.GetString(buffer);                        
+
+            using (WebResponse resp = await httpReq.GetResponseAsync().ConfigureAwait(false))
+            using(var stream = resp.GetResponseStream())
+            {
+                long len = resp.ContentLength;
+                byte[] buffer = new byte[len];
+                await stream.ReadAsync(buffer, 0, (int)len).ConfigureAwait(false);
+                string result = UnicodeEncoding.ASCII.GetString(buffer);
+            }
         }
 
         public Workspace GetWorkspaceFromAmlRP(WorkspaceSetting setting)
@@ -559,11 +582,10 @@ namespace AzureML
 
         public async Task<PackingServiceActivity> PackExperimentAsync(WorkspaceSetting setting, string experimentId)
         {
-            ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
+            ValidateWorkspaceSetting(setting);;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&experimentid={1}/&clearCredentials=true&includeAuthorId=false", setting.WorkspaceId, experimentId);
             //Console.WriteLine("Packing: POST " + queryUrl);
-            HttpResult<PackingServiceActivity> hr = await Util.HttpPost<PackingServiceActivity>(queryUrl, string.Empty).ConfigureAwait(false);
+            HttpResult<PackingServiceActivity> hr = await Util.HttpPost<PackingServiceActivity>(setting.AuthorizationToken, queryUrl, string.Empty).ConfigureAwait(false);
             return hr.DeserializedPayload;
         }
 
@@ -622,9 +644,7 @@ namespace AzureML
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservicedefinition", setting.WorkspaceId, experimentId);
             HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-                return hr.Payload;
-            throw new AmlRestApiException(hr);
+            return hr.Payload;
         }
 
         public string AutoLayoutGraph(string jsonGraph)
@@ -635,15 +655,10 @@ namespace AzureML
         public async Task<string> AutoLayoutGraphAsync(string jsonGraph)
         {
             StudioGraph sg = CreateStudioGraph(Util.Deserialize<object>(jsonGraph));
-            HttpResult hr = await Util.HttpPost(GraphLayoutApi + "AutoLayout", Util.Serialize(sg)).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                sg = Util.Deserialize<StudioGraph>(hr.Payload);
-                string serializedGraph = Util.Serialize(sg);
-                jsonGraph = UpdateNodesPositions(jsonGraph, sg);
-                return jsonGraph;
-            }
-            throw new AmlRestApiException(hr);
+            HttpResult<StudioGraph> hr = await Util.HttpPost<StudioGraph>(null, GraphLayoutApi + "AutoLayout", Util.Serialize(sg)).ConfigureAwait(false);
+            sg = hr.DeserializedPayload;
+            jsonGraph = UpdateNodesPositions(jsonGraph, sg);
+            return jsonGraph;
         }
 
         private List<string> ExtractNodesFromXml(string xml)
@@ -759,15 +774,9 @@ namespace AzureML
         public async Task<UserAsset[]> GetTrainedModelsAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/trainedmodels", setting.WorkspaceId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                UserAsset[] tms = Util.Deserialize<UserAsset[]>(hr.Payload);
-                return tms;
-            }
-            throw new AmlRestApiException(hr);
+            HttpResult<UserAsset[]> hr = await Util.HttpGet<UserAsset[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public UserAsset[] GetTransforms(WorkspaceSetting setting)
@@ -778,15 +787,9 @@ namespace AzureML
         public async Task<UserAsset[]> GetTransformsAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/transformmodules", setting.WorkspaceId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                UserAsset[] tms = Util.Deserialize<UserAsset[]>(hr.Payload);
-                return tms;
-            }
-            throw new AmlRestApiException(hr);
+            HttpResult<UserAsset[]> hr = await Util.HttpGet<UserAsset[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public void PromoteUserAsset(WorkspaceSetting setting, string experimentId, string nodeId, string nodeOutputName, string assetName, string assetDescription, UserAssetType assetType, string familyId)
@@ -858,11 +861,6 @@ namespace AzureML
 
             string queryUrl = StudioApi + string.Format("workspaces/{0}/{1}", setting.WorkspaceId, assetType == UserAssetType.Transform ? "transformmodules" : (assetType == UserAssetType.TrainedModel ? "trainedmodels" : "datasources"));
             HttpResult hr = await Util.HttpPost(queryUrl, postPayloadInJson).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                return;
-            }
-            throw new AmlRestApiException(hr);
         }
         #endregion
 
@@ -876,16 +874,9 @@ namespace AzureML
         public async Task<WebService[]> GetWebServicesInWorkspaceAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices", setting.WorkspaceId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebService[] wss = Util.Deserialize<WebService[]>(hr.Payload);
-                return wss;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            HttpResult<WebService[]> hr = await Util.HttpGet<WebService[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public WebService GetWebServicesById(WorkspaceSetting setting, string webServiceId)
@@ -896,16 +887,9 @@ namespace AzureML
         public async Task<WebService> GetWebServicesByIdAsync(WorkspaceSetting setting, string webServiceId)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}", setting.WorkspaceId, webServiceId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebService ws = Util.Deserialize<WebService>(hr.Payload);
-                return ws;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            HttpResult<WebService> hr = await Util.HttpGet<WebService>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public WebServiceCreationStatus DeployWebServiceFromPredictiveExperiment(WorkspaceSetting setting, string predictiveExperimentId, bool updateExistingWebServiceDefaultEndpoint)
@@ -916,16 +900,9 @@ namespace AzureML
         public async Task<WebServiceCreationStatus> DeployWebServiceFromPredictiveExperimentAsync(WorkspaceSetting setting, string predictiveExperimentId, bool updateExistingWebServiceDefaultEndpoint)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false{2}", setting.WorkspaceId, predictiveExperimentId, updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "");
-            HttpResult hr = await Util.HttpPost(queryUrl, string.Empty).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebServiceCreationStatus status = Util.Deserialize<WebServiceCreationStatus>(hr.Payload);
-                return status;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            HttpResult<WebServiceCreationStatus> hr = await Util.HttpPost<WebServiceCreationStatus>(setting.AuthorizationToken, queryUrl, string.Empty).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public WebServiceCreationStatus GetWebServiceCreationStatus(WorkspaceSetting setting, string activityId)
@@ -936,16 +913,9 @@ namespace AzureML
         public async Task<WebServiceCreationStatus> GetWebServiceCreationStatusAsync(WorkspaceSetting setting, string activityId)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice", setting.WorkspaceId, activityId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebServiceCreationStatus status = Util.Deserialize<WebServiceCreationStatus>(hr.Payload);
-                return status;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            HttpResult<WebServiceCreationStatus> hr = await Util.HttpGet<WebServiceCreationStatus>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public void RemoveWebServiceById(WorkspaceSetting setting, string webServiceId)
@@ -959,8 +929,6 @@ namespace AzureML
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}", setting.WorkspaceId, webServiceId);
             HttpResult hr = await Util.HttpDelete(queryUrl).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
         }
         #endregion
 
@@ -973,16 +941,9 @@ namespace AzureML
         public async Task<WebServiceEndPoint[]> GetWebServiceEndpointsAsync(WorkspaceSetting setting, string webServiceId)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints", setting.WorkspaceId, webServiceId);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebServiceEndPoint[] weps = Util.Deserialize<WebServiceEndPoint[]>(hr.Payload);
-                return weps;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            var hr = await Util.HttpGet<WebServiceEndPoint[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public WebServiceEndPoint GetWebServiceEndpointByName(WorkspaceSetting setting, string webServiceId, string epName)
@@ -993,16 +954,9 @@ namespace AzureML
         public async Task<WebServiceEndPoint> GetWebServiceEndpointByNameAsync(WorkspaceSetting setting, string webServiceId, string epName)
         {
             ValidateWorkspaceSetting(setting);
-            Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, epName);
-            HttpResult hr = await Util.HttpGet(queryUrl).ConfigureAwait(false);
-            if (hr.IsSuccess)
-            {
-                WebServiceEndPoint ep = Util.Deserialize<WebServiceEndPoint>(hr.Payload);
-                return ep;
-            }
-            else
-                throw new AmlRestApiException(hr);
+            var hr = await Util.HttpGet<WebServiceEndPoint>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload;
         }
 
         public void AddWebServiceEndpoint(WorkspaceSetting setting, AddWebServiceEndpointRequest req)
@@ -1017,8 +971,6 @@ namespace AzureML
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, req.WebServiceId, req.EndpointName);
             string body = Util.Serialize(req);
             HttpResult hr = await Util.HttpPut(queryUrl, body).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
         }
 
         public bool RefreshWebServiceEndPoint(WorkspaceSetting setting, string webServiceId, string endpointName, bool overwriteResources)
@@ -1035,8 +987,6 @@ namespace AzureML
             HttpResult hr = await Util.HttpPost(query, body).ConfigureAwait(false);
             if (hr.StatusCode == 304) // no change detected so no update happened.
                 return false;
-            if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
             return true;
         }
 
@@ -1052,8 +1002,6 @@ namespace AzureML
             string body = Util.Serialize(patchReq);
             string url = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
             HttpResult hr = await Util.HttpPatch(url, body).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
         }
 
         public void RemoveWebServiceEndpoint(WorkspaceSetting setting, string webServiceId, string endpointName)
@@ -1067,8 +1015,6 @@ namespace AzureML
             Util.AuthorizationToken = setting.AuthorizationToken;
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
             HttpResult hr = await Util.HttpDelete(queryUrl).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new AmlRestApiException(hr);
         }
         #endregion
 
@@ -1082,10 +1028,7 @@ namespace AzureML
         {
             Util.AuthorizationToken = apiKey;
             HttpResult hr = await Util.HttpPost(postRequestUrl, input).ConfigureAwait(false);
-            if (hr.IsSuccess)
-                return hr.Payload;
-            else
-                throw new AmlRestApiException(hr);
+            return hr.Payload;
         }
 
         public string SubmitBESJob(string submitJobRequestUrl, string apiKey, string jobConfig)
@@ -1097,9 +1040,6 @@ namespace AzureML
         {
             Util.AuthorizationToken = apiKey;
             HttpResult hr = await Util.HttpPost(submitJobRequestUrl, jobConfig).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new Exception(hr.Payload);
-
             string jobId = hr.Payload.Replace("\"", "");
             return jobId;
         }
@@ -1114,8 +1054,6 @@ namespace AzureML
             Util.AuthorizationToken = apiKey;
             string startJobApiLocation = submitJobRequestUrl.Replace("jobs?api-version=2.0", "jobs/" + jobId + "/start?api-version=2.0");
             HttpResult hr = await Util.HttpPost(startJobApiLocation, string.Empty).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new Exception(hr.Payload);
         }
 
         public string GetBESJobStatus(string submitJobRequestUrl, string apiKey, string jobId, out string results)
@@ -1130,8 +1068,6 @@ namespace AzureML
             Util.AuthorizationToken = apiKey;
             string getJobStatusApiLocation = submitJobRequestUrl.Replace("jobs?api-version=2.0", "jobs/" + jobId + "?api-version=2.0");
             HttpResult hr = await Util.HttpGet(getJobStatusApiLocation).ConfigureAwait(false);
-            if (!hr.IsSuccess)
-                throw new Exception(hr.Payload);
             dynamic parsed = Util.Deserialize<object>(hr.Payload);
             string jobStatus = parsed["StatusCode"];
             var results = hr.Payload;
