@@ -11,7 +11,6 @@ namespace AzureML
     public class ManagementUtil
     {
         private static HttpClient _httpClient;
-
         private static JavaScriptSerializer _javaScriptSerializer;
 
         internal string AuthorizationToken { get; set; }
@@ -55,26 +54,26 @@ namespace AzureML
                 jsonBody = string.Empty;
             HttpClient hc = GetAuthenticatedHttpClient();
             using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
-            using (HttpResponseMessage resp = await hc.PostAsync(url, sc))
+            using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
         }
 
-        internal async Task<HttpResult<T>> HttpPost<T>(string url, string jsonBody)
+        internal async Task<HttpResult<T>> HttpPost<T>(string authKey, string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
-            HttpResponseMessage resp = await hc.PostAsync(url, sc);
-            HttpResult<T> hr = await CreateHttpResult<T>(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
-            return hr;
+            HttpClient hc = GetAuthenticatedHttpClient(authKey);
+            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
+            {
+                HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
+                return hr;
+            }
         }
 
         internal async Task<HttpResult> HttpPatch(string url, string jsonBody)
@@ -83,11 +82,10 @@ namespace AzureML
                 jsonBody = string.Empty;
             HttpClient hc = GetAuthenticatedHttpClient();
             using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
-            using (HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody))
+            using (HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
         }
@@ -96,11 +94,10 @@ namespace AzureML
         {
             HttpClient hc = GetAuthenticatedHttpClient();
             using (StreamContent sc = new StreamContent(File.OpenRead(filePath)))
-            using (HttpResponseMessage resp = await hc.PostAsync(url, sc))
+            using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
         }
@@ -110,8 +107,8 @@ namespace AzureML
             HttpResult hr = new HttpResult
             {
                 StatusCode = (int)hrm.StatusCode,
-                Payload = await hrm.Content.ReadAsStringAsync(),
-                PayloadStream = await hrm.Content.ReadAsStreamAsync(),
+                Payload = await hrm.Content.ReadAsStringAsync().ConfigureAwait(false),
+                PayloadStream = await hrm.Content.ReadAsStreamAsync().ConfigureAwait(false),
                 IsSuccess = hrm.IsSuccessStatusCode,
                 ReasonPhrase = hrm.ReasonPhrase
             };
@@ -123,8 +120,8 @@ namespace AzureML
             HttpResult<T> hr = new HttpResult<T>
             {
                 StatusCode = (int)hrm.StatusCode,
-                Payload = await hrm.Content.ReadAsStringAsync(),
-                PayloadStream = await hrm.Content.ReadAsStreamAsync(),
+                Payload = await hrm.Content.ReadAsStringAsync().ConfigureAwait(false),
+                PayloadStream = await hrm.Content.ReadAsStreamAsync().ConfigureAwait(false),
                 IsSuccess = hrm.IsSuccessStatusCode,
                 ReasonPhrase = hrm.ReasonPhrase
             };
@@ -137,11 +134,10 @@ namespace AzureML
         internal async Task<HttpResult> HttpDelete(string url)
         {
             HttpClient hc = GetAuthenticatedHttpClient();
-            using (HttpResponseMessage resp = await hc.DeleteAsync(url))
+            using (HttpResponseMessage resp = await hc.DeleteAsync(url).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
         }
@@ -156,11 +152,24 @@ namespace AzureML
             if (authCode != string.Empty)
                 hc = GetAuthenticatedHttpClient(authCode);
             using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
-            using (HttpResponseMessage resp = await hc.PutAsync(url, content))
+            using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
+                return hr;
+            }
+        }
+
+        internal async Task<HttpResult<T>> HttpPut<T>(string authCode, string url, string body)
+        {
+            HttpClient hc = GetAuthenticatedHttpClient();
+            if (authCode != string.Empty)
+                hc = GetAuthenticatedHttpClient(authCode);
+            using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
+            using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
+            {
+                HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
         }
@@ -180,13 +189,18 @@ namespace AzureML
             HttpClient hc = new HttpClient();
             if (withAutHeader)
                 hc = GetAuthenticatedHttpClient(authCode);
-            using (HttpResponseMessage resp = await hc.GetAsync(url))
+            using (HttpResponseMessage resp = await hc.GetAsync(url).ConfigureAwait(false))
             {
-                HttpResult hr = await CreateHttpResult(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+                HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
+                EnsureSuccessStatusCode(resp, hr);
                 return hr;
             }
+        }
+
+        private static void EnsureSuccessStatusCode(HttpResponseMessage resp, HttpResult hr)
+        {
+            if (!resp.IsSuccessStatusCode)
+                throw new AmlRestApiException(hr);
         }
 
         internal async Task<HttpResult<T>> HttpGet<T>(string authCode, string url, bool withAutHeader = true)
@@ -194,10 +208,9 @@ namespace AzureML
             HttpClient hc = new HttpClient();
             if (withAutHeader)
                 hc = GetAuthenticatedHttpClient(authCode);
-            HttpResponseMessage resp = await hc.GetAsync(url);
-            HttpResult<T> hr = await CreateHttpResult<T>(resp);
-            if (!resp.IsSuccessStatusCode)
-                throw new AmlRestApiException(hr);
+            HttpResponseMessage resp = await hc.GetAsync(url).ConfigureAwait(false);
+            HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
+            EnsureSuccessStatusCode(resp, hr);
             return hr;
         }
 
