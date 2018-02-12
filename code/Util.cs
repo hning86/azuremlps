@@ -12,8 +12,6 @@ namespace AzureML
     {
         private static HttpClient _httpClient;
         private static JavaScriptSerializer _javaScriptSerializer;
-
-        internal string AuthorizationToken { get; set; }
         private string _sdkName { get; set; }
 
         internal ManagementUtil(string sdkName)
@@ -24,35 +22,30 @@ namespace AzureML
                 _javaScriptSerializer = new JavaScriptSerializer();
         }
 
-        internal HttpClient GetAuthenticatedHttpClient()
-        {
-            return GetAuthenticatedHttpClient(AuthorizationToken);
-        }
-
-        internal HttpClient GetAuthenticatedHttpClient(string authCode)
+        private HttpClient GetHttpClient(string authKey, bool withAuthHeader = true)
         {
             if (_httpClient == null)
-            {
                 _httpClient = new HttpClient();
-            }
 
             _httpClient.DefaultRequestHeaders.Clear();
-
-            // used by O16N API
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authCode);
-            // used by Studio API
-            _httpClient.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", authCode);
             // use a special header to track usage.
             _httpClient.DefaultRequestHeaders.Add("x-aml-sdk", _sdkName);
 
+            if (withAuthHeader)
+            {
+                // used by O16N API
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authKey);
+                // used by Studio API
+                _httpClient.DefaultRequestHeaders.Add("x-ms-metaanalytics-authorizationtoken", authKey);
+            }
             return _httpClient;
         }
 
-        internal async Task<HttpResult> HttpPost(string url, string jsonBody)
+        internal async Task<HttpResult> HttpPost(string authKey, string url, string jsonBody, bool withAuthHeader = true)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient();
+            var hc = GetHttpClient(authKey, withAuthHeader);
             using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
@@ -62,11 +55,12 @@ namespace AzureML
             }
         }
 
-        internal async Task<HttpResult<T>> HttpPost<T>(string authKey, string url, string jsonBody)
+        internal async Task<HttpResult<T>> HttpPost<T>(string authKey, string url, string jsonBody, bool withAuthHeader = true)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient(authKey);
+
+            var hc = GetHttpClient(authKey, withAuthHeader);
             using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
@@ -76,11 +70,11 @@ namespace AzureML
             }
         }
 
-        internal async Task<HttpResult> HttpPatch(string url, string jsonBody)
+        internal async Task<HttpResult> HttpPatch(string authKey, string url, string jsonBody)
         {
             if (jsonBody == null)
                 jsonBody = string.Empty;
-            HttpClient hc = GetAuthenticatedHttpClient();
+            HttpClient hc = GetHttpClient(authKey);
             using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
             using (HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody).ConfigureAwait(false))
             {
@@ -90,9 +84,9 @@ namespace AzureML
             }
         }
 
-        internal async Task<HttpResult> HttpPostFile(string url, string filePath)
+        internal async Task<HttpResult> HttpPostFile(string authKey, string url, string filePath)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
+            HttpClient hc = GetHttpClient(authKey);
             using (StreamContent sc = new StreamContent(File.OpenRead(filePath)))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
@@ -131,9 +125,9 @@ namespace AzureML
             return hr;
         }
 
-        internal async Task<HttpResult> HttpDelete(string url)
+        internal async Task<HttpResult> HttpDelete(string authKey, string url)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
+            HttpClient hc = GetHttpClient(authKey);
             using (HttpResponseMessage resp = await hc.DeleteAsync(url).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
@@ -141,16 +135,10 @@ namespace AzureML
                 return hr;
             }
         }
-        internal Task<HttpResult> HttpPut(string url, string body)
-        {
-            return HttpPut(AuthorizationToken, url, body);
-        }
 
-        internal async Task<HttpResult> HttpPut(string authCode, string url, string body)
+        internal async Task<HttpResult> HttpPut(string authKey, string url, string body)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
-            if (authCode != string.Empty)
-                hc = GetAuthenticatedHttpClient(authCode);
+            HttpClient hc = GetHttpClient(authKey);
             using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
             using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
             {
@@ -160,11 +148,9 @@ namespace AzureML
             }
         }
 
-        internal async Task<HttpResult<T>> HttpPut<T>(string authCode, string url, string body)
+        internal async Task<HttpResult<T>> HttpPut<T>(string authKey, string url, string body)
         {
-            HttpClient hc = GetAuthenticatedHttpClient();
-            if (authCode != string.Empty)
-                hc = GetAuthenticatedHttpClient(authCode);
+            HttpClient hc = GetHttpClient(authKey);
             using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
             using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
             {
@@ -174,21 +160,9 @@ namespace AzureML
             }
         }
 
-        internal Task<HttpResult> HttpGet(string url)
+        internal async Task<HttpResult> HttpGet(string authKey, string url, bool withAuthHeader = true)
         {
-            return HttpGet(AuthorizationToken, url, true);
-        }
-
-        internal Task<HttpResult> HttpGet(string url, bool withAuthHeader)
-        {
-            return HttpGet(AuthorizationToken, url, withAuthHeader);
-        }
-
-        internal async Task<HttpResult> HttpGet(string authCode, string url, bool withAutHeader = true)
-        {
-            HttpClient hc = new HttpClient();
-            if (withAutHeader)
-                hc = GetAuthenticatedHttpClient(authCode);
+            var hc = GetHttpClient(authKey, withAuthHeader);
             using (HttpResponseMessage resp = await hc.GetAsync(url).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
@@ -203,11 +177,9 @@ namespace AzureML
                 throw new AmlRestApiException(hr);
         }
 
-        internal async Task<HttpResult<T>> HttpGet<T>(string authCode, string url, bool withAutHeader = true)
+        internal async Task<HttpResult<T>> HttpGet<T>(string authKey, string url, bool withAuthHeader = true)
         {
-            HttpClient hc = new HttpClient();
-            if (withAutHeader)
-                hc = GetAuthenticatedHttpClient(authCode);
+            var hc = GetHttpClient(authKey, withAuthHeader);
             HttpResponseMessage resp = await hc.GetAsync(url).ConfigureAwait(false);
             HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
             EnsureSuccessStatusCode(resp, hr);
