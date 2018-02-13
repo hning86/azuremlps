@@ -19,7 +19,7 @@ namespace AzureMLPS.PowerShell
         public SwitchParameter Custom { get; set; }
         protected override void BeginProcessing()
         {
-            Module[] modules = Sdk.GetModules(GetWorkspaceSetting());
+            var modules = Sdk.GetModules(GetWorkspaceSetting());
             if (Custom.IsPresent)
                 modules = modules.Where(m => m.ReleaseState == "Custom").ToArray();
             WriteObject(modules, true);

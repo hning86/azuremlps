@@ -15,7 +15,7 @@ namespace AzureML
 {
     public class ManagementSDK
     {
-        public const string Version = "0.3.4";        
+        public const string Version = "0.3.4";
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
 
@@ -85,7 +85,7 @@ namespace AzureML
                     break;
                 default:
                     throw new Exception("Unsupported location: " + location);
-            }                                 
+            }
         }
 
         private void SetAPIEndpoints(string key, string postfix)
@@ -95,13 +95,13 @@ namespace AzureML
         }
 
         private string GetExperimentGraphFromJson(string rawJson)
-        {            
+        {
             dynamic parsed = Util.Deserialize<object>(rawJson);
             string graph = Util.Serialize(parsed["Graph"]);
             return graph;
         }
         private string GetExperimentWebServiceFromJson(string rawJson)
-        {         
+        {
             dynamic parsed = Util.Deserialize<object>(rawJson);
             string webService = Util.Serialize(parsed["WebService"]);
             return webService;
@@ -113,7 +113,7 @@ namespace AzureML
             string webService = GetExperimentWebServiceFromJson(rawJson);
             string req = "{" + string.Format("\"Description\":\"{0}\", \"Summary\":\"{1}\", \"IsDraft\":" + (runExperiment ? "false" : "true") +
                 ", \"ParentExperimentId\":\"{2}\", \"DisableNodeUpdate\":false, \"Category\":\"user\", \"ExperimentGraph\":{3}, \"WebService\":{4}",
-                            string.IsNullOrEmpty(newName)? exp.Description : newName, exp.Summary, createNewCopy ? null : exp.ParentExperimentId, graph, webService) + "}";
+                            string.IsNullOrEmpty(newName) ? exp.Description : newName, exp.Summary, createNewCopy ? null : exp.ParentExperimentId, graph, webService) + "}";
             return req;
         }
 
@@ -122,7 +122,7 @@ namespace AzureML
             HttpWebRequest httpReq = (HttpWebRequest)HttpWebRequest.Create(reqUrl);
             httpReq.Method = method;
             httpReq.ContentType = "application/json";
-            httpReq.Headers.Add("x-ms-version", "2014-10-01");            
+            httpReq.Headers.Add("x-ms-version", "2014-10-01");
             X509Certificate2 mgmtCert = GetStoreCertificate(managementCertThumbprint);
             httpReq.ClientCertificates.Add(mgmtCert);
             return httpReq;
@@ -159,12 +159,12 @@ namespace AzureML
         }
 
         public string UpdateNodesPositions(string jsonGraph, StudioGraph graph)
-        {            
+        {
             dynamic experimentDag = Util.Deserialize<object>(jsonGraph);
-            List<string> regularNodes = ExtractNodesFromXml(experimentDag["Graph"]["SerializedClientData"]);                         
-            List<string> webServiceNodes = ExtractNodesFromXml(experimentDag["WebService"]["SerializedClientData"]);            
+            List<string> regularNodes = ExtractNodesFromXml(experimentDag["Graph"]["SerializedClientData"]);
+            List<string> webServiceNodes = ExtractNodesFromXml(experimentDag["WebService"]["SerializedClientData"]);
 
-            StringBuilder newPositions = new StringBuilder();            
+            StringBuilder newPositions = new StringBuilder();
             if (regularNodes.Count > 0)
             {
                 foreach (var node in graph.Nodes.Where(n => regularNodes.Contains(n.Id)))
@@ -172,7 +172,7 @@ namespace AzureML
                 string oldPositions = Regex.Match(experimentDag["Graph"]["SerializedClientData"].ToString(), "<NodePositions>(.*)</NodePositions>").Groups[1].Value;
                 jsonGraph = jsonGraph.Replace(oldPositions, newPositions.ToString());
             }
-            
+
             if (webServiceNodes.Count > 0)
             {
                 newPositions.Clear();
@@ -183,17 +183,17 @@ namespace AzureML
             }
 
             return jsonGraph;
-        }     
+        }
 
         #endregion
 
         #region Workspace
-        public WorkspaceRdfe[] GetWorkspacesFromRdfe(string managementCertThumbprint, string azureSubscriptionId)
+        public IEnumerable<WorkspaceRdfe> GetWorkspacesFromRdfe(string managementCertThumbprint, string azureSubscriptionId)
         {
             return GetWorkspacesFromRdfeAsync(managementCertThumbprint, azureSubscriptionId).GetAwaiter().GetResult();
         }
 
-        public async Task<WorkspaceRdfe[]> GetWorkspacesFromRdfeAsync(string managementCertThumbprint, string azureSubscriptionId)
+        public async Task<IEnumerable<WorkspaceRdfe>> GetWorkspacesFromRdfeAsync(string managementCertThumbprint, string azureSubscriptionId)
         {
             string reqUrl = string.Format(_azMgmtApiBaseUrl, azureSubscriptionId);
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "GET");
@@ -208,22 +208,22 @@ namespace AzureML
         }
 
         public async Task<string> CreateWorkspace(string managementCertThumbprint, string azureSubscriptionId, string workspaceName, string location, string storageAccountName, string storageAccountKey, string ownerEmail, string source)
-        {        
+        {
             // initial workspace is a made-up but valid guid.
             string reqUrl = string.Format(_azMgmtApiBaseUrl + "/e582920d010646acbb0ec3183dc2243a", azureSubscriptionId);
 
-            HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "PUT");            
-            
+            HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "PUT");
+
             string payload = Util.Serialize(new
-                {
-                    Name = workspaceName,
-                    Region = location,
-                    StorageAccountName = storageAccountName,
-                    StorageAccountKey = storageAccountKey,
-                    OwnerId = ownerEmail,
-                    ImmediateActivation = true,
-                    Source = source
-                });
+            {
+                Name = workspaceName,
+                Region = location,
+                StorageAccountName = storageAccountName,
+                StorageAccountKey = storageAccountKey,
+                OwnerId = ownerEmail,
+                ImmediateActivation = true,
+                Source = source
+            });
             httpReq.ContentLength = payload.Length;
             using (Stream stream = httpReq.GetRequestStream())
             {
@@ -271,7 +271,7 @@ namespace AzureML
             HttpWebRequest httpReq = GetRdfeHttpRequest(managementCertThumbprint, reqUrl, "DELETE");
 
             using (WebResponse resp = await httpReq.GetResponseAsync().ConfigureAwait(false))
-            using(var stream = resp.GetResponseStream())
+            using (var stream = resp.GetResponseStream())
             {
                 long len = resp.ContentLength;
                 byte[] buffer = new byte[len];
@@ -306,27 +306,27 @@ namespace AzureML
             HttpResult hr = await Util.HttpPost(setting.AuthorizationToken, queryUrl, body).ConfigureAwait(false);
         }
 
-        public WorkspaceUser[] GetWorkspaceUsers(WorkspaceSetting setting)
+        public IEnumerable<WorkspaceUser> GetWorkspaceUsers(WorkspaceSetting setting)
         {
             return GetWorkspaceUsersAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<WorkspaceUser[]> GetWorkspaceUsersAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<WorkspaceUser>> GetWorkspaceUsersAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = StudioApi + string.Format("workspaces/{0}/users", setting.WorkspaceId);
-            HttpResult<WorkspaceUserInternal[]> hr = await Util.HttpGet<WorkspaceUserInternal[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
-            return hr.DeserializedPayload.Select(u => new WorkspaceUser(u)).ToArray();
+            var hr = await Util.HttpGet<WorkspaceUserInternal[]>(setting.AuthorizationToken, queryUrl).ConfigureAwait(false);
+            return hr.DeserializedPayload.Select(u => new WorkspaceUser(u));
         }
         #endregion
 
         #region Dataset
-        public Dataset[] GetDataset(WorkspaceSetting setting)
+        public IEnumerable<Dataset> GetDataset(WorkspaceSetting setting)
         {
             return GetDatasetAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<Dataset[]> GetDatasetAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<Dataset>> GetDatasetAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string query = StudioApi + string.Format("workspaces/{0}/datasources", setting.WorkspaceId);
@@ -357,7 +357,7 @@ namespace AzureML
         }
 
         public async Task DownloadFileAsync(string url, string filename)
-        {                              
+        {
             HttpResult hr = await Util.HttpGet(null, url, false).ConfigureAwait(false);
             if (File.Exists(filename))
                 throw new Exception(filename + " alread exists.");
@@ -467,12 +467,12 @@ namespace AzureML
             return jobStatus;
         }
 
-        public Module[] GetModules(WorkspaceSetting setting)
+        public IEnumerable<Module> GetModules(WorkspaceSetting setting)
         {
             return GetModulesAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<Module[]> GetModulesAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<Module>> GetModulesAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string query = StudioApi + string.Format("workspaces/{0}/modules", setting.WorkspaceId);
@@ -482,12 +482,12 @@ namespace AzureML
         #endregion
 
         #region Experiment
-        public Experiment[] GetExperiments(WorkspaceSetting setting)
+        public IEnumerable<Experiment> GetExperiments(WorkspaceSetting setting)
         {
             return GetExperimentsAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<Experiment[]> GetExperimentsAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<Experiment>> GetExperimentsAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments", setting.WorkspaceId);
@@ -569,7 +569,7 @@ namespace AzureML
 
         public async Task<PackingServiceActivity> PackExperimentAsync(WorkspaceSetting setting, string experimentId)
         {
-            ValidateWorkspaceSetting(setting);;
+            ValidateWorkspaceSetting(setting); ;
             string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&experimentid={1}/&clearCredentials=true&includeAuthorId=false", setting.WorkspaceId, experimentId);
             //Console.WriteLine("Packing: POST " + queryUrl);
             HttpResult<PackingServiceActivity> hr = await Util.HttpPost<PackingServiceActivity>(setting.AuthorizationToken, queryUrl, string.Empty).ConfigureAwait(false);
@@ -604,7 +604,7 @@ namespace AzureML
             HttpResult<PackingServiceActivity> hr = await Util.HttpPut<PackingServiceActivity>(setting.AuthorizationToken, queryUrl, string.Empty).ConfigureAwait(false);
             return hr.DeserializedPayload;
         }
-        
+
         // Note this API is NOT officially supported. It might break in the future and we won't support it if/when it happens.
         public PackingServiceActivity UnpackExperimentFromGallery(WorkspaceSetting setting, string packageUri, string galleryUrl, string entityId)
         {
@@ -675,9 +675,9 @@ namespace AzureML
         }
 
         private StudioGraph CreateStudioGraph(dynamic dag)
-        {            
-            StudioGraph graph = new StudioGraph();            
-            InsertNodesIntoGraph(dag, graph, "Graph");            
+        {
+            StudioGraph graph = new StudioGraph();
+            InsertNodesIntoGraph(dag, graph, "Graph");
             InsertNodesIntoGraph(dag, graph, "WebService");
             // dataset nodes are treated differently because they don't show in the EdgesInternal section.
             Dictionary<string, string> datasetNodes = new Dictionary<string, string>();
@@ -705,10 +705,11 @@ namespace AzureML
 
             // dataset edges
             foreach (string nodeId in datasetNodes.Keys)
-                graph.Edges.Add(new StudioGraphEdge {
+                graph.Edges.Add(new StudioGraphEdge
+                {
                     DestinationNode = graph.Nodes.Single(n => n.Id == nodeId),
                     SourceNode = graph.Nodes.Single(n => n.Id == datasetNodes[nodeId])
-                    }
+                }
                 );
 
             if (dag["WebService"] != null)
@@ -725,7 +726,7 @@ namespace AzureML
                             {
                                 DestinationNode = graph.Nodes.Single(n => n.Id == connectedModuleId),
                                 SourceNode = graph.Nodes.Single(n => n.Id == webSvcModuleId)
-                            });                            
+                            });
                         }
                     }
 
@@ -744,20 +745,20 @@ namespace AzureML
                             });
                         }
                     }
-            }            
+            }
             return graph;
         }
 
-        
+
         #endregion
 
         #region User Assets
-        public UserAsset[] GetTrainedModels(WorkspaceSetting setting)
+        public IEnumerable<UserAsset> GetTrainedModels(WorkspaceSetting setting)
         {
             return GetTrainedModelsAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<UserAsset[]> GetTrainedModelsAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<UserAsset>> GetTrainedModelsAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = StudioApi + string.Format("workspaces/{0}/trainedmodels", setting.WorkspaceId);
@@ -765,12 +766,12 @@ namespace AzureML
             return hr.DeserializedPayload;
         }
 
-        public UserAsset[] GetTransforms(WorkspaceSetting setting)
+        public IEnumerable<UserAsset> GetTransforms(WorkspaceSetting setting)
         {
             return GetTransformsAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<UserAsset[]> GetTransformsAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<UserAsset>> GetTransformsAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = StudioApi + string.Format("workspaces/{0}/transformmodules", setting.WorkspaceId);
@@ -851,12 +852,12 @@ namespace AzureML
 
         #region Web Service
 
-        public WebService[] GetWebServicesInWorkspace(WorkspaceSetting setting)
+        public IEnumerable<WebService> GetWebServicesInWorkspace(WorkspaceSetting setting)
         {
             return GetWebServicesInWorkspaceAsync(setting).GetAwaiter().GetResult();
         }
 
-        public async Task<WebService[]> GetWebServicesInWorkspaceAsync(WorkspaceSetting setting)
+        public async Task<IEnumerable<WebService>> GetWebServicesInWorkspaceAsync(WorkspaceSetting setting)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices", setting.WorkspaceId);
@@ -917,12 +918,12 @@ namespace AzureML
         #endregion
 
         #region Web Service Endpoint
-        public WebServiceEndPoint[] GetWebServiceEndpoints(WorkspaceSetting setting, string webServiceId)
+        public IEnumerable<WebServiceEndPoint> GetWebServiceEndpoints(WorkspaceSetting setting, string webServiceId)
         {
             return GetWebServiceEndpointsAsync(setting, webServiceId).GetAwaiter().GetResult();
         }
 
-        public async Task<WebServiceEndPoint[]> GetWebServiceEndpointsAsync(WorkspaceSetting setting, string webServiceId)
+        public async Task<IEnumerable<WebServiceEndPoint>> GetWebServiceEndpointsAsync(WorkspaceSetting setting, string webServiceId)
         {
             ValidateWorkspaceSetting(setting);
             string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints", setting.WorkspaceId, webServiceId);

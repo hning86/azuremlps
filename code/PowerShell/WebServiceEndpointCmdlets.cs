@@ -18,7 +18,7 @@ namespace AzureML.PowerShell
         {         
             if (string.IsNullOrEmpty(EndpointName))
             {                
-                WebServiceEndPoint[] weps = Sdk.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
+                var weps = Sdk.GetWebServiceEndpoints(GetWorkspaceSetting(), WebServiceId);
                 WriteObject(weps, true);
             }
             else

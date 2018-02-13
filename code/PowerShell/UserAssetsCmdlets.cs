@@ -146,7 +146,7 @@ namespace AzureMLPS.PowerShell
             string familyId = null;
             if (Overwrite.IsPresent) // overwrite an existing transform of the same name, if it exists
             {
-                UserAsset[] transforms = Sdk.GetTransforms(GetWorkspaceSetting());
+                var transforms = Sdk.GetTransforms(GetWorkspaceSetting());
                 UserAsset transformToOverwrite = transforms.SingleOrDefault(aa => aa.Name.ToLower().Trim() == TransformName.ToLower().Trim());
                 if (transformToOverwrite != null)
                     familyId = transformToOverwrite.FamilyId;
@@ -187,7 +187,7 @@ namespace AzureMLPS.PowerShell
             string familyId = null;
             if (Overwrite.IsPresent) // overwrite an existing trained model of the same name, if it exists
             {
-                UserAsset[] trainedModel = Sdk.GetTrainedModels(GetWorkspaceSetting());
+                var trainedModel = Sdk.GetTrainedModels(GetWorkspaceSetting());
                 UserAsset trainedModelToOverwrite = trainedModel.SingleOrDefault(aa => aa.Name.ToLower().Trim() == TrainedModelName.ToLower().Trim());
                 if (trainedModelToOverwrite != null)
                     familyId = trainedModelToOverwrite.FamilyId;
@@ -228,7 +228,7 @@ namespace AzureMLPS.PowerShell
             string familyId = null;
             if (Overwrite.IsPresent) // overwrite an existing trained model of the same name, if it exists
             {
-                Dataset[] dataset = Sdk.GetDataset(GetWorkspaceSetting());
+                var dataset = Sdk.GetDataset(GetWorkspaceSetting());
                 Dataset datasetToOverwrite = dataset.SingleOrDefault(aa => aa.Name.ToLower().Trim() == DatasetName.ToLower().Trim());
                 if (datasetToOverwrite != null)
                     familyId = datasetToOverwrite.FamilyId;
@@ -365,7 +365,7 @@ namespace AzureMLPS.PowerShell
                                     string assetName = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId).Name;
                                     UserAsset workspaceAsset = assetsInWorkspace.SingleOrDefault(a => a.FamilyId == familyId);
                                     if (workspaceAsset == null)
-                                        throw new Exception(string.Format("Can't find {0} of family id \"{1}\" in the workspace.", familyId));
+                                        throw new Exception(string.Format("Can't find family id \"{0}\" in the workspace.", familyId));
                                     if (workspaceAsset.Id != experimentAssetId)
                                     {
                                         if (!updatedAssetIds.ContainsKey(experimentAssetId))

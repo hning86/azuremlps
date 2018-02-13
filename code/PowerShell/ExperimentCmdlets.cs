@@ -275,7 +275,7 @@ namespace AzureML.PowerShell
             if (string.IsNullOrEmpty(ExperimentId))
             {
                 // get all experiments in the workspace
-                Experiment[] exps = Sdk.GetExperiments(GetWorkspaceSetting());
+                var exps = Sdk.GetExperiments(GetWorkspaceSetting());
                 WriteObject(exps, true);
             }
             else

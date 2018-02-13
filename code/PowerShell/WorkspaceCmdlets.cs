@@ -1,15 +1,8 @@
 ﻿using AzureML.Contract;
-using AzureML.PowerShell;
-using System;
-using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Script.Serialization;
 
 namespace AzureML.PowerShell
 {
@@ -18,9 +11,9 @@ namespace AzureML.PowerShell
     {     
         protected override void ProcessRecord()
         {
-            Workspace ws = this.Sdk.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
+            Workspace ws = Sdk.GetWorkspaceFromAmlRP(GetWorkspaceSetting());
             WriteObject(ws);
-        }     
+        }
     }
 
     [Cmdlet("List", "AmlWorkspaces")]
@@ -32,7 +25,7 @@ namespace AzureML.PowerShell
         public string AzureSubscriptionId;
         protected override void ProcessRecord()
         {
-            WorkspaceRdfe[] workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
+            var workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
             WriteObject(workspaces, true);
         }
     }
@@ -121,7 +114,6 @@ namespace AzureML.PowerShell
         [Parameter(Mandatory = true)]
         [ValidateSet("User", "Owner")]
         public string Role { get; set; }
-        public AddWorkspaceUsers() { }
         protected override void ProcessRecord()
         {            
             Sdk.AddWorkspaceUsers(GetWorkspaceSetting(), Emails, Role);
@@ -132,10 +124,9 @@ namespace AzureML.PowerShell
     [Cmdlet(VerbsCommon.Get, "AmlWorkspaceUsers")]
     public class GetWorkspaceUsers : AzureMLPsCmdlet
     {
-        public GetWorkspaceUsers() { }
         protected override void ProcessRecord()
         {
-            WorkspaceUser[] users = Sdk.GetWorkspaceUsers(GetWorkspaceSetting());
+            var users = Sdk.GetWorkspaceUsers(GetWorkspaceSetting());
             WriteObject(users);
         }
     }

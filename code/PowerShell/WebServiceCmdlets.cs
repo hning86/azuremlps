@@ -16,7 +16,7 @@ namespace AzureML.PowerShell
         {            
             if (string.IsNullOrEmpty(WebServiceId))
             {
-                WebService[] wss = Sdk.GetWebServicesInWorkspace(GetWorkspaceSetting());
+                var wss = Sdk.GetWebServicesInWorkspace(GetWorkspaceSetting());
                 WriteObject(wss, true);
             }
             else
