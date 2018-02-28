@@ -84,10 +84,16 @@ namespace AzureML
             }
         }
 
-        internal async Task<HttpResult> HttpPostFile(string authKey, string url, string filePath)
+        internal Task<HttpResult> HttpPostFile(string authKey, string url, string filePath)
+        {
+            using (var fileStream = File.OpenRead(filePath))
+                return HttpPostStream(authKey, url, fileStream);
+        }
+
+        internal async Task<HttpResult> HttpPostStream(string authKey, string url, Stream stream)
         {
             HttpClient hc = GetHttpClient(authKey);
-            using (StreamContent sc = new StreamContent(File.OpenRead(filePath)))
+            using (StreamContent sc = new StreamContent(stream))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);

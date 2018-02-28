@@ -276,7 +276,7 @@ namespace AzureML
                 long len = resp.ContentLength;
                 byte[] buffer = new byte[len];
                 await stream.ReadAsync(buffer, 0, (int)len).ConfigureAwait(false);
-                string result = UnicodeEncoding.ASCII.GetString(buffer);
+                string result = Encoding.UTF8.GetString(buffer);
             }
         }
 
@@ -380,6 +380,14 @@ namespace AzureML
         public string UploadResource(WorkspaceSetting setting, string fileFormat, string fileName = "")
         {
             return UploadResourceAsync(setting, fileFormat, fileName).GetAwaiter().GetResult();
+        }
+
+        public async Task<string> UploadResourceAsync(WorkspaceSetting setting, string fileFormat, Stream stream)
+        {
+            ValidateWorkspaceSetting(setting);
+            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            HttpResult hr = await Util.HttpPostStream(setting.AuthorizationToken, query, stream).ConfigureAwait(false);
+            return hr.Payload;
         }
 
         public async Task<string> UploadResourceInChunksAsnyc(WorkspaceSetting setting, int numOfBlocks, int blockId, string uploadId, string fileName, string fileFormat)
