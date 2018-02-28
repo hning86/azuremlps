@@ -46,7 +46,7 @@ namespace AzureML
             if (jsonBody == null)
                 jsonBody = string.Empty;
             var hc = GetHttpClient(authKey, withAuthHeader);
-            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (StringContent sc = new StringContent(jsonBody, Encoding.UTF8, "application/json"))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
@@ -61,7 +61,7 @@ namespace AzureML
                 jsonBody = string.Empty;
 
             var hc = GetHttpClient(authKey, withAuthHeader);
-            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (StringContent sc = new StringContent(jsonBody, Encoding.UTF8, "application/json"))
             using (HttpResponseMessage resp = await hc.PostAsync(url, sc).ConfigureAwait(false))
             {
                 HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
@@ -75,7 +75,7 @@ namespace AzureML
             if (jsonBody == null)
                 jsonBody = string.Empty;
             HttpClient hc = GetHttpClient(authKey);
-            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (StringContent sc = new StringContent(jsonBody, Encoding.UTF8, "application/json"))
             using (HttpResponseMessage resp = await hc.PatchAsJsonAsync(url, jsonBody).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
@@ -139,7 +139,7 @@ namespace AzureML
         internal async Task<HttpResult> HttpPut(string authKey, string url, string body)
         {
             HttpClient hc = GetHttpClient(authKey);
-            using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
+            using (var content = new StringContent(body, Encoding.UTF8, "application/json"))
             using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
             {
                 HttpResult hr = await CreateHttpResult(resp).ConfigureAwait(false);
@@ -151,7 +151,7 @@ namespace AzureML
         internal async Task<HttpResult<T>> HttpPut<T>(string authKey, string url, string body)
         {
             HttpClient hc = GetHttpClient(authKey);
-            using (var content = new StringContent(body, Encoding.ASCII, "application/json"))
+            using (var content = new StringContent(body, Encoding.UTF8, "application/json"))
             using (HttpResponseMessage resp = await hc.PutAsync(url, content).ConfigureAwait(false))
             {
                 HttpResult<T> hr = await CreateHttpResult<T>(resp).ConfigureAwait(false);
@@ -201,7 +201,7 @@ namespace AzureML
     {
         public static Task<HttpResponseMessage> PatchAsJsonAsync(this HttpClient client, string requestUri, string jsonBody)
         {
-            using (StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json"))
+            using (StringContent sc = new StringContent(jsonBody, Encoding.UTF8, "application/json"))
             using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), requestUri) { Content = sc })
                 return client.SendAsync(request);
         }
