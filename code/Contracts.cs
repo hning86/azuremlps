@@ -4,6 +4,69 @@ using System.IO;
 
 namespace AzureML.Contract
 {
+    public class Gateway
+    {
+        public string Scope { get; set; }
+        public string GatewayName { get; set; }
+        public string CreateTime { get; set; }
+        public string Description { get; set; }
+        public string ExpiryTime { get; set; }
+        public string RegistrationKey { get; set; }
+        public string LastConnectTime { get; set; }
+        public string Location { get; set; }
+        public string RegisterTime { get; set; }
+        public string Status { get; set; }
+        public string Version { get; set; }
+        public string VersionStatus { get; set; }
+        public string ProvisioningState { get; set; }
+        public string Host { get; set; }
+    }
+
+    public class Invitation
+    {
+        public string Email { get; set; }
+        public bool Failed { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+    public class Notebook
+    {
+        public string FamilyId { get; set; }
+        public string Name { get; set; }
+        public string Author { get; set; }
+        public string Language { get; set; }
+        public string Modified { get; set; }
+        public string Created { get; set; }
+        public string Tags { get; set; }
+    }
+
+    public class NotebookSession
+    {
+        public string AuthenticationUri { get; set; }
+        public string SessionUri { get; set; }
+        public string OriginUri { get; set; }
+    }
+
+    public class ProjectContainer
+    {
+        public string ContainerId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Creator { get; set; }
+        public Dictionary<string, List<string>> Contents { get; set; }
+    }
+
+    public class Annotation
+    {
+        public string Id { get; set; }
+        public string ParentAnnotationId { get; set; }
+        public string ExperimentId { get; set; }
+        public string Content { get; set; }
+        public bool IsCollapsed { get; set; }
+        public string NodeId { get; set; }
+        public string Edge { get; set; }
+    }
+
     public class WorkspaceUser
     {
         public string Status { get; set; }
@@ -15,7 +78,7 @@ namespace AzureML.Contract
         {
             Status = iuser.Status;
             Email = iuser.User.Email;
-            Name = iuser.User.Email;
+            Name = iuser.User.Name;
             Role = iuser.User.Role;
             UserId = iuser.User.UserId;
         }
@@ -122,6 +185,9 @@ namespace AzureML.Contract
         public string MigrationStatus { get; set; }
         public string OwnerEmail { get; set; }
         public string UserStorage { get; set; }
+        public string UserStorageKey { get; set; }
+        public string UserStorageArmId { get; set; }
+        public string UserStorageBlobEndpoint { get; set; }
         public string SubscriptionId { get; set; }
         public string SubscriptionName { get; set; }
         public string SubscriptionState { get; set; }
@@ -129,6 +195,14 @@ namespace AzureML.Contract
         public string WorkspaceStatus { get; set; }
         public string Type { get; set; }
         public string CreatedTime { get; set; }
+        public string OwnerPrincipalId { get; set; }
+        public string Tags { get; set; }
+        public string KeyVaultKeyIdentifier { get; set; }
+        public string MsIdentityUrl { get; set; }
+        public string MsIdentityPrincipalOid { get; set; }
+        public string MsIdentityClientId { get; set; }
+        public string MsIdentityCertificate { get; set; }
+        public string TenantId { get; set; }
     }
 
     public class WorkspaceRdfe
@@ -160,7 +234,7 @@ namespace AzureML.Contract
         public bool IsLeaf { get; set; }
         public string DisableNodesUpdate { get; set; }
         public string Category { get; set; }
-
+        public string[] Tags { get; set; }
         public class ExpStatus
         {
             public string StatusCode { get; set; }
@@ -274,6 +348,8 @@ namespace AzureML.Contract
         public string ClientVersion { get; set; }
         public string ServiceVersion { get; set; }
         public int Batch { get; set; }
+        public string EscalationEmail { get; set; }
+        public string InformationUrl { get; set; }
         public class ModuleLanguageMetadata
         {
             public string Language { get; set; }

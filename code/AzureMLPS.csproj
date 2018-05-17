@@ -52,12 +52,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureMLSDK.cs" />
+    <Compile Include="PowerShell\AnnotationCmdlets.cs" />
     <Compile Include="PowerShell\BaseCmdlets.cs" />
     <Compile Include="Contracts.cs" />
     <Compile Include="PowerShell\CustomModuleCmdlets.cs" />
     <Compile Include="PowerShell\DatasetCmdlets.cs" />
     <Compile Include="PowerShell\ExperimentCmdlets.cs" />
+    <Compile Include="PowerShell\GatewayCmdlets.cs" />
     <Compile Include="PowerShell\InvokeWebServiceCmdlets.cs" />
+    <Compile Include="PowerShell\NotebookCmdlets.cs" />
+    <Compile Include="PowerShell\ProjectContainerCmdlets.cs" />
     <Compile Include="PowerShell\UserAssetsCmdlets.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="PowerShell\WebServiceCmdlets.cs" />

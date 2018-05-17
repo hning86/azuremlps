@@ -1028,5 +1028,85 @@ namespace AzureML
             return jobStatus;
         }
         #endregion
+
+        #region Annotation
+        public Annotation[] GetAnnotation(WorkspaceSetting setting, string experimentId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/experiments/{1}/annotations", setting.WorkspaceId, experimentId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            Annotation[] annotations = jss.Deserialize<Annotation[]>(hr.Payload);
+            return annotations;
+        }
+        #endregion
+
+        #region ProjectContainer
+        public ProjectContainer[] GetProjectContainer(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/projectcontainers", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            ProjectContainer[] projectContainers = jss.Deserialize<ProjectContainer[]>(hr.Payload);
+            return projectContainers;
+        }
+        #endregion
+
+        #region Notebook
+        public Notebook[] GetNotebook(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/notebooks", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            Notebook[] notebooks = jss.Deserialize<Notebook[]>(hr.Payload);
+            return notebooks;
+        }
+
+        public string[] GetNotebookAttachmentName(WorkspaceSetting setting, string familyId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/notebooks/family/{1}/attachments", setting.WorkspaceId, familyId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            string[] attachments = jss.Deserialize<string[]>(hr.Payload);
+            return attachments;
+        }
+
+        public NotebookSession GetNotebookSession(WorkspaceSetting setting, string familyId)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/notebooks/family/{1}/session", setting.WorkspaceId, familyId);
+            HttpResult hr = Util.HttpPost(query, string.Empty).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            NotebookSession session = jss.Deserialize<NotebookSession>(hr.Payload);
+            return session;
+        }
+        #endregion
+
+        #region Gateway
+        public Gateway[] GetGateway(WorkspaceSetting setting)
+        {
+            ValidateWorkspaceSetting(setting);
+            Util.AuthorizationToken = setting.AuthorizationToken;
+            string query = StudioApi + string.Format("workspaces/{0}/gateways", setting.WorkspaceId);
+            HttpResult hr = Util.HttpGet(query).Result;
+            if (!hr.IsSuccess)
+                throw new AmlRestApiException(hr);
+            Gateway[] gateways = jss.Deserialize<Gateway[]>(hr.Payload);
+            return gateways;
+        }
+        #endregion
     }
 }
