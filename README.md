@@ -53,10 +53,10 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
   * Invoke a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Invoke a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
 * __List Other User Assets in Workspace for GDPR Compliance__
-  * List all Annotations in an Experiment (*[Get-AmlAnnotation](#Get-AmlAnnotation)*)
-  * List all Notebooks in a Workspace (*[Get-AmlNotebook](#Get-AmlNotebook)*)
-  * Get a Notebook Session (*[Get-AMLNotebookSession](#Get-AMLNotebookSession)*)
-  * List all Data Gateways in a Workspace (*[Get-AmlGateway](#Get-AmlGateway)*)
+  * List all Annotations in an Experiment (*[Get-AmlAnnotation](#get-AmlAnnotation)*)
+  * List all Notebooks in a Workspace (*[Get-AmlNotebook](#get-AmlNotebook)*)
+  * Get a Notebook Session (*[Get-AMLNotebookSession](#get-AMLNotebookSession)*)
+  * List all Data Gateways in a Workspace (*[Get-AmlGateway](#get-AmlGateway)*)
 
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
