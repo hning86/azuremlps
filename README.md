@@ -52,7 +52,11 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Call Azure ML Web Service APIs__
   * Invoke a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Invoke a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
-
+* __List Other User Assets in Workspace for GDPR Compliance__
+  * List all Annotations in an Experiment (*[Get-AmlAnnotation](#get-amlannotation)*)
+  * List all Notebooks in a Workspace (*[Get-AmlNotebook](#get-amlnotebook)*)
+  * Get a Notebook Session (*[Get-AmlNotebookSession](#get-amlnotebooksession)*)
+  * List all Data Gateways in a Workspace (*[Get-AmlGateway](#get-amlgateway)*)
 
 ## System Requirement
 This PowerShell module requires PowerShell 4.0 and .NET 4.5.2. 
@@ -749,4 +753,49 @@ $apiKey = $ep.PrimaryKey
 Invoke-AmlWebServiceBESEndpoint -SubmitJobRequestUrl $jobSubmitUrl -ApiKey $apiKey -JobConfigFile '.\jobConfig.json'
 ```
 
+### List Other Assets in Workspace for GDPR Compliance ###
+#### Get-AmlAnnotation
+
+```powershell
+# Get all annotations in an Experiment
+$annotations = Get-AmlAnnotation -ExperimentId $exp.ExperimentId
+```
+
+This commandlet leverages the config.json file.
+
+#### Get-AmlNotebook
+
+```powershell
+# Get all Notebooks in in the Workspace
+$nbs = Get-AmlNotebook
+```
+
+This commandlet leverages the config.json file.
+
+#### Get-AMLNotebookSession 
+
+```powershell
+# Get a Notebook Session
+$nbs = Get-AmlNotebookSession -FamilyId $nbs[0].FamilyId
+```
+
+This commandlet leverages the config.json file.
+
+#### Get-AmlProjectContainer
+
+```powershell
+# Get all Project Containers in the Workspace
+$projects = Get-AmlProjectContainer
+```
+
+This commandlet leverages the config.json file.
+
+#### Get-AmlGateway
+
+```powershell
+# Get all Data Gateways in the Workspace
+$gateways = Get-AmlGateway
+```
+
+This commandlet leverages the config.json file.
 
