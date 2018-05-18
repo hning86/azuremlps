@@ -1,4 +1,4 @@
-# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.6 
+# PowerShell Module for Azure Machine Learning Studio & Web Services Beta v.0.3.7 
 ## Introduction
 This is a preview release of PowerShell Commandlet Library for [Azure Machine Learning](https://studio.azureml.net). It allows you to interact with Azure Machine Learning Workspace, or Workspace for short, Datasets, Trained Models, Transforms, Custom Modules, Experiments, Web Services and Web Service Endpoints. The supported operations are:
 
@@ -52,7 +52,7 @@ This is a preview release of PowerShell Commandlet Library for [Azure Machine Le
 * __Call Azure ML Web Service APIs__
   * Invoke a RRS (Request-Response Service) API (*[Invoke-AmlWebServiceRRSEndpoint](#invoke-amlwebservicerrsendpoint)*)
   * Invoke a BES (Batch Execution Service) API (*[Invoke-AmlWebServiceBESEndpoint](#invoke-amlwebservicebesendpoint)*)
-* __List Other User Assets in Workspace for GDPR Compliance__
+* __List Other User Assets in Workspace__
   * List all Annotations in an Experiment (*[Get-AmlAnnotation](#get-amlannotation)*)
   * List all Notebooks in a Workspace (*[Get-AmlNotebook](#get-amlnotebook)*)
   * Get a Notebook Session (*[Get-AmlNotebookSession](#get-amlnotebooksession)*)
@@ -753,7 +753,7 @@ $apiKey = $ep.PrimaryKey
 Invoke-AmlWebServiceBESEndpoint -SubmitJobRequestUrl $jobSubmitUrl -ApiKey $apiKey -JobConfigFile '.\jobConfig.json'
 ```
 
-### List Other Assets in Workspace for GDPR Compliance ###
+### List Other Assets in Workspace ###
 #### Get-AmlAnnotation
 
 ```powershell
