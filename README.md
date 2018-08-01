@@ -146,7 +146,7 @@ Get-Help Get-AmlWorkspace
 
 #### New-AmlWorkspace
 
-DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to create a new Workspace.
+**DEPRECATED**: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to create a new Workspace.
 
 To create a new Azure ML Workspace, you need to first generate a self-signed certificate, store it in the current user's certificate store, and then upload the public key portion (.cer file) into Azure management portal. The _New-AmlWorkspace_ commandlet will communicate with Azure management API using this certificate to ensure this is an authorized access. Read [more information](https://www.simple-talk.com/cloud/security-and-compliance/windows-azure-management-certificates/) on this subject.
 
@@ -184,7 +184,7 @@ And here is how you can grab the thumbprint of a particular certificate using Po
 
 #### List-AmlWorkspaces
 
-DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to list existing Workspaces.
+**DEPRECATED**: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to list existing Workspaces.
 
 Please note that this commandlet can only list Standard Wokspaces. Free Workspaces are not tied to any Azure subscriptions so they will not be listed here. This commandlet requires the presence of the Azure management certificate.
 
@@ -194,7 +194,7 @@ List-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCert
 
 #### Remove-AmlWorkspace
 
-DEPRECATED: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to delete a Workspace.
+**DEPRECATED**: Please note that this commandlet has been deprecated. Use [Azure Resource Manager PowerShell commandlets](https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/) instead to delete a Workspace.
 
 ```powershell
 Remove-AmlWorkspace -AzureSubscriptionId '<azure_subscription_id>' -ManagementCertThumbprint '<management_cert_thumbprint>' -WorkspaceId $workspaceId

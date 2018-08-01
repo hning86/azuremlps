@@ -32,6 +32,7 @@ namespace AzureML.PowerShell
         public string AzureSubscriptionId;
         protected override void ProcessRecord()
         {
+            WriteWarning("Please note that this commandlet has been deprecated. Use Azure Resource Manager PowerShell commandlets instead. See more at https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/");
             WorkspaceRdfe[] workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
             WriteObject(workspaces, true);
         }
@@ -57,6 +58,7 @@ namespace AzureML.PowerShell
         public string OwnerEmail;
         protected override void ProcessRecord()
         {
+            WriteWarning("Please note that this commandlet has been deprecated. Use Azure Resource Manager PowerShell commandlets instead. See more at https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/");
             ProgressRecord pr = new ProgressRecord(1, "Create Workspace", WorkspaceName);
             pr.PercentComplete = 1;
             pr.CurrentOperation = "Creating...";
@@ -107,6 +109,7 @@ namespace AzureML.PowerShell
         public string WorkspaceId;
         protected override void ProcessRecord()
         {
+            WriteWarning("Please note that this commandlet has been deprecated. Use Azure Resource Manager PowerShell commandlets instead. See more at https://azure.microsoft.com/en-us/documentation/articles/machine-learning-deploy-with-resource-manager-template/");
             var workspaces = Sdk.GetWorkspacesFromRdfe(ManagementCertThumbprint, AzureSubscriptionId);
             var workspace = workspaces.SingleOrDefault(w => w.Id.ToLower() == WorkspaceId.ToLower());
             Sdk.RemoveWorkspace(ManagementCertThumbprint, AzureSubscriptionId, WorkspaceId, workspace.Region);
