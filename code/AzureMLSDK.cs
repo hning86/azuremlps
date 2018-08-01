@@ -19,7 +19,7 @@ namespace AzureML
 {    
     public class ManagementSDK
     {
-        public const string Version = "0.3.4";        
+        public const string Version = "0.3.8";        
         private JavaScriptSerializer jss;
         private string _studioApiBaseURL = @"https://{0}studioapi.azureml{1}/api/";
         private string _webServiceApiBaseUrl = @"https://{0}management.azureml{1}/";
