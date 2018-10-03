@@ -1,12 +1,7 @@
-﻿using AzureML.Contract;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Management.Automation;
-using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     public class InvokeWebServiceEndpointCmdlet : AzureMLPsCmdletBase
     {

@@ -1,17 +1,9 @@
-﻿using AzureML.Contract;
-using AzureML.PowerShell;
-using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Management.Automation;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWorkspace")]
     public class GetWorkspace : AzureMLPsCmdlet

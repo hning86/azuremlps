@@ -1,14 +1,6 @@
-﻿using AzureML.Contract;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Management.Automation;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+﻿using System.Management.Automation;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlNotebook")]
     public class GetNotebook : AzureMLPsCmdlet

@@ -1,16 +1,14 @@
-﻿using AzureML.Contract;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Web.Script.Serialization;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     [Cmdlet(VerbsCommon.Remove, "AmlExperiment")]
     public class RemoveExperiment : AzureMLPsCmdlet
@@ -200,7 +198,7 @@ namespace AzureML.PowerShell
         protected override void ProcessRecord()
         {
             if (Overwrite.IsPresent && !string.IsNullOrEmpty(NewName))
-                WriteWarning("Since you specified Overwrite, the new name supplied will be igored.");
+                WriteWarning("Since you specified Overwrite, the new name supplied will be ignored.");
             string rawJson = File.ReadAllText(InputFile);
             MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(rawJson));
             ser = new DataContractJsonSerializer(typeof(Experiment));
@@ -351,7 +349,7 @@ namespace AzureML.PowerShell
                             {
                                 foundPort = true;
                                 if (File.Exists(DownloadFileName))
-                                    throw new Exception(DownloadFileName + " aleady exists.");
+                                    throw new Exception(DownloadFileName + " already exists.");
 
                                 ProgressRecord pr = new ProgressRecord(1, "Download file", string.Format("Download file \"{0}\" from Azure ML Studio", DownloadFileName));
                                 pr.PercentComplete = 1;

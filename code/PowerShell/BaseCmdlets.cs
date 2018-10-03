@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Management.Automation;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
-using System.Xml;
+using System.Management.Automation;
+using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
-using System.Web;
-using AzureML.Contract;
-using AzureML;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     public class AzureMLPsCmdletBase : PSCmdlet
     {        
@@ -23,7 +12,7 @@ namespace AzureML.PowerShell
         protected ManagementSDK Sdk { get; private set; }
         public AzureMLPsCmdletBase()
         {            
-            Sdk = new ManagementSDK("powershell_" + AzureML.ManagementSDK.Version);
+            Sdk = new ManagementSDK("powershell_" + ManagementSDK.Version);
         }        
     }
 
