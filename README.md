@@ -607,7 +607,7 @@ Remove-AmlWebService -WebServiceId $webSvc.Id
 ```
 This commandlet leverages the config.json file.
 
-### Manage Classic Web Servcie Endpoint ###
+### Manage Classic Web Service Endpoint ###
 
 #### Get-AmlWebServiceEndpoint
 
