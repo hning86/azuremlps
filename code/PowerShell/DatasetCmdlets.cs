@@ -1,5 +1,4 @@
-﻿using AzureML.Contract;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlDataset")]
     public class GetDataset : AzureMLPsCmdlet

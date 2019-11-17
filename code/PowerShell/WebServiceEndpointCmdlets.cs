@@ -1,9 +1,6 @@
-﻿using AzureML.Contract;
-using System;
-using System.IO;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 
-namespace AzureML.PowerShell
+namespace AzureMLPS.PowerShell
 {
     [Cmdlet(VerbsCommon.Get, "AmlWebServiceEndpoint")]
     public class GetWebServiceEndpoint : AzureMLPsCmdlet

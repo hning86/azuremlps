@@ -1,21 +1,17 @@
-﻿using AzureML.Contract;
-using AzureML.PowerShell;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Runtime.Serialization.Json;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Xml;
-using System.Text.RegularExpressions;
 
-namespace AzureML
+namespace AzureMLPS
 {    
     public class ManagementSDK
     {
@@ -159,9 +155,7 @@ namespace AzureML
                     store.Close();
                 }
             }
-            throw new ArgumentException(string.Format(
-              "A Certificate with Thumbprint '{0}' could not be located.",
-              thumbprint));
+            throw new ArgumentException($"A Certificate with Thumbprint '{thumbprint}' could not be located.");
         }
 
         public string UpdateNodesPositions(string jsonGraph, StudioGraph graph)
@@ -267,7 +261,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}", setting.WorkspaceId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -282,7 +276,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/invitations", setting.WorkspaceId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/invitations";
             string body = "{Role: \"" + role + "\", Emails:\"" + emails + "\"}";
             HttpResult hr = Util.HttpPost(queryUrl, body).Result;
             if (hr.IsSuccess)
@@ -298,7 +292,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/users", setting.WorkspaceId);            
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/users";            
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {                
@@ -318,7 +312,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/datasources", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/datasources";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);            
@@ -330,7 +324,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string url = StudioApi + string.Format("workspaces/{0}/datasources/family/{1}", setting.WorkspaceId, datasetFamilyId);
+            string url = StudioApi + $"workspaces/{setting.WorkspaceId}/datasources/family/{datasetFamilyId}";
             HttpResult hr = Util.HttpDelete(url).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -340,7 +334,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string url = StudioApi + string.Format("workspaces/{0}/datasources/{1}", setting.WorkspaceId, datasetId);
+            string url = StudioApi + $"workspaces/{setting.WorkspaceId}/datasources/{datasetId}";
             HttpResult hr = Util.HttpGet(url).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);            
@@ -365,7 +359,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            string query = StudioApi +
+                           $"resourceuploads/workspaces/{setting.WorkspaceId}/?userStorage=true&dataTypeId={fileFormat}";
             HttpResult hr = await Util.HttpPostFile(query, fileName);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -376,7 +371,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("resourceuploads/workspaces/{0}/?userStorage=true&dataTypeId={1}", setting.WorkspaceId, fileFormat);
+            string query = StudioApi +
+                           $"resourceuploads/workspaces/{setting.WorkspaceId}/?userStorage=true&dataTypeId={fileFormat}";
             HttpResult hr = Util.HttpPost(query, string.Empty).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -387,8 +383,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("blobuploads/workspaces/{0}/?numberOfBlocks={1}&blockId={2}&uploadId={3}&dataTypeId={4}", 
-                setting.WorkspaceId, numOfBlocks, blockId, uploadId, fileFormat);
+            string query = StudioApi +
+                           $"blobuploads/workspaces/{setting.WorkspaceId}/?numberOfBlocks={numOfBlocks}&blockId={blockId}&uploadId={uploadId}&dataTypeId={fileFormat}";
             HttpResult hr = await Util.HttpPostFile(query, fileName);
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -413,7 +409,7 @@ namespace AzureML
                 UploadedFromFileName = Path.GetFileName(uploadFileName),
                 ClientPoll = true
             };
-            string query = StudioApi + string.Format("workspaces/{0}/datasources", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/datasources";
             HttpResult hr = Util.HttpPost(query, jss.Serialize(schemaJob)).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -426,7 +422,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;            
-            string query = StudioApi + string.Format("workspaces/{0}/datasources/{1}", setting.WorkspaceId, dataSourceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/datasources/{dataSourceId}";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -441,7 +437,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/modules/custom", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/modules/custom";
             HttpResult hr = Util.HttpPost(query, moduleUploadMetadata).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -453,7 +449,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/modules/custom?activityGroupId={1}", setting.WorkspaceId, activityGroupId);
+            string query = StudioApi +
+                           $"workspaces/{setting.WorkspaceId}/modules/custom?activityGroupId={activityGroupId}";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -465,7 +462,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/modules", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/modules";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);            
@@ -479,7 +476,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments", setting.WorkspaceId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/experiments";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -497,7 +494,7 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
             rawJson = string.Empty;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}", setting.WorkspaceId, experimentId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/experiments/{experimentId}";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -527,7 +524,8 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);  
             Util.AuthorizationToken = setting.AuthorizationToken;
             string body = CreateSubmitExperimentRequest(exp, rawJson, run, newName, createNewCopy);
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}", setting.WorkspaceId, createNewCopy ? string.Empty : exp.ExperimentId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/experiments/{(createNewCopy ? string.Empty : exp.ExperimentId)}";
             HttpResult hr = Util.HttpPost(queryUrl, body).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -536,7 +534,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}?deleteAncestors=true", setting.WorkspaceId, ExperimentId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/experiments/{ExperimentId}?deleteAncestors=true";
             HttpResult hr = Util.HttpDelete(queryUrl).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -546,7 +545,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&experimentid={1}/&clearCredentials=true&includeAuthorId=false", setting.WorkspaceId, experimentId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/packages?api-version=2.0&experimentid={experimentId}/&clearCredentials=true&includeAuthorId=false";
             //Console.WriteLine("Packing: POST " + queryUrl);
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
@@ -561,7 +561,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?{1}ActivityId={2}", setting.WorkspaceId, (isPacking ? "package" : "unpack"), activityId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/packages?{(isPacking ? "package" : "unpack")}ActivityId={activityId}";
             //Console.WriteLine("Getting activity: GET " + queryUrl);
             HttpResult hr = Util.HttpGet(queryUrl, true).Result;
 
@@ -579,7 +580,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}{2}", setting.WorkspaceId, HttpUtility.UrlEncode(packedLocation), "&region=" + sourceRegion.Replace(" ", string.Empty));
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/packages?api-version=2.0&packageUri={HttpUtility.UrlEncode(packedLocation)}{"&region=" + sourceRegion.Replace(" ", string.Empty)}";
             //Console.WriteLine("Unpacking: PUT " + queryUrl);
             HttpResult hr = Util.HttpPut(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
@@ -596,7 +598,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/packages?api-version=2.0&packageUri={1}&communityUri={2}&entityId={3}", setting.WorkspaceId, HttpUtility.UrlEncode(packageUri), HttpUtility.UrlEncode(galleryUrl), entityId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/packages?api-version=2.0&packageUri={HttpUtility.UrlEncode(packageUri)}&communityUri={HttpUtility.UrlEncode(galleryUrl)}&entityId={entityId}";
             //Console.WriteLine("Upacking from Gallery: PUT " + queryUrl);
             HttpResult hr = Util.HttpPut(setting.AuthorizationToken, queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
@@ -611,7 +614,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservicedefinition", setting.WorkspaceId, experimentId);
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/experiments/{experimentId}/webservicedefinition";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
                 return hr.Payload;
@@ -741,7 +745,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/trainedmodels", setting.WorkspaceId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/trainedmodels";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -755,7 +759,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/transformmodules", setting.WorkspaceId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/transformmodules";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -770,7 +774,8 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
 
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/{1}", setting.WorkspaceId, assetType == UserAssetType.Transform ? "transformmodules" : (assetType == UserAssetType.TrainedModel ? "trainedmodels" : "datasources"));
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/{(assetType == UserAssetType.Transform ? "transformmodules" : (assetType == UserAssetType.TrainedModel ? "trainedmodels" : "datasources"))}";
             string postPayloadInJson = string.Empty;
             switch (assetType)
             {
@@ -841,7 +846,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices", setting.WorkspaceId);
+            string queryUrl = WebServiceApi + $"workspaces/{setting.WorkspaceId}/webservices";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {                
@@ -855,7 +860,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}", setting.WorkspaceId, webServiceId);
+            string queryUrl = WebServiceApi + $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -870,7 +875,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice?generateNewPortNames=false{2}", setting.WorkspaceId, predictiveExperimentId, updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "");            
+            string queryUrl = StudioApi +
+                              $"workspaces/{setting.WorkspaceId}/experiments/{predictiveExperimentId}/webservice?generateNewPortNames=false{(updateExistingWebServiceDefaultEndpoint ? "&updateExistingWebService=true" : "")}";            
             HttpResult hr = Util.HttpPost(queryUrl, string.Empty).Result;
             if (hr.IsSuccess)
             {             
@@ -885,7 +891,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = StudioApi + string.Format("workspaces/{0}/experiments/{1}/webservice", setting.WorkspaceId, activityId);
+            string queryUrl = StudioApi + $"workspaces/{setting.WorkspaceId}/experiments/{activityId}/webservice";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {                
@@ -900,7 +906,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}", setting.WorkspaceId, webServiceId);
+            string queryUrl = WebServiceApi + $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}";
             HttpResult hr = Util.HttpDelete(queryUrl).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -912,7 +918,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints", setting.WorkspaceId, webServiceId);
+            string queryUrl = WebServiceApi + $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}/endpoints";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -926,7 +932,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, epName);
+            string queryUrl = WebServiceApi +
+                              $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}/endpoints/{epName}";
             HttpResult hr = Util.HttpGet(queryUrl).Result;
             if (hr.IsSuccess)
             {
@@ -941,7 +948,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, req.WebServiceId, req.EndpointName);            
+            string queryUrl = WebServiceApi +
+                              $"workspaces/{setting.WorkspaceId}/webservices/{req.WebServiceId}/endpoints/{req.EndpointName}";            
             string body = jss.Serialize(req);
             HttpResult hr = Util.HttpPut(queryUrl, body).Result;
             if (!hr.IsSuccess)
@@ -951,7 +959,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}/refresh", setting.WorkspaceId, webServiceId, endpointName);
+            string query = WebServiceApi +
+                           $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}/endpoints/{endpointName}/refresh";
             string body = "{\"OverwriteResources\": \"" + overwriteResources.ToString() + "\"}";
             HttpResult hr = Util.HttpPost(query, body).Result;
             if (hr.StatusCode == 304) // no change detected so no update happened.
@@ -966,7 +975,8 @@ namespace AzureML
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;            
             string body = jss.Serialize(patchReq);
-            string url = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
+            string url = WebServiceApi +
+                         $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}/endpoints/{endpointName}";
             HttpResult hr = Util.HttpPatch(url, body).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -976,7 +986,8 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string queryUrl = WebServiceApi + string.Format("workspaces/{0}/webservices/{1}/endpoints/{2}", setting.WorkspaceId, webServiceId, endpointName);
+            string queryUrl = WebServiceApi +
+                              $"workspaces/{setting.WorkspaceId}/webservices/{webServiceId}/endpoints/{endpointName}";
             HttpResult hr = Util.HttpDelete(queryUrl).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1034,7 +1045,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/experiments/{1}/annotations", setting.WorkspaceId, experimentId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/experiments/{experimentId}/annotations";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1048,7 +1059,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/projectcontainers", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/projectcontainers";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1062,7 +1073,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/notebooks", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/notebooks";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1074,7 +1085,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/notebooks/family/{1}/attachments", setting.WorkspaceId, familyId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/notebooks/family/{familyId}/attachments";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1086,7 +1097,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/notebooks/family/{1}/session", setting.WorkspaceId, familyId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/notebooks/family/{familyId}/session";
             HttpResult hr = Util.HttpPost(query, string.Empty).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
@@ -1100,7 +1111,7 @@ namespace AzureML
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;
-            string query = StudioApi + string.Format("workspaces/{0}/gateways", setting.WorkspaceId);
+            string query = StudioApi + $"workspaces/{setting.WorkspaceId}/gateways";
             HttpResult hr = Util.HttpGet(query).Result;
             if (!hr.IsSuccess)
                 throw new AmlRestApiException(hr);
