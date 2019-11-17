@@ -39,7 +39,7 @@ namespace AzureML
             if (jsonBody == null)
                 jsonBody = string.Empty;
             HttpClient hc = GetAuthenticatedHttpClient();
-            StringContent sc = new StringContent(jsonBody, Encoding.ASCII, "application/json");
+            StringContent sc = new StringContent(jsonBody, Encoding.UTF8, "application/json");
             HttpResponseMessage resp = await hc.PostAsync(url, sc);
             HttpResult hr = await CreateHttpResult(resp);
             return hr;

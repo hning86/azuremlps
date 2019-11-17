@@ -202,7 +202,7 @@ namespace AzureML.PowerShell
             if (Overwrite.IsPresent && !string.IsNullOrEmpty(NewName))
                 WriteWarning("Since you specified Overwrite, the new name supplied will be igored.");
             string rawJson = File.ReadAllText(InputFile);
-            MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(rawJson));
+            MemoryStream ms = new MemoryStream(UnicodeEncoding.UTF8.GetBytes(rawJson));
             ser = new DataContractJsonSerializer(typeof(Experiment));
             Experiment exp = (Experiment)ser.ReadObject(ms);
             if (Overwrite)
@@ -437,7 +437,7 @@ namespace AzureML.PowerShell
             string rawJson = string.Empty;
             Experiment exp = Sdk.GetExperimentById(GetWorkspaceSetting(), ExperimentId, out rawJson);
             rawJson = Sdk.AutoLayoutGraph(rawJson);
-            MemoryStream ms = new MemoryStream(UnicodeEncoding.Unicode.GetBytes(rawJson));
+            MemoryStream ms = new MemoryStream(UnicodeEncoding.UTF8.GetBytes(rawJson));
             ser = new DataContractJsonSerializer(typeof(Experiment));
             exp = (Experiment)ser.ReadObject(ms);
             Sdk.SaveExperiment(GetWorkspaceSetting(), exp, rawJson);
