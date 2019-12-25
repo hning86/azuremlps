@@ -394,7 +394,7 @@ namespace AzureML
                 throw new AmlRestApiException(hr);
             return hr.Payload;
         }
-        public string StartDatasetSchemaGen(WorkspaceSetting setting, string dataTypeId, string uploadFileId, string datasetName, string description, string uploadFileName)
+        public string StartDatasetSchemaGen(WorkspaceSetting setting, string dataTypeId, string uploadFileId, string datasetName, string description, string uploadFileName, string familyId)
         {
             ValidateWorkspaceSetting(setting);
             Util.AuthorizationToken = setting.AuthorizationToken;            
@@ -405,7 +405,7 @@ namespace AzureML
                     Name = datasetName,
                     DataTypeId = dataTypeId,
                     Description = description,
-                    FamilyId = string.Empty,
+                    FamilyId = familyId,
                     Owner = "PowerShell",
                     SourceOrigin = "FromResourceUpload"
                 },

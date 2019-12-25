@@ -74,6 +74,8 @@ namespace AzureML.PowerShell
         public string DatasetName { get; set; }
         [Parameter(Mandatory = false)]
         public string Description { get; set; }
+        [Parameter(Mandatory = false)]
+        public string FamilyId { get; set; }
 
         [Parameter(Mandatory = true)]
         public string UploadFileName { get; set; }
@@ -105,7 +107,7 @@ namespace AzureML.PowerShell
             dynamic parsed = jss.Deserialize<object>(uploadTask.Result);
             string dtId = parsed["DataTypeId"];
             string uploadId = parsed["Id"];
-            string dataSourceId = Sdk.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName);
+            string dataSourceId = Sdk.StartDatasetSchemaGen(GetWorkspaceSetting(), dtId, uploadId, DatasetName, Description, UploadFileName, FamilyId);
 
             // step 3. get status for schema generation
             string schemaJobStatus = "NotStarted";

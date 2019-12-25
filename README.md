@@ -275,6 +275,9 @@ This commandlet leverages the config.json file.
 ```powershell
 # Upload a local file in .csv format to Workspace
 Upload-AmlDataset -FileFormat GenericCSV -UploadFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -Description 'Tweeter data on popular movies'
+# Update existing dataset with local file
+$ds = Get-AmlDataset | where Name -eq 'Movie tweets'
+Upload-AmlDataset -FileFormat GenericCSV -UploadFileName 'C:\Temp\MovieTweets.csv' -DatasetName 'Movie Tweets' -Description 'Tweeter data on popular movies' -FamilyId $ds.FamilyId
 ```
 Please note the supported file formats are: 
 
